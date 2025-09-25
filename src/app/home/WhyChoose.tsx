@@ -78,6 +78,11 @@ const WhyChoose = () => {
     },
   ];
 
+  const [featureRef, featureInView] = useInView({
+    triggerOnce: true,
+    threshold: 0.1,
+  });
+
   // Add this state to track window width
   const [windowWidth, setWindowWidth] = useState(0);
 
@@ -235,11 +240,6 @@ const WhyChoose = () => {
           {/* Right - Features */}
           <div className="w-full lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
             {features.map((feature, index) => {
-              const [featureRef, featureInView] = useInView({
-                triggerOnce: true,
-                threshold: 0.1,
-              });
-
               return (
                 <div
                   key={index}

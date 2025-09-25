@@ -5,10 +5,20 @@ import { ref, get } from "firebase/database";
 import { db } from "@/app/utils/firebaseConfig";
 import { useRouter } from "next/navigation";
 
+interface ApplicationData {
+  tempPassword: string;
+  firstName?: string;
+  lastName?: string;
+  email?: string;
+  status?: "pending" | "approved" | "rejected";
+  applicationDate?: string;
+  // Add any other properties you expect
+}
+
 const ApplicationStatus = () => {
   const [prospectiveId, setProspectiveId] = useState("");
   const [password, setPassword] = useState("");
-  const [application, setApplication] = useState<any>(null);
+  const [application, setApplication] = useState<ApplicationData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const router = useRouter();

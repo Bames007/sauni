@@ -4,9 +4,9 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { Gantari, Bebas_Neue } from "next/font/google";
-import type { Article } from "./home_type";
 import { allArticles } from "../articles/articles";
 import Link from "next/link";
+import Image from "next/image";
 
 const gantari = Gantari({
   variable: "--font-gantari",
@@ -20,28 +20,30 @@ const bebasNeue = Bebas_Neue({
   weight: ["400"],
 });
 
+// Get only the first 4 articles
+
 const Articles = () => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  // Get only the first 4 articles
   const displayedArticles = allArticles.slice(0, 4);
 
   // Create refs for displayed articles upfront
+
   const articleRefs = displayedArticles.map(() =>
     useInView({
       triggerOnce: true,
       threshold: 0.1,
     })
   );
+
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Animation variants
   const containerVariants = {
@@ -139,9 +141,11 @@ const Articles = () => {
 
                 {/* Main image container - takes full space but with proper aspect ratio */}
                 <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-gray-100">
-                  <img
+                  <Image
                     src={article.image}
                     alt={article.title}
+                    width={180}
+                    height={220}
                     className="w-full h-full object-center object-cover transition-transform duration-700 group-hover:scale-105"
                   />
 

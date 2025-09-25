@@ -92,7 +92,7 @@ const Contact = () => {
           <p
             className={`text-gray-700 max-w-2xl mx-auto text-base md:text-lg ${gantari.className} leading-relaxed`}
           >
-            We'd love to hear from you. Reach out to us through any of the
+            We&apos;d love to hear from you. Reach out to us through any of the
             channels below.
           </p>
         </div>
@@ -126,7 +126,7 @@ const Contact = () => {
             {/* Status Messages */}
             {submitStatus === "success" && (
               <div className="mb-6 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
-                Thank you for your message! We'll get back to you soon.
+                Thank you for your message! We&apos;ll get back to you soon.
               </div>
             )}
 

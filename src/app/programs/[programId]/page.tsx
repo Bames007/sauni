@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
   Clock,
   BookOpen,
@@ -677,7 +676,7 @@ const ProgramDetail = () => {
                 </p>
                 <div className="bg-green-50 p-4 rounded-xl mb-5 transition-all duration-300 hover:bg-green-100">
                   <p className="text-gray-700 italic font-poppins text-sm">
-                    "{program.headOfDepartment.message}"
+                    &ldquo;{program.headOfDepartment.message}&rdqo;
                   </p>
                 </div>
                 <p className="text-gray-600 text-sm font-poppins">

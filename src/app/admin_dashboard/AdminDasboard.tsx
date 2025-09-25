@@ -158,6 +158,33 @@ const AdminDashboard: React.FC = () => {
       day: "numeric",
     });
   };
+  const calculateStats = useCallback(
+    (apps: ApplicationData[]) => {
+      const totalRevenue = apps.reduce((sum, app) => {
+        const appPayments = payments.filter(
+          (p) => p.prospectiveId === app.prospectiveId && p.status === "paid"
+        );
+        return (
+          sum +
+          appPayments.reduce(
+            (paymentSum, payment) => paymentSum + payment.amount,
+            0
+          )
+        );
+      }, 0);
+
+      setStats({
+        total: apps.length,
+        submitted: apps.filter((app) => app.status === "submitted").length,
+        underReview: apps.filter((app) => app.status === "under_review").length,
+        accepted: apps.filter((app) => app.status === "accepted").length,
+        rejected: apps.filter((app) => app.status === "rejected").length,
+        waitlisted: apps.filter((app) => app.status === "waitlisted").length,
+        totalRevenue,
+      });
+    },
+    [payments]
+  );
 
   // Fetch applications from Firebase
   useEffect(() => {
@@ -188,7 +215,7 @@ const AdminDashboard: React.FC = () => {
     );
 
     return () => off(applicationsRef, "value", fetchApplications);
-  }, []);
+  }, [calculateStats]);
 
   // Enhanced payments data with realistic amounts
   useEffect(() => {
@@ -219,34 +246,6 @@ const AdminDashboard: React.FC = () => {
     ]);
     setPayments(mockPayments);
   }, [applications]);
-
-  const calculateStats = useCallback(
-    (apps: ApplicationData[]) => {
-      const totalRevenue = apps.reduce((sum, app) => {
-        const appPayments = payments.filter(
-          (p) => p.prospectiveId === app.prospectiveId && p.status === "paid"
-        );
-        return (
-          sum +
-          appPayments.reduce(
-            (paymentSum, payment) => paymentSum + payment.amount,
-            0
-          )
-        );
-      }, 0);
-
-      setStats({
-        total: apps.length,
-        submitted: apps.filter((app) => app.status === "submitted").length,
-        underReview: apps.filter((app) => app.status === "under_review").length,
-        accepted: apps.filter((app) => app.status === "accepted").length,
-        rejected: apps.filter((app) => app.status === "rejected").length,
-        waitlisted: apps.filter((app) => app.status === "waitlisted").length,
-        totalRevenue,
-      });
-    },
-    [payments]
-  );
 
   // Enhanced email sending function
   const sendStatusEmail = async (
@@ -1578,11 +1577,13 @@ const ContactInfoTab: React.FC<{ application: ApplicationData }> = ({
 const AcademicInfoTab: React.FC<{ application: ApplicationData }> = ({
   application,
 }) => {
-  const programName =
+  // Remove the unused programName variable and use the values directly
+  const firstChoiceProgram =
     typeof application.programSelection.firstChoice === "string"
       ? application.programSelection.firstChoice
       : application.programSelection.firstChoice.name;
-  const secondChoice =
+
+  const secondChoiceProgram =
     typeof application.programSelection.secondChoice === "string"
       ? application.programSelection.secondChoice
       : application.programSelection.secondChoice.name;
@@ -1594,8 +1595,8 @@ const AcademicInfoTab: React.FC<{ application: ApplicationData }> = ({
           Program Information
         </h4>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <InfoField label="First Choice" value={programName} />
-          <InfoField label="Second Choice" value={secondChoice} />
+          <InfoField label="First Choice" value={firstChoiceProgram} />
+          <InfoField label="Second Choice" value={secondChoiceProgram} />
           <InfoField
             label="Entry Year"
             value={application.programSelection.entryYear.toString()}

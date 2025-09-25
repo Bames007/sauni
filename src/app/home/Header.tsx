@@ -231,7 +231,7 @@ function NavItem({
 // ✅ Updated Hamburger Menu - always white for mobile
 function Hamburger({
   isOpen,
-  isMobile = true,
+  // isMobile = true,
 }: {
   isOpen: boolean;
   isMobile?: boolean;

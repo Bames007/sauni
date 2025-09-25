@@ -18,12 +18,6 @@ const bebasNeue = Bebas_Neue({
   weight: ["400"],
 });
 
-const poppins = Poppins({
-  variable: "--font-poppins",
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600", "700"],
-});
-
 interface AdmissionRequirementsProps {
   requirements: AdmissionRequirements;
 }
@@ -74,7 +68,7 @@ const AdmissionRequirementsSection = ({
               <h4
                 className={`text-lg font-semibold text-gray-800 mb-3 ${bebasNeue.className}`}
               >
-                O'Level Requirements
+                O&apos;Level Requirements
               </h4>
               <ul className="space-y-2">
                 {requirements.utme.oLevel.required.map((subject, index) => (
