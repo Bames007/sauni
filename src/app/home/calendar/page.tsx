@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft,
@@ -42,7 +42,7 @@ const AcademicCalendar = () => {
   >("all");
 
   // Sample academic calendar events for Southern Atlantic University
-  const [events, setEvents] = useState<CalendarEvent[]>([
+  const [events] = useState<CalendarEvent[]>([
     {
       id: 1,
       title: "Fall Semester Begins",
@@ -416,10 +416,10 @@ const AcademicCalendar = () => {
                         !day
                           ? "bg-gray-50 border-gray-100"
                           : isSelected
-                          ? "bg-[#017840] text-white"
-                          : isToday
-                          ? "bg-green-100 border-green-200"
-                          : "bg-white border-gray-200 hover:bg-gray-50"
+                            ? "bg-[#017840] text-white"
+                            : isToday
+                              ? "bg-green-100 border-green-200"
+                              : "bg-white border-gray-200 hover:bg-gray-50"
                       } transition-colors cursor-pointer`}
                       onClick={() => day && setSelectedDate(day)}
                     >

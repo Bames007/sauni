@@ -66,16 +66,7 @@ export default function Custom404() {
     },
   };
 
-  const floatingAnimation = {
-    animate: {
-      y: [0, -10, 0],
-      transition: {
-        duration: 3,
-        repeat: Infinity,
-        ease: "easeInOut",
-      },
-    },
-  };
+  // Removed unused floatingAnimation variable
 
   return (
     <>
@@ -188,8 +179,8 @@ export default function Custom404() {
               className="text-gray-700 mb-8 px-4 text-lg"
               variants={itemVariants}
             >
-              Oops! It seems you've ventured into uncharted territory. Don't
-              worry, even the best explorers get lost sometimes!
+              Oops! It seems you&apos;ve ventured into uncharted territory.
+              Don&apos;t worry, even the best explorers get lost sometimes!
             </motion.p>
 
             {/* Mini-Game Section */}
@@ -201,8 +192,8 @@ export default function Custom404() {
                 {isGameOver
                   ? `Game Over! Final Score: ${score}`
                   : gameActive
-                  ? `Time: ${timeLeft}s | Score: ${score}`
-                  : "Bored? Try our quick game!"}
+                    ? `Time: ${timeLeft}s | Score: ${score}`
+                    : "Bored? Try our quick game!"}
               </h3>
 
               <motion.div
@@ -238,8 +229,8 @@ export default function Custom404() {
                 {gameActive
                   ? "Game in progress..."
                   : isGameOver
-                  ? "Play Again"
-                  : "Start Game"}
+                    ? "Play Again"
+                    : "Start Game"}
               </motion.button>
             </motion.div>
 

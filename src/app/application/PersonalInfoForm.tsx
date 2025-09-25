@@ -4,14 +4,7 @@
 import React, { useState, useId, useEffect } from "react";
 import type { PersonalInfo } from "./new_application";
 import NigerianStates from "./nigerianStates";
-import {
-  User,
-  Calendar,
-  Flag,
-  ChevronRight,
-  AlertCircle,
-  ChevronDown,
-} from "lucide-react";
+import { User, Calendar, Flag, ChevronRight, AlertCircle } from "lucide-react";
 
 interface PersonalInfoFormProps {
   data?: Partial<PersonalInfo>;

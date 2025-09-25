@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import React from "react";
 import { Gantari, Bebas_Neue } from "next/font/google";
+import Image from "next/image";
 
 const gantari = Gantari({
   variable: "--font-gantari",
@@ -157,11 +158,7 @@ const WhyChoose = () => {
     }
   };
 
-  // Auto-play video when card is in focus (center)
-  useEffect(() => {
-    // This would handle video autoplay if using HTML5 video elements
-    // For YouTube iframes, autoplay would need to be handled differently
-  }, [currentIndex]);
+  useEffect(() => {}, [currentIndex]);
 
   return (
     <section
@@ -202,10 +199,12 @@ const WhyChoose = () => {
           {/* Left - Video */}
           <div className="w-full lg:w-1/2 relative group flex flex-col">
             <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl md:shadow-2xl overflow-hidden transform transition-all duration-700 hover:shadow-2xl md:hover:shadow-3xl hover:-translate-y-1 md:hover:-translate-y-2 flex-1 flex flex-col">
-              <div className="relative flex-1 overflow-hidden">
-                <img
+              <div className="relative flex-1 overflow-hidden min-h-[250px] md:min-h-[300px]">
+                <Image
                   src="https://images.unsplash.com/photo-1543269865-cbf427effbad?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
                   alt="Campus Life"
+                  fill
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-700 min-h-[250px] md:min-h-[300px]"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
@@ -357,10 +356,12 @@ const WhyChoose = () => {
                         <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl md:shadow-2xl overflow-hidden border border-gray-200 hover:shadow-xl md:hover:shadow-2xl">
                           {/* Card with portrait aspect ratio (like Tinder) */}
                           <div className="relative h-[380px] md:h-[500px] overflow-hidden">
-                            <img
+                            <Image
                               src={feature.thumbnail}
                               alt={feature.title}
+                              fill
                               className="w-full h-full object-cover transform group-hover:scale-105 transition-transform duration-700"
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
 
@@ -505,12 +506,23 @@ const WhyChoose = () => {
                       }`}
                       onClick={() => setSelectedVideo(index)}
                     >
-                      <div className="flex-shrink-0">
-                        <img
+                      {/* <div className="flex-shrink-0">
+                        <Image
                           src={feature.thumbnail}
                           alt={feature.title}
                           className="w-12 h-10 md:w-16 md:h-12 object-cover rounded-md md:rounded-lg shadow-sm"
                         />
+                      </div> */}
+                      <div className="flex-shrink-0">
+                        <div className="relative w-12 h-10 md:w-16 md:h-12">
+                          <Image
+                            src={feature.thumbnail}
+                            alt={feature.title}
+                            fill
+                            className="object-cover rounded-md md:rounded-lg shadow-sm"
+                            sizes="(max-width: 768px) 48px, 64px"
+                          />
+                        </div>
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4

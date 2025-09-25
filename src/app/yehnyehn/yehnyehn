@@ -1,3 +1,11 @@
 git remote add origin https://github.com/Bames007/sauni.git
 git branch -M main
 git push -u origin main
+
+//to update
+git add .
+//adds all the files
+git commit -m "New Update"
+//commits the code to the git with the message you want
+git push
+//pused the code to git

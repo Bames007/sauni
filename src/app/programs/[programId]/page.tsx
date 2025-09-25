@@ -38,6 +38,7 @@ import { programData } from "@/app/programs/programsData";
 import { Gantari, Bebas_Neue, Poppins } from "next/font/google";
 import type { Program } from "@/app/programs/program_type";
 import AdmissionRequirementsSection from "../AdmissionRequirementSection";
+import Image from "next/image";
 
 const gantari = Gantari({
   variable: "--font-gantari",
@@ -82,7 +83,8 @@ const ProgramDetail = () => {
             Program Not Found
           </h1>
           <p className="text-gray-600 mb-6 font-poppins">
-            The program you're looking for doesn't exist or may have been moved.
+            The program you&apos;re looking for doesn&apos;t exist or may have
+            been moved.
           </p>
           <Link
             href="/"
@@ -138,9 +140,11 @@ const ProgramDetail = () => {
           >
             <div className="flex items-center space-x-3">
               {/* School Logo */}
-              <img
+              <Image
                 src="/sauni-logo.png"
                 alt="SAUNI Logo"
+                width={48}
+                height={48}
                 className="h-12 w-12"
               />
               <span className={`text-xl ${bebasNeue.className}`}>
@@ -241,16 +245,20 @@ const ProgramDetail = () => {
           </h2>
           <div className="grid grid-rows-1 md:grid-cols-2 gap-6">
             <div className="rounded-xl overflow-hidden shadow-md">
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1541339907198-e08756dedf3f?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
                 alt="Southern Atlanctic University"
+                width={600}
+                height={400}
                 className="w-full h-64 object-cover transition-transform duration-500 hover:scale-105"
               />
             </div>
             <div className="relative rounded-xl overflow-hidden shadow-md">
-              <img
+              <Image
                 src="/images/digital-forensics.jpg"
                 alt="Digital Forensics Lab"
+                width={600}
+                height={400}
                 className="w-full h-64 object-cover"
               />
               <a
@@ -568,9 +576,11 @@ const ProgramDetail = () => {
                       className="border border-gray-200 rounded-xl p-5 bg-gradient-to-br from-gray-50 to-white transition-all duration-300 hover:shadow-lg"
                     >
                       <div className="flex items-center mb-4">
-                        <img
+                        <Image
                           src={alumni.imageUrl}
                           alt={alumni.name}
+                          width={64}
+                          height={64}
                           className="w-16 h-16 rounded-full object-cover mr-4 border-2 border-[#017840]"
                         />
                         <div>
@@ -588,7 +598,7 @@ const ProgramDetail = () => {
                         </div>
                       </div>
                       <p className="text-gray-700 italic font-poppins text-sm border-l-2 border-[#017840] pl-3">
-                        "{alumni.testimonial}"
+                        &quot;{alumni.testimonial}&quot;
                       </p>
                     </div>
                   ))}
@@ -635,9 +645,11 @@ const ProgramDetail = () => {
               </h2>
               <div className="text-center">
                 <div className="relative inline-block mb-5">
-                  <img
+                  <Image
                     src={program.headOfDepartment.imageUrl}
                     alt={program.headOfDepartment.name}
+                    height={160}
+                    width={160}
                     className="w-40 h-40 rounded-full mx-auto object-cover border-4 border-green-100 shadow-md transition-all duration-500 hover:scale-105"
                   />
                   <div className="absolute bottom-0 right-5 w-10 h-10 bg-[#017840] rounded-full flex items-center justify-center border-2 border-white">

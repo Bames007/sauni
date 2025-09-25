@@ -16,7 +16,6 @@ import {
   Eye,
   Mail,
   Phone,
-  MapPin,
   User,
   BookOpen,
   FileText,
@@ -30,15 +29,18 @@ import {
   Menu,
   Smartphone,
   Monitor,
-  Calendar,
   GraduationCap,
-  School,
-  Bookmark,
   Send,
 } from "lucide-react";
-import { FileInfo } from "../application/new_application";
+import {
+  AcademicHistory,
+  ApplicationDocuments,
+  Declaration,
+  FileInfo,
+} from "../application/new_application";
 import { jsPDF } from "jspdf";
 import html2canvas from "html2canvas";
+import Image from "next/image";
 
 interface Program {
   id: string;
@@ -83,9 +85,9 @@ interface ApplicationData {
     semester: string;
     modeOfStudy: string;
   };
-  academicHistory: any;
-  documents: any;
-  declaration: any;
+  academicHistory: AcademicHistory;
+  documents: ApplicationDocuments;
+  declaration: Declaration;
   prospectiveId: string;
   status: "submitted" | "under_review" | "accepted" | "rejected" | "waitlisted";
   submittedAt: string;
@@ -572,9 +574,12 @@ const AdminDashboard: React.FC = () => {
                 <Menu className="w-5 h-5" />
               </button>
               <div className="flex items-center space-x-2">
-                <div className="w-8 h-8 bg-gradient-to-r from-green-600 to-green-700 rounded-lg flex items-center justify-center">
-                  <GraduationCap className="w-5 h-5 text-white" />
-                </div>
+                <Image
+                  src="/sauni-logo.png"
+                  alt="SAUNI Logo"
+                  width={60}
+                  height={60}
+                />
                 <div>
                   <h1 className="text-xl md:text-2xl font-bold text-gray-900">
                     Admin Dashboard
@@ -1077,9 +1082,11 @@ const ApplicationDetailModal: React.FC<{
           <div className="flex items-center space-x-3">
             <div className="w-12 h-12 bg-gradient-to-r from-green-600 to-green-700 rounded-full flex items-center justify-center overflow-hidden shadow-sm">
               {application.documents?.passportPhoto?.url ? (
-                <img
+                <Image
                   src={application.documents.passportPhoto.url}
                   alt="Profile"
+                  width={48}
+                  height={48}
                   className="w-full h-full object-cover"
                 />
               ) : (
@@ -1621,49 +1628,54 @@ const AcademicInfoTab: React.FC<{ application: ApplicationData }> = ({
 const DocumentsTab: React.FC<{ application: ApplicationData }> = ({
   application,
 }) => {
-  const isFileInfo = (doc: any): doc is FileInfo => {
-    return doc && typeof doc === "object" && "name" in doc;
-  };
-
-  const isFileInfoArray = (doc: any): doc is FileInfo[] => {
-    return Array.isArray(doc) && doc.every((item) => isFileInfo(item));
-  };
+  const documentEntries = Object.entries(application.documents || {}) as [
+    keyof ApplicationDocuments,
+    FileInfo,
+  ][];
 
   return (
     <div className="space-y-4">
-      {Object.entries(application.documents || {}).map(([docType, doc]) => {
-        if (isFileInfoArray(doc)) {
-          return (
-            <div key={docType}>
-              <h5 className="font-semibold capitalize mb-3 text-gray-900">
-                {docType.replace(/([A-Z])/g, " $1")} ({doc.length} files)
-              </h5>
-              <div className="space-y-3">
-                {doc.map(
-                  (fileInfo, index) =>
-                    fileInfo?.url && (
-                      <DocumentItem
-                        key={index}
-                        docType={`${docType} ${index + 1}`}
-                        fileInfo={fileInfo}
-                      />
-                    )
-                )}
-              </div>
-            </div>
-          );
-        }
-
-        if (isFileInfo(doc) && doc.url) {
-          return (
-            <DocumentItem key={docType} docType={docType} fileInfo={doc} />
-          );
-        }
-
-        return null;
-      })}
+      {documentEntries.map(([docType, fileInfo]) => (
+        <DocumentItem key={docType} docType={docType} fileInfo={fileInfo} />
+      ))}
     </div>
   );
+
+  // return (
+  //   <div className="space-y-4">
+  //     {Object.entries(application.documents || {}).map(([docType, doc]) => {
+  //       if (isFileInfoArray(doc)) {
+  //         return (
+  //           <div key={docType}>
+  //             <h5 className="font-semibold capitalize mb-3 text-gray-900">
+  //               {docType.replace(/([A-Z])/g, " $1")} ({doc.length} files)
+  //             </h5>
+  //             <div className="space-y-3">
+  //               {doc.map(
+  //                 (fileInfo, index) =>
+  //                   fileInfo?.url && (
+  //                     <DocumentItem
+  //                       key={index}
+  //                       docType={`${docType} ${index + 1}`}
+  //                       fileInfo={fileInfo}
+  //                     />
+  //                   )
+  //               )}
+  //             </div>
+  //           </div>
+  //         );
+  //       }
+
+  //       if (isFileInfo(doc) && doc.url) {
+  //         return (
+  //           <DocumentItem key={docType} docType={docType} fileInfo={doc} />
+  //         );
+  //       }
+
+  //       return null;
+  //     })}
+  //   </div>
+  // );
 };
 
 const DeclarationTab: React.FC<{
@@ -1692,7 +1704,7 @@ const DeclarationTab: React.FC<{
         />
         <InfoField
           label="Declaration Date"
-          value={formatDate(application.declaration.date)}
+          value={formatDate(application.declaration.date.toISOString())}
         />
       </div>
     </div>

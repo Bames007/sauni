@@ -8,7 +8,7 @@ import {
   ChevronRight,
   Upload,
   FileText,
-  Image as ImageIcon,
+  // Image as ImageIcon,
   X,
   Info,
   AlertCircle,

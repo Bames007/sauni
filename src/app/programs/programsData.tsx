@@ -287,7 +287,7 @@ export const programData: Program[] = [
     programCode: "BUS101",
     title: "BSc (Hons) Business Administration",
     slug: "/programs/bsc-business-administration",
-    tagline: "Master` the Art and Science of Leadership. Launch Your Vision.",
+    tagline: "Master the Art and Science of Leadership. Launch Your Vision.",
     overview: {
       description:
         "Our BSc Business Administration program provides a comprehensive, 360-degree view of the modern business world. You'll develop a strong foundation in core principles like marketing, finance, operations, and human resources, while cultivating the critical thinking, strategic analysis, and leadership skills needed to manage organizations and launch successful ventures in a dynamic global economy.",

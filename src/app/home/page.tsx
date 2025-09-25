@@ -9,7 +9,7 @@ import Newsletter from "./Newsletter";
 import Footer from "./Footer";
 import Contact from "./Contact";
 import Header from "./Header";
-import { db } from "@/app/utils/firebaseConfig";
+import ApplicationStatus from "./ApplicationStatus";
 
 const HomePage = () => {
   return (
@@ -17,6 +17,7 @@ const HomePage = () => {
       <Header />
       <Hero />
       <About />
+      <ApplicationStatus />
       <WhyChoose />
       <Testimonials />
       <OurPrograms />

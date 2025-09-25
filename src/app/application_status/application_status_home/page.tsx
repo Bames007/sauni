@@ -21,6 +21,14 @@ import {
   X,
 } from "lucide-react";
 
+interface DocumentFile {
+  url: string;
+  name: string;
+  size: number;
+  type: string;
+  uploadedAt: string;
+}
+
 interface ApplicationData {
   personalInfo: {
     firstName: string;
@@ -77,11 +85,11 @@ interface ApplicationData {
     }>;
   };
   documents: {
-    birthCertificate: any;
-    passportPhoto: any;
-    primaryCertificate: any;
-    secondaryCertificate: any;
-    waecNeco: any;
+    birthCertificate: DocumentFile | null;
+    passportPhoto: DocumentFile | null;
+    primaryCertificate: DocumentFile | null;
+    secondaryCertificate: DocumentFile | null;
+    waecNeco: DocumentFile | null;
   };
   declaration: {
     isInformationAccurate: boolean;
@@ -332,7 +340,7 @@ const ApplicationStatusHome: React.FC = () => {
   };
 
   const DocumentCard: React.FC<{
-    document: any;
+    document: DocumentFile | null;
     title: string;
     type: string;
   }> = ({ document, title, type }) => {
@@ -423,9 +431,11 @@ const ApplicationStatusHome: React.FC = () => {
               </button>
             </div>
             <div className="p-2 md:p-4 overflow-auto max-h-[80vh]">
-              <img
+              <Image
                 src={viewDocument.url}
                 alt={viewDocument.name}
+                width={800}
+                height={600}
                 className="w-full h-auto rounded-lg max-w-full"
               />
             </div>
@@ -586,9 +596,11 @@ const ApplicationStatusHome: React.FC = () => {
                 <div className="relative flex-shrink-0">
                   <div className="w-14 h-14 md:w-20 md:h-20 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
                     {applicationData.documents.passportPhoto?.url ? (
-                      <img
+                      <Image
                         src={applicationData.documents.passportPhoto.url}
                         alt="Profile"
+                        width={80}
+                        height={80}
                         className="w-full h-full object-cover"
                       />
                     ) : (
@@ -1187,7 +1199,7 @@ const ApplicationStatusHome: React.FC = () => {
               </span>
               <div>
                 <h4 className="font-semibold text-[#017840] text-sm md:text-base">
-                  Congratulations! You've Been Accepted!
+                  Congratulations! You&apos;ve Been Accepted!
                 </h4>
                 <p className="text-[#017840] opacity-90 text-xs md:text-sm">
                   Welcome to SAUNI University! Your application has been
@@ -1210,7 +1222,8 @@ const ApplicationStatusHome: React.FC = () => {
                 <Image
                   src="/sauni-logo.png"
                   alt="SAUNI Logo"
-                  fill
+                  width={80}
+                  height={80}
                   className="object-contain"
                 />
               </div>
@@ -1218,7 +1231,7 @@ const ApplicationStatusHome: React.FC = () => {
                 SOUTHERN ATLANTIC UNIVERSITY
               </h3>
               <p className="text-white/80 text-xs md:text-sm lg:text-base">
-                Empowering students through quality education since 1985.
+                Empowering students through quality education since 2025.
               </p>
             </div>
 

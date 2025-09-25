@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import { Gantari, Bebas_Neue } from "next/font/google";
 import type { Testimonial } from "./home_type";
+import Image from "next/image";
 
 const gantari = Gantari({
   variable: "--font-gantari",
@@ -155,8 +156,8 @@ const Testimonials = () => {
                   <p
                     className={`text-gray-100 mb-4 md:mb-6 text-sm md:text-base ${gantari.className}`}
                   >
-                    As a new institution, we're committed to reimagining higher
-                    education through innovation, excellence, and student
+                    As a new institution, we&apos;re committed to reimagining
+                    higher education through innovation, excellence, and student
                     success.
                   </p>
 
@@ -180,10 +181,12 @@ const Testimonials = () => {
                 <div className="flex items-start mb-6 md:mb-8">
                   <div className="relative mr-4 md:mr-6">
                     <div className="w-12 h-12 md:w-16 md:h-16 rounded-full overflow-hidden border-4 border-[#017840]/10 shadow-md">
-                      <img
+                      <Image
                         src={testimonials[currentTestimonial].image}
                         alt={testimonials[currentTestimonial].name}
                         className="w-full h-full object-cover"
+                        height={64}
+                        width={64}
                       />
                     </div>
                     <div className="absolute -bottom-1 -right-1 w-5 h-5 md:w-6 md:h-6 rounded-full bg-[#BD9946] flex items-center justify-center shadow-md">
@@ -211,7 +214,7 @@ const Testimonials = () => {
                 <p
                   className={`text-gray-700 text-base md:text-lg leading-relaxed mb-8 md:mb-10 border-l-4 border-[#017840]/20 pl-4 md:pl-6 py-2 ${gantari.className}`}
                 >
-                  "{testimonials[currentTestimonial].text}"
+                  &ldquo;{testimonials[currentTestimonial].text}&rdquo;
                 </p>
 
                 <div className="flex justify-end">

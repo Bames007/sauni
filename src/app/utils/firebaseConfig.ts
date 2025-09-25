@@ -19,11 +19,12 @@ const app = initializeApp(firebaseConfig);
 // Initialize Database and Storage
 const db = getDatabase(app);
 const storage = getStorage(app);
+// const analytics = getAnalytics(app);
 
 // Initialize Analytics only in client-side
-let analytics = null;
-if (typeof window !== "undefined") {
-  isSupported().then((yes) => (yes ? getAnalytics(app) : null));
-}
+// let analytics = null;
+// if (typeof window !== "undefined") {
+//   isSupported().then((yes) => (yes ? getAnalytics(app) : null));
+// }
 
-export { db, storage, analytics };
+export { db, storage };

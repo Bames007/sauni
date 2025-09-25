@@ -65,7 +65,8 @@ export default function ArticlePage() {
           </h1>
 
           <p className="text-gray-600 mb-6">
-            The article you're looking for doesn't exist or may have been moved.
+            The article you&apos;re looking for doesn&apos;t exist or may have
+            been moved.
           </p>
 
           <Link
@@ -90,9 +91,11 @@ export default function ArticlePage() {
           >
             <div className="flex items-center space-x-3">
               {/* School Logo */}
-              <img
+              <Image
                 src="/sauni-logo.png"
                 alt="SAUNI Logo"
+                width={48}
+                height={48}
                 className="h-12 w-12"
               />
               <span className={`text-xl ${bebasNeue.className}`}>
@@ -131,9 +134,11 @@ export default function ArticlePage() {
           transition={{ duration: 0.5, delay: 0.2 }}
           className="mb-12 rounded-lg overflow-hidden"
         >
-          <img
+          <Image
             src={article.image}
             alt={article.title}
+            width={800}
+            height={400}
             className="w-full h-64 md:h-96 object-cover"
           />
         </motion.div>
@@ -175,9 +180,11 @@ export default function ArticlePage() {
 
                   <div className="flex items-center space-x-3 min-w-0 flex-1">
                     <div className="flex-shrink-0 w-16 h-12 md:w-20 md:h-14 relative overflow-hidden rounded-lg">
-                      <img
+                      <Image
                         src={prevArticle.image}
                         alt={prevArticle.title}
+                        height={80}
+                        width={120}
                         className="w-full h-full object-cover"
                       />
                     </div>
@@ -214,9 +221,11 @@ export default function ArticlePage() {
                     </div>
 
                     <div className="flex-shrink-0 w-16 h-12 md:w-20 md:h-14 relative overflow-hidden rounded-lg">
-                      <img
+                      <Image
                         src={nextArticle.image}
                         alt={nextArticle.title}
+                        height={80}
+                        width={120}
                         className="w-full h-full object-cover"
                       />
                     </div>

@@ -4,6 +4,7 @@ import type { FC } from "react";
 import { motion } from "framer-motion";
 import { Users, BookOpen, GraduationCap, Globe, Award } from "lucide-react";
 import { Gantari, Bebas_Neue } from "next/font/google";
+import Image from "next/image";
 
 const gantari = Gantari({
   variable: "--font-gantari",
@@ -167,14 +168,18 @@ const About: FC = () => {
             whileInView="visible"
             viewport={{ once: true, amount: 0.3 }}
           >
-            {/* Left Image */}
+            {/* Left Image - FIXED */}
             <motion.div className="relative" variants={imageVariants}>
-              <img
-                src="https://plus.unsplash.com/premium_photo-1713296255442-e9338f42aad8?q=80&w=722&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
-                alt="Campus Building"
-                className="rounded-2xl shadow-lg w-full h-64 md:h-80 object-cover"
-              />
-              {/* Overlay box - Mobile: bottom center, Desktop: bottom right */}
+              <div className="relative w-full h-64 md:h-80 rounded-2xl shadow-lg overflow-hidden">
+                <Image
+                  src="https://plus.unsplash.com/premium_photo-1713296255442-e9338f42aad8?q=80&w=722&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
+                  alt="Campus Building"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              </div>
+              {/* Overlay box */}
               <motion.div
                 className="absolute left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:-right-4 -bottom-4 bg-white shadow-xl rounded-xl p-3 md:p-5 text-center border border-green-100 w-40 md:w-auto"
                 initial="hidden"
@@ -189,21 +194,30 @@ const About: FC = () => {
                   Students
                 </p>
                 <div className="flex justify-center gap-1">
-                  <img
-                    src="https://randomuser.me/api/portraits/men/32.jpg"
-                    alt="student"
-                    className="w-5 h-5 md:w-6 md:h-6 rounded-full border-2 border-white shadow-sm"
-                  />
-                  <img
-                    src="https://randomuser.me/api/portraits/women/44.jpg"
-                    alt="student"
-                    className="w-5 h-5 md:w-6 md:h-6 rounded-full border-2 border-white shadow-sm"
-                  />
-                  <img
-                    src="https://randomuser.me/api/portraits/men/45.jpg"
-                    alt="student"
-                    className="w-5 h-5 md:w-6 md:h-6 rounded-full border-2 border-white shadow-sm"
-                  />
+                  <div className="relative w-5 h-5 md:w-6 md:h-6">
+                    <Image
+                      src="https://randomuser.me/api/portraits/men/32.jpg"
+                      alt="student"
+                      fill
+                      className="rounded-full border-2 border-white shadow-sm object-cover"
+                    />
+                  </div>
+                  <div className="relative w-5 h-5 md:w-6 md:h-6">
+                    <Image
+                      src="https://randomuser.me/api/portraits/women/44.jpg"
+                      alt="student"
+                      fill
+                      className="rounded-full border-2 border-white shadow-sm object-cover"
+                    />
+                  </div>
+                  <div className="relative w-5 h-5 md:w-6 md:h-6">
+                    <Image
+                      src="https://randomuser.me/api/portraits/men/45.jpg"
+                      alt="student"
+                      fill
+                      className="rounded-full border-2 border-white shadow-sm object-cover"
+                    />
+                  </div>
                   <div className="w-5 h-5 md:w-6 md:h-6 rounded-full bg-green-100 border-2 border-white flex items-center justify-center">
                     <span className="text-xs font-bold text-green-700">
                       +47
@@ -213,20 +227,24 @@ const About: FC = () => {
               </motion.div>
             </motion.div>
 
-            {/* Right Image - Hidden on mobile, visible on medium screens and up */}
+            {/* Right Image - FIXED */}
             <motion.div
               className="relative mt-12 hidden md:block"
               variants={imageVariants}
               transition={{ delay: 0.1 }}
             >
-              <img
-                src="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=800&q=80"
-                alt="Campus Library"
-                className="rounded-2xl shadow-lg w-full h-64 md:h-80 object-cover"
-              />
+              <div className="relative w-full h-64 md:h-80 rounded-2xl shadow-lg overflow-hidden">
+                <Image
+                  src="https://images.unsplash.com/photo-1501594907352-04cda38ebc29?auto=format&fit=crop&w=800&q=80"
+                  alt="Campus Library"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                />
+              </div>
             </motion.div>
 
-            {/* Floating Stats - Mobile: horizontal scroll, Desktop: vertical stack */}
+            {/* Floating Stats */}
             <motion.div
               className="absolute -right-4 md:-right-10 top-4 md:top-10 flex flex-row md:flex-col gap-3 md:gap-4 overflow-x-auto w-full md:w-auto pb-2 md:pb-0"
               variants={containerVariants}

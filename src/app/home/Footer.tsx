@@ -129,7 +129,7 @@ const Footer = () => {
                   { name: "Mission & Values", link: "/mission" },
                   { name: "News & Events", link: "/news" },
                   { name: "Contact Us", link: "/contact" },
-                ].map((item, index) => (
+                ].map((item) => (
                   <motion.li
                     key={item.name}
                     whileHover={{ x: 5 }}
@@ -170,7 +170,7 @@ const Footer = () => {
                   { name: "Scholarships", link: "/scholarships" },
                   { name: "Campus Life", link: "/campus-life" },
                   { name: "International Students", link: "/international" },
-                ].map((item, index) => (
+                ].map((item) => (
                   <motion.li
                     key={item.name}
                     whileHover={{ x: 5 }}
@@ -211,7 +211,7 @@ const Footer = () => {
                   { name: "Alumni", link: "/alumni" },
                   { name: "Faculty Portal", link: "/faculty" },
                   { name: "Student Portal", link: "/student" },
-                ].map((item, index) => (
+                ].map((item) => (
                   <motion.li
                     key={item.name}
                     whileHover={{ x: 5 }}

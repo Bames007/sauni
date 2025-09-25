@@ -5,6 +5,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Play, ArrowRight, BookOpen, Calendar } from "lucide-react";
 import { Gantari, Bebas_Neue } from "next/font/google";
+import Image from "next/image";
 
 const gantari = Gantari({
   variable: "--font-gantari",
@@ -68,7 +69,7 @@ const Hero = () => {
                 transition={{ duration: 0.7, delay: 0.3 }}
               >
                 At Southern Atlantic University (SAU), we believe education is
-                more than just a degree—it's a life-changing journey that
+                more than just a degree—it&apos;s a life-changing journey that
                 empowers individuals to make a difference in the world.
               </motion.p>
 
@@ -108,15 +109,18 @@ const Hero = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
             >
               <motion.div
-                className="overflow-hidden rounded-2xl shadow-2xl w-full h-full flex items-center justify-center max-w-lg mx-auto"
+                className="relative w-full h-64 md:h-80 lg:h-96 max-w-lg mx-auto rounded-2xl shadow-2xl overflow-hidden"
                 initial={{ scale: 0.95, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.7, delay: 0.4 }}
               >
-                <img
+                <Image
                   src="https://images.unsplash.com/photo-1607237138185-eedd9c632b0b?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=987&q=80"
                   alt="Students at Southern Atlantic University"
-                  className="w-full h-full object-cover"
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                  priority
                 />
               </motion.div>
             </motion.div>
