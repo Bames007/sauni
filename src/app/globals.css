@@ -1,5 +1,106 @@
 @import "tailwindcss";
 
+.article-content {
+  font-size: 1.125rem;
+  line-height: 1.7;
+}
+
+.article-content p {
+  margin-bottom: 1.5rem;
+  text-align: justify;
+}
+
+.article-content h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #017840;
+  margin: 2rem 0 1rem 0;
+  line-height: 1.4;
+}
+
+.article-content h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #016035;
+  margin: 1.5rem 0 0.75rem 0;
+}
+
+.article-content img {
+  border-radius: 0.5rem;
+  margin: 1.5rem 0;
+  width: 100%;
+  height: auto;
+}
+
+.article-content a {
+  color: #bd9946;
+  text-decoration: underline;
+  transition: color 0.2s ease;
+}
+
+.article-content a:hover {
+  color: #017840;
+}
+
+.article-content ul,
+.article-content ol {
+  margin: 1rem 0;
+  padding-left: 1.5rem;
+}
+
+.article-content li {
+  margin-bottom: 0.5rem;
+}
+
+.article-content blockquote {
+  border-left: 4px solid #bd9946;
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  font-style: italic;
+  color: #4a5568;
+}
+
+.article-content code {
+  background-color: #f7fafc;
+  padding: 0.125rem 0.25rem;
+  border-radius: 0.25rem;
+  font-family: monospace;
+}
+
+.article-content pre {
+  background-color: #f7fafc;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  overflow-x: auto;
+  margin: 1.5rem 0;
+}
+
+.article-content pre code {
+  background-color: transparent;
+  padding: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .article-content {
+    font-size: 1rem;
+    font-family: "Bebas";
+    line-height: 1.6;
+  }
+
+  .article-content h2 {
+    font-size: 1.35rem;
+  }
+
+  .article-content h3 {
+    font-size: 1.15rem;
+  }
+
+  .article-content p {
+    text-align: left;
+  }
+}
+/* 
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -23,4 +124,4 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-}
+} */
