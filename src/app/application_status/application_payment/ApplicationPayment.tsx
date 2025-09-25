@@ -1,11 +1,7 @@
 import React from "react";
 
 const ApplicationPayment = () => {
-  return (
-    <>
-      <ApplicationPayment />
-    </>
-  );
+  return <div>ApplicationPayment</div>;
 };
 
 export default ApplicationPayment;
