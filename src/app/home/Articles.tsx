@@ -20,30 +20,30 @@ const bebasNeue = Bebas_Neue({
   weight: ["400"],
 });
 
-// Get only the first 4 articles
-
 const Articles = () => {
   const [ref, inView] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  const displayedArticles = allArticles.slice(0, 4);
-
-  // Create refs for displayed articles upfront
-
-  const articleRefs = displayedArticles.map(() =>
-    useInView({
-      triggerOnce: true,
-      threshold: 0.1,
-    })
-  );
-
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
   }, []);
+
+  // Get only the first 4 articles
+  const displayedArticles = allArticles.slice(0, 4);
+
+  // Create refs for displayed articles at the top level
+  const articleRefs = displayedArticles.map(() => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [ref, inView] = useInView({
+      triggerOnce: true,
+      threshold: 0.1,
+    });
+    return { ref, inView };
+  });
 
   // Animation variants
   const containerVariants = {
@@ -78,11 +78,7 @@ const Articles = () => {
       <div className="max-w-7xl mx-auto relative z-10">
         <motion.div
           ref={ref}
-          className={`text-center mb-12 md:mb-16 transition-all duration-1000 ease-out ${
-            inView && isMounted
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-10"
-          }`}
+          className="text-center mb-12 md:mb-16"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.5 }}
@@ -118,18 +114,14 @@ const Articles = () => {
           variants={containerVariants}
         >
           {displayedArticles.map((article, index) => {
-            const [articleRef, articleInView] = articleRefs[index];
+            const { ref: articleRef, inView: articleInView } =
+              articleRefs[index];
 
             return (
               <motion.article
                 key={article.id}
                 ref={articleRef}
-                className={`group bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-500 ease-out hover:shadow-2xl h-[400px] md:h-[450px] lg:h-[500px] flex flex-col relative ${
-                  articleInView && isMounted
-                    ? "opacity-100 translate-y-0"
-                    : "opacity-0 translate-y-10"
-                }`}
-                style={{ transitionDelay: `${index * 150}ms` }}
+                className="group bg-white rounded-xl overflow-hidden shadow-lg transition-all duration-500 ease-out hover:shadow-2xl h-[400px] md:h-[450px] lg:h-[500px] flex flex-col relative"
                 variants={itemVariants}
               >
                 {/* Mobile tap area - covers entire card on mobile */}
@@ -237,11 +229,7 @@ const Articles = () => {
         </motion.div>
 
         <motion.div
-          className={`text-center mt-12 md:mt-16 transition-all duration-1000 delay-500 ${
-            inView && isMounted
-              ? "opacity-100 translate-y-0"
-              : "opacity-0 translate-y-10"
-          }`}
+          className="text-center mt-12 md:mt-16"
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.5 }}

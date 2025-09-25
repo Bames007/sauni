@@ -637,7 +637,7 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
       const fileName = `${docType}_${Date.now()}.${fileExtension}`;
       const filePath = `applications/${prospectiveId}/${docType}/${fileName}`;
 
-      const { data, error } = await supabase.storage
+      const { error } = await supabase.storage
         .from("Southern Atlantic University")
         .upload(filePath, file);
 
@@ -733,7 +733,7 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
         };
 
         const missingFields = Object.entries(requiredFields)
-          .filter(([_, value]) => !value)
+          .filter(([value]) => !value)
           .map(([field]) => field);
 
         if (missingFields.length > 0) {
@@ -813,6 +813,7 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
       generateProspectiveId,
       generatePassword,
       supabase,
+      uploadToSupabaseStorage,
     ]
   );
 

@@ -1010,10 +1010,10 @@ const ApplicationDetailModal: React.FC<{
   const pdfRef = useRef<HTMLDivElement>(null);
 
   const fullName = `${application.personalInfo.firstName} ${application.personalInfo.middleName} ${application.personalInfo.lastName}`;
-  const programName =
-    typeof application.programSelection.firstChoice === "string"
-      ? application.programSelection.firstChoice
-      : application.programSelection.firstChoice.name;
+  // const programName =
+  //   typeof application.programSelection.firstChoice === "string"
+  //     ? application.programSelection.firstChoice
+  //     : application.programSelection.firstChoice.name;
 
   const generatePDF = async () => {
     if (!pdfRef.current) return;

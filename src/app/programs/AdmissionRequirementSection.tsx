@@ -10,7 +10,7 @@ import {
   Award,
 } from "lucide-react";
 import { AdmissionRequirements } from "@/app/programs/program_type";
-import { Bebas_Neue, Poppins } from "next/font/google";
+import { Bebas_Neue } from "next/font/google";
 
 const bebasNeue = Bebas_Neue({
   variable: "--font-bebas-neue",
