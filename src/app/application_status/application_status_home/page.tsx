@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { ref, onValue, off, update } from "firebase/database";
 import { db } from "@/app/utils/firebaseConfig";
 import { useSearchParams } from "next/navigation";
@@ -19,6 +19,7 @@ import {
   Key,
   Menu,
   X,
+  Circle,
 } from "lucide-react";
 
 interface DocumentFile {
@@ -374,14 +375,22 @@ const ApplicationStatusHome: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-[#f0f9f4] to-[#fefaf0] flex items-center justify-center p-4">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-[#017840] border-t-transparent rounded-full animate-spin mx-auto"></div>
-          <p className="text-gray-600 mt-4">
-            Loading your application status...
-          </p>
+      <Suspense
+        fallback={
+          <div>
+            <Circle /> Loading....
+          </div>
+        }
+      >
+        <div className="min-h-screen bg-gradient-to-br from-[#f0f9f4] to-[#fefaf0] flex items-center justify-center p-4">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-[#017840] border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-gray-600 mt-4">
+              Loading your application status...
+            </p>
+          </div>
         </div>
-      </div>
+      </Suspense>
     );
   }
 

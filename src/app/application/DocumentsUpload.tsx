@@ -230,7 +230,8 @@ const DocumentsUpload: React.FC<DocumentsUploadProps> = ({
                         : "/placeholder-image.jpg"
                     }
                     alt={fileData.name}
-                    fill
+                    width={48}
+                    height={48}
                     className="object-cover"
                   />
                 </div>

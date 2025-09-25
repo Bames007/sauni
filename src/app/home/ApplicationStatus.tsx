@@ -74,7 +74,8 @@ export default function ApplicationStatus() {
         <MotionImage
           src="https://images.unsplash.com/photo-1653189909513-fc0516e4d27a?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
           alt="University campus with students"
-          fill
+          width={200}
+          height={180}
           priority
           className="object-cover"
           initial={{ scale: 1.1 }}

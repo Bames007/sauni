@@ -198,7 +198,8 @@ const About: FC = () => {
                     <Image
                       src="https://randomuser.me/api/portraits/men/32.jpg"
                       alt="student"
-                      fill
+                      width={32}
+                      height={32}
                       className="rounded-full border-2 border-white shadow-sm object-cover"
                     />
                   </div>
@@ -206,7 +207,8 @@ const About: FC = () => {
                     <Image
                       src="https://randomuser.me/api/portraits/women/44.jpg"
                       alt="student"
-                      fill
+                      width={32}
+                      height={32}
                       className="rounded-full border-2 border-white shadow-sm object-cover"
                     />
                   </div>
@@ -214,7 +216,8 @@ const About: FC = () => {
                     <Image
                       src="https://randomuser.me/api/portraits/men/45.jpg"
                       alt="student"
-                      fill
+                      width={32}
+                      height={32}
                       className="rounded-full border-2 border-white shadow-sm object-cover"
                     />
                   </div>

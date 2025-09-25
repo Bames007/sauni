@@ -79,9 +79,9 @@ export default function Header() {
               <div className="relative w-12 h-12">
                 <Image
                   src="/sauni-logo.png"
-                  alt="SAUNI Logo"
-                  fill
-                  className="object-contain"
+                  alt="Southern Atlantic University Logo"
+                  width={64}
+                  height={64}
                 />
               </div>
             </div>
@@ -143,7 +143,8 @@ export default function Header() {
                 <Image
                   src="/sauni-logo.png"
                   alt="SAUNI Logo"
-                  fill
+                  width={32}
+                  height={32}
                   className="object-contain"
                 />
               </div>
