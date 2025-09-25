@@ -812,7 +812,7 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
       submitApplication,
       generateProspectiveId,
       generatePassword,
-      supabase,
+      // supabase,
       uploadToSupabaseStorage,
     ]
   );

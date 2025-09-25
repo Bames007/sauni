@@ -64,7 +64,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
         setErrors(newErrors);
       }
     }
-  }, [formData.dateOfBirth, touched.dateOfBirth]);
+  }, [formData.dateOfBirth, touched.dateOfBirth, errors]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>

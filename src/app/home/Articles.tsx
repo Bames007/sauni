@@ -21,12 +21,12 @@ const bebasNeue = Bebas_Neue({
 });
 
 const Articles = () => {
-  const [ref, inView] = useInView({
+  const [ref] = useInView({
     triggerOnce: true,
     threshold: 0.1,
   });
 
-  const [isMounted, setIsMounted] = useState(false);
+  const [, setIsMounted] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -114,8 +114,7 @@ const Articles = () => {
           variants={containerVariants}
         >
           {displayedArticles.map((article, index) => {
-            const { ref: articleRef, inView: articleInView } =
-              articleRefs[index];
+            const { ref: articleRef } = articleRefs[index];
 
             return (
               <motion.article

@@ -31,5 +31,7 @@ export const createClient = (request: NextRequest) => {
     },
   });
 
+  console.log(supabase);
+
   return supabaseResponse;
 };
