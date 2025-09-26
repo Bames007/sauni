@@ -1,14 +1,11 @@
-import Link from "next/link";
-import React from "react";
+import Programs from "./Programs";
 
-const Programs = () => {
+const ProgramsPage = () => {
   return (
     <>
-      <Link href="/home">
-        <h1>Home</h1>
-      </Link>
+      <Programs />
     </>
   );
 };
 
-export default Programs;
+export default ProgramsPage;

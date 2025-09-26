@@ -120,7 +120,6 @@ const Hero = () => {
                   width={1050}
                   height={400}
                   className="object-cover"
-                  // sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                   priority
                 />
               </motion.div>
@@ -130,55 +129,153 @@ const Hero = () => {
       </div>
 
       {/* Middle Container - Action Buttons */}
-      <div className="relative z-10 min-h-[10vh] flex items-center py-8 px-4">
+      <div className="relative z-10 min-h-[15vh] flex items-center py-8 px-4">
         <div className="container mx-auto">
-          {/* Desktop Layout (horizontal) */}
+          {/* Desktop Layout - Centered and Larger */}
           <motion.div
-            className="hidden md:flex flex-row items-center gap-6 w-full"
+            className="hidden lg:flex justify-center"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.6 }}
           >
-            <div className="flex-1 h-32 bg-yellow-400/90 backdrop-blur-md rounded-2xl flex items-center justify-between p-4 shadow-lg transition-all duration-300 hover:shadow-2xl">
-              {/* Enrol Now Button */}
-              <Link href={"/application"}>
-                <motion.button
+            <div className="bg-yellow-400/90 backdrop-blur-md rounded-2xl shadow-2xl p-6 max-w-4xl w-full">
+              <div className="flex items-center justify-between gap-8">
+                {/* Enrol Now Button */}
+                <Link href={"/application"} className="flex-1">
+                  <motion.div
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex flex-col items-center justify-center p-4 rounded-xl transition-all duration-300 hover:bg-yellow-500/50 hover:shadow-lg group"
+                  >
+                    <BookOpen
+                      size={32}
+                      className="mb-2 group-hover:scale-110 transition-transform"
+                    />
+                    <span
+                      className={`text-black text-xl font-bold ${gantari.className}`}
+                    >
+                      Enrol Now
+                    </span>
+                    <span
+                      className={`text-sm text-gray-800 mt-1 ${gantari.className}`}
+                    >
+                      Start Your Journey
+                    </span>
+                  </motion.div>
+                </Link>
+
+                {/* Vertical Divider */}
+                <div className="h-20 w-px bg-black/30"></div>
+
+                {/* See Programs Button */}
+                <Link href="/programs" className="flex-1">
+                  <motion.div
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex flex-col items-center justify-center p-4 rounded-xl transition-all duration-300 hover:bg-yellow-500/50 hover:shadow-lg group"
+                  >
+                    <Calendar
+                      size={32}
+                      className="mb-2 group-hover:scale-110 transition-transform"
+                    />
+                    <span
+                      className={`text-black text-xl font-bold ${gantari.className}`}
+                    >
+                      See Programs
+                    </span>
+                    <span
+                      className={`text-sm text-gray-800 mt-1 ${gantari.className}`}
+                    >
+                      Explore Courses
+                    </span>
+                  </motion.div>
+                </Link>
+
+                {/* Vertical Divider */}
+                <div className="h-20 w-px bg-black/30"></div>
+
+                {/* Join Tour Button */}
+                <Link href={"/home/calendar"} className="flex-1">
+                  <motion.div
+                    whileHover={{ scale: 1.05, y: -2 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="flex flex-col items-center justify-center p-4 rounded-xl transition-all duration-300 hover:bg-yellow-500/50 hover:shadow-lg group"
+                  >
+                    <Play
+                      size={32}
+                      className="mb-2 group-hover:scale-110 transition-transform"
+                    />
+                    <span
+                      className={`text-black text-xl font-bold ${gantari.className}`}
+                    >
+                      Join Tour
+                    </span>
+                    <span
+                      className={`text-sm text-gray-800 mt-1 ${gantari.className}`}
+                    >
+                      Campus Visits
+                    </span>
+                  </motion.div>
+                </Link>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Tablet Layout (horizontal) */}
+          <motion.div
+            className="hidden md:flex lg:hidden flex-row items-center gap-4 w-full"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, delay: 0.6 }}
+          >
+            <div className="flex-1 bg-yellow-400/90 backdrop-blur-md rounded-xl flex items-center justify-between p-4 shadow-lg">
+              <Link href={"/application"} className="flex-1">
+                <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="h-full flex-1 flex items-center justify-center gap-2 rounded-xl transition-all duration-300 text-black text-lg font-semibold hover:bg-yellow-500/50 hover:shadow-lg"
+                  className="flex items-center justify-center gap-3 p-3 rounded-lg transition-all duration-300 hover:bg-yellow-500/50"
                 >
                   <BookOpen size={28} />
-                  <span className={gantari.className}>Enrol Now</span>
-                </motion.button>
+                  <span
+                    className={`text-black text-lg font-semibold ${gantari.className}`}
+                  >
+                    Enrol Now
+                  </span>
+                </motion.div>
               </Link>
-              {/* Vertical Divider */}
-              <div className="h-16 w-px bg-black/30"></div>
 
-              {/* See Programs Button */}
-              <Link href="/programs">
-                <motion.button
+              <div className="h-12 w-px bg-black/30"></div>
+
+              <Link href="/programs" className="flex-1">
+                <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="h-full flex-1 flex items-center justify-center gap-2 rounded-xl transition-all duration-300 text-black text-lg font-semibold hover:bg-yellow-500/50 hover:shadow-lg"
+                  className="flex items-center justify-center gap-3 p-3 rounded-lg transition-all duration-300 hover:bg-yellow-500/50"
                 >
                   <Calendar size={28} />
-                  <span className={gantari.className}>See Programs</span>
-                </motion.button>
+                  <span
+                    className={`text-black text-lg font-semibold ${gantari.className}`}
+                  >
+                    See Programs
+                  </span>
+                </motion.div>
               </Link>
 
-              {/* Vertical Divider */}
-              <div className="h-16 w-px bg-black/30"></div>
+              <div className="h-12 w-px bg-black/30"></div>
 
-              {/* Join Tour Button */}
-              <Link href={"/home/calendar"}>
-                <motion.button
+              <Link href={"/home/calendar"} className="flex-1">
+                <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="h-full flex-1 flex items-center justify-center gap-2 rounded-xl transition-all duration-300 text-black text-lg font-semibold hover:bg-yellow-500/50 hover:shadow-lg"
+                  className="flex items-center justify-center gap-3 p-3 rounded-lg transition-all duration-300 hover:bg-yellow-500/50"
                 >
                   <Play size={28} />
-                  <span className={gantari.className}>Join Tour</span>
-                </motion.button>
+                  <span
+                    className={`text-black text-lg font-semibold ${gantari.className}`}
+                  >
+                    Join Tour
+                  </span>
+                </motion.div>
               </Link>
             </div>
           </motion.div>
@@ -190,7 +287,6 @@ const Hero = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.6 }}
           >
-            {/* Enrol Now Button */}
             <Link href={"/application"}>
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -206,7 +302,6 @@ const Hero = () => {
               </motion.button>
             </Link>
 
-            {/* See Programs Button */}
             <Link href="/programs">
               <motion.button
                 whileHover={{ scale: 1.02 }}
@@ -222,7 +317,6 @@ const Hero = () => {
               </motion.button>
             </Link>
 
-            {/* Join Tour Button */}
             <Link href={"/home/calendar"}>
               <motion.button
                 whileHover={{ scale: 1.02 }}

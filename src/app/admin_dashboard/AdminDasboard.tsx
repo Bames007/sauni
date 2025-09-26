@@ -158,8 +158,10 @@ const AdminDashboard: React.FC = () => {
       day: "numeric",
     });
   };
+  // Also fix the calculateStats dependency array
   const calculateStats = useCallback(
     (apps: ApplicationData[]) => {
+      // Your existing calculateStats logic here
       const totalRevenue = apps.reduce((sum, app) => {
         const appPayments = payments.filter(
           (p) => p.prospectiveId === app.prospectiveId && p.status === "paid"
@@ -186,7 +188,6 @@ const AdminDashboard: React.FC = () => {
     [payments]
   );
 
-  // Fetch applications from Firebase
   useEffect(() => {
     const applicationsRef = query(
       ref(db, "applications/students"),
@@ -203,8 +204,38 @@ const AdminDashboard: React.FC = () => {
           });
           setApplications(applicationsData);
           calculateStats(applicationsData);
+
+          // Create payments here - MOVE the payments logic from the deleted useEffect here
+          const mockPayments: Payment[] = applicationsData.flatMap((app) => [
+            {
+              id: `PAY-${app.prospectiveId}-001`,
+              amount: 25000,
+              description: "Application Fee",
+              dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+                .toISOString()
+                .split("T")[0],
+              status: Math.random() > 0.7 ? "paid" : "pending",
+              type: "application_fee",
+              prospectiveId: app.prospectiveId,
+              paidAt:
+                Math.random() > 0.7 ? new Date().toISOString() : undefined,
+            },
+            {
+              id: `PAY-${app.prospectiveId}-002`,
+              amount: 100000,
+              description: "Tuition Deposit",
+              dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                .toISOString()
+                .split("T")[0],
+              status: "pending",
+              type: "tuition_deposit",
+              prospectiveId: app.prospectiveId,
+            },
+          ]);
+          setPayments(mockPayments);
         } else {
           setApplications([]);
+          setPayments([]);
         }
         setLoading(false);
       },
@@ -215,7 +246,7 @@ const AdminDashboard: React.FC = () => {
     );
 
     return () => off(applicationsRef, "value", fetchApplications);
-  }, [calculateStats]);
+  }, []);
 
   // Enhanced payments data with realistic amounts
   useEffect(() => {
