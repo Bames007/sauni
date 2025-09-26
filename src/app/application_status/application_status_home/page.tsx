@@ -423,261 +423,274 @@ const ApplicationStatusHome: React.FC = () => {
   const secondaryEducation = applicationData.academicHistory.secondarySchool[0];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#f0f9f4] to-[#fefaf0]">
-      {/* Document Viewer Modal */}
-      {viewDocument && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
-            <div className="flex justify-between items-center p-4 border-b">
-              <h3 className="font-semibold text-gray-900 text-sm md:text-base truncate">
-                {viewDocument.name}
-              </h3>
-              <button
-                onClick={() => setViewDocument(null)}
-                className="text-gray-500 hover:text-gray-700 p-1"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-2 md:p-4 overflow-auto max-h-[80vh]">
-              <Image
-                src={viewDocument.url}
-                alt={viewDocument.name}
-                width={800}
-                height={600}
-                className="w-full h-auto rounded-lg max-w-full"
-              />
-            </div>
+    <Suspense
+      fallback={
+        <div className="min-h-screen bg-gradient-to-br from-[#f0f9f4] to-[#fefaf0] flex items-center justify-center p-4">
+          <div className="text-center">
+            <div className="w-16 h-16 border-4 border-[#017840] border-t-transparent rounded-full animate-spin mx-auto"></div>
+            <p className="text-gray-600 mt-4">Loading application...</p>
           </div>
         </div>
-      )}
-
-      {/* Password Change Modal */}
-      {showPasswordModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-4 md:p-6 mx-2">
-            <div className="flex items-center space-x-3 mb-4">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-[#017840] bg-opacity-10 rounded-full flex items-center justify-center">
-                <Key className="w-4 h-4 md:w-5 md:h-5 text-[#017840]" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-gray-900 text-sm md:text-base">
-                  Change Password
+      }
+    >
+      <div className="min-h-screen bg-gradient-to-br from-[#f0f9f4] to-[#fefaf0]">
+        {/* Document Viewer Modal */}
+        {viewDocument && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden">
+              <div className="flex justify-between items-center p-4 border-b">
+                <h3 className="font-semibold text-gray-900 text-sm md:text-base truncate">
+                  {viewDocument.name}
                 </h3>
-                <p className="text-xs text-gray-600">
-                  This can only be done once
-                </p>
+                <button
+                  onClick={() => setViewDocument(null)}
+                  className="text-gray-500 hover:text-gray-700 p-1"
+                >
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-            </div>
-
-            {passwordSuccess ? (
-              <div className="text-center py-4 md:py-8">
-                <div className="w-12 h-12 md:w-16 md:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <span className="text-xl md:text-2xl">✓</span>
-                </div>
-                <p className="text-green-600 font-semibold text-sm md:text-base">
-                  Password changed successfully!
-                </p>
-              </div>
-            ) : (
-              <>
-                <div className="space-y-3 md:space-y-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      New Password
-                    </label>
-                    <input
-                      type="password"
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#017840] focus:border-transparent text-sm md:text-base"
-                      placeholder="Enter new password"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
-                      Confirm Password
-                    </label>
-                    <input
-                      type="password"
-                      value={confirmPassword}
-                      onChange={(e) => setConfirmPassword(e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#017840] focus:border-transparent text-sm md:text-base"
-                      placeholder="Confirm new password"
-                    />
-                  </div>
-                  {passwordError && (
-                    <p className="text-red-600 text-xs md:text-sm">
-                      {passwordError}
-                    </p>
-                  )}
-                </div>
-
-                <div className="flex space-x-2 md:space-x-3 mt-4 md:mt-6">
-                  <button
-                    onClick={() => setShowPasswordModal(false)}
-                    className="flex-1 px-3 py-2 md:px-4 md:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm md:text-base"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handlePasswordChange}
-                    className="flex-1 px-3 py-2 md:px-4 md:py-2 bg-[#017840] text-white rounded-lg hover:bg-[#015a30] transition-colors text-sm md:text-base"
-                  >
-                    Change Password
-                  </button>
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Hidden div for PDF generation - Make sure it's properly positioned */}
-      <div className="fixed top-0 left-[-9999px]">
-        <PDFTemplate applicationData={applicationData} ref={pdfRef} />
-      </div>
-
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b sticky top-0 z-40">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-3">
-          <div className="flex justify-between items-center">
-            <Link href="/" className="flex items-center space-x-2 md:space-x-3">
-              <div className="w-8 h-8 md:w-12 md:h-12 bg-gradient-to-r from-[#017840] to-[#BD9946] rounded-full flex items-center justify-center flex-shrink-0">
+              <div className="p-2 md:p-4 overflow-auto max-h-[80vh]">
                 <Image
-                  src="/sauni-logo.png"
-                  alt="SAUNI Logo"
-                  width={32}
-                  height={32}
-                  className="h-6 w-6 md:h-8 md:w-8"
+                  src={viewDocument.url}
+                  alt={viewDocument.name}
+                  width={800}
+                  height={600}
+                  className="w-full h-auto rounded-lg max-w-full"
                 />
               </div>
-              <div className="min-w-0">
-                <h1 className="text-lg md:text-2xl font-bold text-gray-900 truncate">
-                  Student Portal
-                </h1>
-                <p className="text-xs md:text-sm text-gray-600 truncate">
-                  Application Status Center
-                </p>
-              </div>
-            </Link>
-
-            <div className="flex items-center space-x-3">
-              <div className="text-right hidden sm:block">
-                <p className="text-xs text-gray-600">Prospective ID</p>
-                <p className="font-mono font-bold text-[#017840] text-sm">
-                  {applicationData.prospectiveId}
-                </p>
-              </div>
-              <button
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                className="sm:hidden p-2 rounded-lg border border-gray-200"
-              >
-                {isMobileMenuOpen ? (
-                  <X className="w-5 h-5" />
-                ) : (
-                  <Menu className="w-5 h-5" />
-                )}
-              </button>
             </div>
           </div>
+        )}
 
-          {/* Mobile menu */}
-          {isMobileMenuOpen && (
-            <div className="sm:hidden mt-3 pt-3 border-t border-gray-200">
-              <div className="text-center">
-                <p className="text-xs text-gray-600">Prospective ID</p>
-                <p className="font-mono font-bold text-[#017840] text-sm">
-                  {applicationData.prospectiveId}
-                </p>
+        {/* Password Change Modal */}
+        {showPasswordModal && (
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-md flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-2xl max-w-md w-full p-4 md:p-6 mx-2">
+              <div className="flex items-center space-x-3 mb-4">
+                <div className="w-8 h-8 md:w-10 md:h-10 bg-[#017840] bg-opacity-10 rounded-full flex items-center justify-center">
+                  <Key className="w-4 h-4 md:w-5 md:h-5 text-[#017840]" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-gray-900 text-sm md:text-base">
+                    Change Password
+                  </h3>
+                  <p className="text-xs text-gray-600">
+                    This can only be done once
+                  </p>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      </header>
 
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 md:py-8">
-        {/* Main Status Card */}
-        <div className="bg-white rounded-xl md:rounded-2xl shadow-lg overflow-hidden mb-6 md:mb-8">
-          <div className="bg-gradient-to-r from-[#017840] to-[#BD9946] p-4 md:p-6 text-white">
-            <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row justify-between items-start md:items-center">
-              <div className="flex items-center space-x-3">
-                <div className="relative flex-shrink-0">
-                  <div className="w-14 h-14 md:w-20 md:h-20 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
-                    {applicationData.documents.passportPhoto?.url ? (
-                      <Image
-                        src={applicationData.documents.passportPhoto.url}
-                        alt="Profile"
-                        width={80}
-                        height={80}
-                        className="w-full h-full object-cover"
+              {passwordSuccess ? (
+                <div className="text-center py-4 md:py-8">
+                  <div className="w-12 h-12 md:w-16 md:h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-xl md:text-2xl">✓</span>
+                  </div>
+                  <p className="text-green-600 font-semibold text-sm md:text-base">
+                    Password changed successfully!
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-3 md:space-y-4">
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        New Password
+                      </label>
+                      <input
+                        type="password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#017840] focus:border-transparent text-sm md:text-base"
+                        placeholder="Enter new password"
                       />
-                    ) : (
-                      <span className="text-xl md:text-2xl">👤</span>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-1">
+                        Confirm Password
+                      </label>
+                      <input
+                        type="password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#017840] focus:border-transparent text-sm md:text-base"
+                        placeholder="Confirm new password"
+                      />
+                    </div>
+                    {passwordError && (
+                      <p className="text-red-600 text-xs md:text-sm">
+                        {passwordError}
+                      </p>
                     )}
                   </div>
-                  <div className="absolute -bottom-1 -right-1 w-4 h-4 md:w-6 md:h-6 bg-[#BD9946] rounded-full border-2 border-white flex items-center justify-center">
-                    <span className="text-xs">✓</span>
+
+                  <div className="flex space-x-2 md:space-x-3 mt-4 md:mt-6">
+                    <button
+                      onClick={() => setShowPasswordModal(false)}
+                      className="flex-1 px-3 py-2 md:px-4 md:py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors text-sm md:text-base"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={handlePasswordChange}
+                      className="flex-1 px-3 py-2 md:px-4 md:py-2 bg-[#017840] text-white rounded-lg hover:bg-[#015a30] transition-colors text-sm md:text-base"
+                    >
+                      Change Password
+                    </button>
                   </div>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h2 className="text-lg md:text-2xl font-bold truncate">
-                    {fullName}
-                  </h2>
-                  <p className="text-white/90 text-sm md:text-base truncate">
-                    {applicationData.programSelection.firstChoice}
-                  </p>
-                  <p className="text-white/80 text-xs md:text-sm">
-                    Applied on {formatDate(applicationData.submittedAt)}
-                  </p>
-                </div>
-              </div>
-              <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 md:px-4 md:py-2 self-start md:self-auto">
-                <div className="flex items-center space-x-2">
-                  <span className="text-base md:text-lg">
-                    {statusConfig.icon}
-                  </span>
-                  <span
-                    className={`px-2 py-1 md:px-3 md:py-1 rounded-full text-xs md:text-sm font-semibold ${statusConfig.color}`}
-                  >
-                    {statusConfig.label}
-                  </span>
-                </div>
-              </div>
+                </>
+              )}
             </div>
           </div>
+        )}
 
-          {/* Progress Tracker */}
-          <div className="p-4 md:p-6 border-b">
-            <div className="flex justify-between items-center mb-3 md:mb-4">
-              <h3 className="font-semibold text-gray-900 text-sm md:text-base">
-                Application Progress
-              </h3>
-              <span className="text-xs md:text-sm text-gray-600">
-                Step 4 of 4
-              </span>
+        {/* Hidden div for PDF generation - Make sure it's properly positioned */}
+        <div className="fixed top-0 left-[-9999px]">
+          <PDFTemplate applicationData={applicationData} ref={pdfRef} />
+        </div>
+
+        {/* Header */}
+        <header className="bg-white shadow-sm border-b sticky top-0 z-40">
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-3">
+            <div className="flex justify-between items-center">
+              <Link
+                href="/"
+                className="flex items-center space-x-2 md:space-x-3"
+              >
+                <div className="w-8 h-8 md:w-12 md:h-12 bg-gradient-to-r from-[#017840] to-[#BD9946] rounded-full flex items-center justify-center flex-shrink-0">
+                  <Image
+                    src="/sauni-logo.png"
+                    alt="SAUNI Logo"
+                    width={32}
+                    height={32}
+                    className="h-6 w-6 md:h-8 md:w-8"
+                  />
+                </div>
+                <div className="min-w-0">
+                  <h1 className="text-lg md:text-2xl font-bold text-gray-900 truncate">
+                    Student Portal
+                  </h1>
+                  <p className="text-xs md:text-sm text-gray-600 truncate">
+                    Application Status Center
+                  </p>
+                </div>
+              </Link>
+
+              <div className="flex items-center space-x-3">
+                <div className="text-right hidden sm:block">
+                  <p className="text-xs text-gray-600">Prospective ID</p>
+                  <p className="font-mono font-bold text-[#017840] text-sm">
+                    {applicationData.prospectiveId}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                  className="sm:hidden p-2 rounded-lg border border-gray-200"
+                >
+                  {isMobileMenuOpen ? (
+                    <X className="w-5 h-5" />
+                  ) : (
+                    <Menu className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
             </div>
-            <div className="flex items-center">
-              {["Submitted", "Review", "Decision", "Complete"].map(
-                (step, index) => {
-                  const currentStep =
-                    applicationData.status === "submitted"
-                      ? 1
-                      : applicationData.status === "under_review"
-                        ? 2
-                        : ["accepted", "rejected", "waitlisted"].includes(
-                              applicationData.status
-                            )
-                          ? 3
-                          : 4;
-                  const isCompleted = index < currentStep;
-                  const isCurrent = index === currentStep - 1;
 
-                  return (
-                    <React.Fragment key={step}>
-                      <div className="flex flex-col items-center flex-1">
-                        <div
-                          className={`w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-sm font-semibold
+            {/* Mobile menu */}
+            {isMobileMenuOpen && (
+              <div className="sm:hidden mt-3 pt-3 border-t border-gray-200">
+                <div className="text-center">
+                  <p className="text-xs text-gray-600">Prospective ID</p>
+                  <p className="font-mono font-bold text-[#017840] text-sm">
+                    {applicationData.prospectiveId}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </header>
+
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-4 md:py-8">
+          {/* Main Status Card */}
+          <div className="bg-white rounded-xl md:rounded-2xl shadow-lg overflow-hidden mb-6 md:mb-8">
+            <div className="bg-gradient-to-r from-[#017840] to-[#BD9946] p-4 md:p-6 text-white">
+              <div className="flex flex-col space-y-4 md:space-y-0 md:flex-row justify-between items-start md:items-center">
+                <div className="flex items-center space-x-3">
+                  <div className="relative flex-shrink-0">
+                    <div className="w-14 h-14 md:w-20 md:h-20 bg-white/20 rounded-full flex items-center justify-center overflow-hidden">
+                      {applicationData.documents.passportPhoto?.url ? (
+                        <Image
+                          src={applicationData.documents.passportPhoto.url}
+                          alt="Profile"
+                          width={80}
+                          height={80}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="text-xl md:text-2xl">👤</span>
+                      )}
+                    </div>
+                    <div className="absolute -bottom-1 -right-1 w-4 h-4 md:w-6 md:h-6 bg-[#BD9946] rounded-full border-2 border-white flex items-center justify-center">
+                      <span className="text-xs">✓</span>
+                    </div>
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h2 className="text-lg md:text-2xl font-bold truncate">
+                      {fullName}
+                    </h2>
+                    <p className="text-white/90 text-sm md:text-base truncate">
+                      {applicationData.programSelection.firstChoice}
+                    </p>
+                    <p className="text-white/80 text-xs md:text-sm">
+                      Applied on {formatDate(applicationData.submittedAt)}
+                    </p>
+                  </div>
+                </div>
+                <div className="bg-white/20 backdrop-blur-sm rounded-lg px-3 py-1 md:px-4 md:py-2 self-start md:self-auto">
+                  <div className="flex items-center space-x-2">
+                    <span className="text-base md:text-lg">
+                      {statusConfig.icon}
+                    </span>
+                    <span
+                      className={`px-2 py-1 md:px-3 md:py-1 rounded-full text-xs md:text-sm font-semibold ${statusConfig.color}`}
+                    >
+                      {statusConfig.label}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Progress Tracker */}
+            <div className="p-4 md:p-6 border-b">
+              <div className="flex justify-between items-center mb-3 md:mb-4">
+                <h3 className="font-semibold text-gray-900 text-sm md:text-base">
+                  Application Progress
+                </h3>
+                <span className="text-xs md:text-sm text-gray-600">
+                  Step 4 of 4
+                </span>
+              </div>
+              <div className="flex items-center">
+                {["Submitted", "Review", "Decision", "Complete"].map(
+                  (step, index) => {
+                    const currentStep =
+                      applicationData.status === "submitted"
+                        ? 1
+                        : applicationData.status === "under_review"
+                          ? 2
+                          : ["accepted", "rejected", "waitlisted"].includes(
+                                applicationData.status
+                              )
+                            ? 3
+                            : 4;
+                    const isCompleted = index < currentStep;
+                    const isCurrent = index === currentStep - 1;
+
+                    return (
+                      <React.Fragment key={step}>
+                        <div className="flex flex-col items-center flex-1">
+                          <div
+                            className={`w-6 h-6 md:w-8 md:h-8 rounded-full flex items-center justify-center text-xs md:text-sm font-semibold
                         ${
                           isCompleted
                             ? "bg-[#017840] text-white"
@@ -685,602 +698,607 @@ const ApplicationStatusHome: React.FC = () => {
                               ? "bg-[#BD9946] text-white"
                               : "bg-gray-200 text-gray-500"
                         }`}
-                        >
-                          {isCompleted ? "✓" : index + 1}
+                          >
+                            {isCompleted ? "✓" : index + 1}
+                          </div>
+                          <span
+                            className={`text-xs mt-1 text-center ${isCurrent ? "font-semibold text-[#BD9946]" : "text-gray-600"} truncate w-full`}
+                          >
+                            {step}
+                          </span>
                         </div>
-                        <span
-                          className={`text-xs mt-1 text-center ${isCurrent ? "font-semibold text-[#BD9946]" : "text-gray-600"} truncate w-full`}
-                        >
-                          {step}
-                        </span>
-                      </div>
-                      {index < 3 && (
-                        <div
-                          className={`flex-1 h-1 mx-1 md:mx-2 ${isCompleted ? "bg-[#017840]" : "bg-gray-200"}`}
-                        />
-                      )}
-                    </React.Fragment>
-                  );
-                }
-              )}
+                        {index < 3 && (
+                          <div
+                            className={`flex-1 h-1 mx-1 md:mx-2 ${isCompleted ? "bg-[#017840]" : "bg-gray-200"}`}
+                          />
+                        )}
+                      </React.Fragment>
+                    );
+                  }
+                )}
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-          {/* Left Column - Application Details */}
-          <div className="lg:col-span-2 space-y-4 md:space-y-6 lg:space-y-8">
-            {/* Documents Section */}
-            <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
-                <span className="w-2 h-2 bg-[#BD9946] rounded-full mr-2"></span>
-                Uploaded Documents
-              </h3>
-              <div className="space-y-3 md:space-y-4">
-                <DocumentCard
-                  document={applicationData.documents.passportPhoto}
-                  title="Passport Photograph"
-                  type="Passport"
-                />
-                <DocumentCard
-                  document={applicationData.documents.birthCertificate}
-                  title="Birth Certificate"
-                  type="Birth"
-                />
-                <DocumentCard
-                  document={applicationData.documents.primaryCertificate}
-                  title="Primary School Certificate"
-                  type="Primary"
-                />
-                <DocumentCard
-                  document={applicationData.documents.secondaryCertificate}
-                  title="Secondary School Certificate"
-                  type="Secondary"
-                />
-                <DocumentCard
-                  document={applicationData.documents.waecNeco}
-                  title="WAEC/NECO Result"
-                  type="Result"
-                />
-              </div>
-            </div>
-
-            {/* Personal Information */}
-            <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
-                <span className="w-2 h-2 bg-[#017840] rounded-full mr-2"></span>
-                Personal Information
-              </h3>
-              <div className="grid grid-cols-1 gap-3 md:gap-4">
-                <MobileInfoField label="Full Name" value={fullName} />
-                <MobileInfoField
-                  label="Date of Birth"
-                  value={formatDate(applicationData.personalInfo.dateOfBirth)}
-                />
-                <MobileInfoField label="Age" value={`${age} years`} />
-                <MobileInfoField
-                  label="Gender"
-                  value={applicationData.personalInfo.gender}
-                />
-                <MobileInfoField
-                  label="Nationality"
-                  value={
-                    applicationData.personalInfo.isNigerian
-                      ? "Nigerian"
-                      : applicationData.personalInfo.nationality
-                  }
-                />
-                <MobileInfoField
-                  label="State of Origin"
-                  value={applicationData.personalInfo.stateOfOrigin}
-                />
-                <MobileInfoField
-                  label="Local Government"
-                  value={applicationData.personalInfo.localGovernment}
-                />
-                <MobileInfoField
-                  label="Country of Residence"
-                  value={
-                    applicationData.personalInfo.countryOfResidence || "Nigeria"
-                  }
-                />
-              </div>
-            </div>
-
-            {/* Contact Information */}
-            <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
-                <span className="w-2 h-2 bg-[#BD9946] rounded-full mr-2"></span>
-                Contact Information
-              </h3>
-              <div className="grid grid-cols-1 gap-3 md:gap-4">
-                <MobileInfoField
-                  label="Email"
-                  value={applicationData.contactInfo.email}
-                />
-                <MobileInfoField
-                  label="Phone"
-                  value={applicationData.contactInfo.phone}
-                />
-                <MobileInfoField
-                  label="Address"
-                  value={applicationData.contactInfo.address}
-                />
-                <MobileInfoField
-                  label="City"
-                  value={applicationData.contactInfo.city}
-                />
-                <MobileInfoField
-                  label="State"
-                  value={applicationData.contactInfo.state}
-                />
-                <MobileInfoField
-                  label="Country"
-                  value={applicationData.contactInfo.country}
-                />
-                <MobileInfoField
-                  label="Zip Code"
-                  value={applicationData.contactInfo.zipCode}
-                />
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+            {/* Left Column - Application Details */}
+            <div className="lg:col-span-2 space-y-4 md:space-y-6 lg:space-y-8">
+              {/* Documents Section */}
+              <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
+                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
+                  <span className="w-2 h-2 bg-[#BD9946] rounded-full mr-2"></span>
+                  Uploaded Documents
+                </h3>
+                <div className="space-y-3 md:space-y-4">
+                  <DocumentCard
+                    document={applicationData.documents.passportPhoto}
+                    title="Passport Photograph"
+                    type="Passport"
+                  />
+                  <DocumentCard
+                    document={applicationData.documents.birthCertificate}
+                    title="Birth Certificate"
+                    type="Birth"
+                  />
+                  <DocumentCard
+                    document={applicationData.documents.primaryCertificate}
+                    title="Primary School Certificate"
+                    type="Primary"
+                  />
+                  <DocumentCard
+                    document={applicationData.documents.secondaryCertificate}
+                    title="Secondary School Certificate"
+                    type="Secondary"
+                  />
+                  <DocumentCard
+                    document={applicationData.documents.waecNeco}
+                    title="WAEC/NECO Result"
+                    type="Result"
+                  />
+                </div>
               </div>
 
-              <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t">
-                <h4 className="font-semibold text-gray-900 mb-2 md:mb-3 text-sm md:text-base">
-                  Guardian Information
-                </h4>
+              {/* Personal Information */}
+              <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
+                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
+                  <span className="w-2 h-2 bg-[#017840] rounded-full mr-2"></span>
+                  Personal Information
+                </h3>
                 <div className="grid grid-cols-1 gap-3 md:gap-4">
+                  <MobileInfoField label="Full Name" value={fullName} />
                   <MobileInfoField
-                    label="Full Name"
-                    value={applicationData.contactInfo.guardianContact.fullName}
+                    label="Date of Birth"
+                    value={formatDate(applicationData.personalInfo.dateOfBirth)}
+                  />
+                  <MobileInfoField label="Age" value={`${age} years`} />
+                  <MobileInfoField
+                    label="Gender"
+                    value={applicationData.personalInfo.gender}
                   />
                   <MobileInfoField
-                    label="Relationship"
+                    label="Nationality"
                     value={
-                      applicationData.contactInfo.guardianContact.relationship
+                      applicationData.personalInfo.isNigerian
+                        ? "Nigerian"
+                        : applicationData.personalInfo.nationality
                     }
                   />
                   <MobileInfoField
-                    label="Phone"
-                    value={applicationData.contactInfo.guardianContact.phone}
+                    label="State of Origin"
+                    value={applicationData.personalInfo.stateOfOrigin}
                   />
                   <MobileInfoField
-                    label="Email"
-                    value={applicationData.contactInfo.guardianContact.email}
+                    label="Local Government"
+                    value={applicationData.personalInfo.localGovernment}
+                  />
+                  <MobileInfoField
+                    label="Country of Residence"
+                    value={
+                      applicationData.personalInfo.countryOfResidence ||
+                      "Nigeria"
+                    }
                   />
                 </div>
               </div>
-            </div>
 
-            {/* Program Information */}
-            <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
-                <span className="w-2 h-2 bg-[#017840] rounded-full mr-2"></span>
-                Program Details
-              </h3>
-              <div className="grid grid-cols-1 gap-3 md:gap-4">
-                <MobileInfoField
-                  label="First Choice"
-                  value={applicationData.programSelection.firstChoice}
-                />
-                <MobileInfoField
-                  label="Second Choice"
-                  value={applicationData.programSelection.secondChoice}
-                />
-                <MobileInfoField
-                  label="Entry Year"
-                  value={applicationData.programSelection.entryYear.toString()}
-                />
-                <MobileInfoField
-                  label="Semester"
-                  value={applicationData.programSelection.semester}
-                />
-                <MobileInfoField
-                  label="Mode of Study"
-                  value={applicationData.programSelection.modeOfStudy}
-                />
-                <MobileInfoField
-                  label="Application Date"
-                  value={formatDate(applicationData.submittedAt)}
-                />
-              </div>
-            </div>
-
-            {/* Academic Background */}
-            <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
-                <span className="w-2 h-2 bg-[#BD9946] rounded-full mr-2"></span>
-                Academic Background
-              </h3>
-
-              {/* Primary Education */}
-              <div className="mb-4 md:mb-6">
-                <h4 className="font-semibold text-gray-700 mb-2 md:mb-3 text-sm md:text-base">
-                  Primary Education
-                </h4>
+              {/* Contact Information */}
+              <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
+                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
+                  <span className="w-2 h-2 bg-[#BD9946] rounded-full mr-2"></span>
+                  Contact Information
+                </h3>
                 <div className="grid grid-cols-1 gap-3 md:gap-4">
                   <MobileInfoField
-                    label="School Name"
-                    value={primaryEducation.schoolName}
+                    label="Email"
+                    value={applicationData.contactInfo.email}
                   />
                   <MobileInfoField
-                    label="Certificate Type"
-                    value={primaryEducation.certificateType}
+                    label="Phone"
+                    value={applicationData.contactInfo.phone}
                   />
                   <MobileInfoField
-                    label="Start Year"
-                    value={primaryEducation.startYear.toString()}
+                    label="Address"
+                    value={applicationData.contactInfo.address}
                   />
                   <MobileInfoField
-                    label="End Year"
-                    value={primaryEducation.endYear.toString()}
+                    label="City"
+                    value={applicationData.contactInfo.city}
+                  />
+                  <MobileInfoField
+                    label="State"
+                    value={applicationData.contactInfo.state}
+                  />
+                  <MobileInfoField
+                    label="Country"
+                    value={applicationData.contactInfo.country}
+                  />
+                  <MobileInfoField
+                    label="Zip Code"
+                    value={applicationData.contactInfo.zipCode}
+                  />
+                </div>
+
+                <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t">
+                  <h4 className="font-semibold text-gray-900 mb-2 md:mb-3 text-sm md:text-base">
+                    Guardian Information
+                  </h4>
+                  <div className="grid grid-cols-1 gap-3 md:gap-4">
+                    <MobileInfoField
+                      label="Full Name"
+                      value={
+                        applicationData.contactInfo.guardianContact.fullName
+                      }
+                    />
+                    <MobileInfoField
+                      label="Relationship"
+                      value={
+                        applicationData.contactInfo.guardianContact.relationship
+                      }
+                    />
+                    <MobileInfoField
+                      label="Phone"
+                      value={applicationData.contactInfo.guardianContact.phone}
+                    />
+                    <MobileInfoField
+                      label="Email"
+                      value={applicationData.contactInfo.guardianContact.email}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Program Information */}
+              <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
+                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
+                  <span className="w-2 h-2 bg-[#017840] rounded-full mr-2"></span>
+                  Program Details
+                </h3>
+                <div className="grid grid-cols-1 gap-3 md:gap-4">
+                  <MobileInfoField
+                    label="First Choice"
+                    value={applicationData.programSelection.firstChoice}
+                  />
+                  <MobileInfoField
+                    label="Second Choice"
+                    value={applicationData.programSelection.secondChoice}
+                  />
+                  <MobileInfoField
+                    label="Entry Year"
+                    value={applicationData.programSelection.entryYear.toString()}
+                  />
+                  <MobileInfoField
+                    label="Semester"
+                    value={applicationData.programSelection.semester}
+                  />
+                  <MobileInfoField
+                    label="Mode of Study"
+                    value={applicationData.programSelection.modeOfStudy}
+                  />
+                  <MobileInfoField
+                    label="Application Date"
+                    value={formatDate(applicationData.submittedAt)}
                   />
                 </div>
               </div>
 
-              {/* Secondary Education */}
-              <div>
-                <h4 className="font-semibold text-gray-700 mb-2 md:mb-3 text-sm md:text-base">
-                  Secondary Education
-                </h4>
-                <div className="grid grid-cols-1 gap-3 md:gap-4 mb-3 md:mb-4">
-                  <MobileInfoField
-                    label="School Name"
-                    value={secondaryEducation.schoolName}
-                  />
-                  <MobileInfoField
-                    label="School Type"
-                    value={secondaryEducation.schoolType}
-                  />
-                  <MobileInfoField
-                    label="Exam Type"
-                    value={secondaryEducation.examType}
-                  />
-                  <MobileInfoField
-                    label="Exam Number"
-                    value={secondaryEducation.examNumber}
-                  />
-                  <MobileInfoField
-                    label="Sitting"
-                    value={secondaryEducation.sitting}
-                  />
-                  <MobileInfoField
-                    label="Completion Year"
-                    value={secondaryEducation.completionYear.toString()}
-                  />
+              {/* Academic Background */}
+              <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
+                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
+                  <span className="w-2 h-2 bg-[#BD9946] rounded-full mr-2"></span>
+                  Academic Background
+                </h3>
+
+                {/* Primary Education */}
+                <div className="mb-4 md:mb-6">
+                  <h4 className="font-semibold text-gray-700 mb-2 md:mb-3 text-sm md:text-base">
+                    Primary Education
+                  </h4>
+                  <div className="grid grid-cols-1 gap-3 md:gap-4">
+                    <MobileInfoField
+                      label="School Name"
+                      value={primaryEducation.schoolName}
+                    />
+                    <MobileInfoField
+                      label="Certificate Type"
+                      value={primaryEducation.certificateType}
+                    />
+                    <MobileInfoField
+                      label="Start Year"
+                      value={primaryEducation.startYear.toString()}
+                    />
+                    <MobileInfoField
+                      label="End Year"
+                      value={primaryEducation.endYear.toString()}
+                    />
+                  </div>
                 </div>
 
-                {/* Grades */}
-                <div className="mt-3 md:mt-4">
-                  <h5 className="font-semibold text-gray-700 mb-2 text-sm md:text-base">
-                    Subject Grades
-                  </h5>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
-                    {secondaryEducation.grades.map((grade, index) => (
-                      <div
-                        key={index}
-                        className="bg-gray-50 rounded-lg p-2 md:p-3"
-                      >
-                        <div className="text-xs md:text-sm font-medium text-gray-600 truncate">
-                          {grade.subject}
-                        </div>
+                {/* Secondary Education */}
+                <div>
+                  <h4 className="font-semibold text-gray-700 mb-2 md:mb-3 text-sm md:text-base">
+                    Secondary Education
+                  </h4>
+                  <div className="grid grid-cols-1 gap-3 md:gap-4 mb-3 md:mb-4">
+                    <MobileInfoField
+                      label="School Name"
+                      value={secondaryEducation.schoolName}
+                    />
+                    <MobileInfoField
+                      label="School Type"
+                      value={secondaryEducation.schoolType}
+                    />
+                    <MobileInfoField
+                      label="Exam Type"
+                      value={secondaryEducation.examType}
+                    />
+                    <MobileInfoField
+                      label="Exam Number"
+                      value={secondaryEducation.examNumber}
+                    />
+                    <MobileInfoField
+                      label="Sitting"
+                      value={secondaryEducation.sitting}
+                    />
+                    <MobileInfoField
+                      label="Completion Year"
+                      value={secondaryEducation.completionYear.toString()}
+                    />
+                  </div>
+
+                  {/* Grades */}
+                  <div className="mt-3 md:mt-4">
+                    <h5 className="font-semibold text-gray-700 mb-2 text-sm md:text-base">
+                      Subject Grades
+                    </h5>
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
+                      {secondaryEducation.grades.map((grade, index) => (
                         <div
-                          className={`text-base md:text-lg font-bold ${
-                            grade.grade === "A1" ||
-                            grade.grade === "A2" ||
-                            grade.grade === "A3"
-                              ? "text-[#017840]"
-                              : grade.grade.startsWith("B")
-                                ? "text-[#BD9946]"
-                                : grade.grade.startsWith("C")
-                                  ? "text-yellow-600"
-                                  : "text-red-600"
+                          key={index}
+                          className="bg-gray-50 rounded-lg p-2 md:p-3"
+                        >
+                          <div className="text-xs md:text-sm font-medium text-gray-600 truncate">
+                            {grade.subject}
+                          </div>
+                          <div
+                            className={`text-base md:text-lg font-bold ${
+                              grade.grade === "A1" ||
+                              grade.grade === "A2" ||
+                              grade.grade === "A3"
+                                ? "text-[#017840]"
+                                : grade.grade.startsWith("B")
+                                  ? "text-[#BD9946]"
+                                  : grade.grade.startsWith("C")
+                                    ? "text-yellow-600"
+                                    : "text-red-600"
+                            }`}
+                          >
+                            {grade.grade}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Column - Payments & Contact */}
+            <div className="space-y-4 md:space-y-6 lg:space-y-8">
+              {/* Payment Section */}
+              <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
+                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center justify-between">
+                  <span className="flex items-center">
+                    <span className="w-2 h-2 bg-[#017840] rounded-full mr-2"></span>
+                    Payment Center
+                  </span>
+                  <span className="text-xs md:text-sm font-normal text-gray-500">
+                    {payments.filter((p) => p.status === "paid").length}/
+                    {payments.length} Paid
+                  </span>
+                </h3>
+
+                <div className="space-y-3 md:space-y-4">
+                  {payments.map((payment) => (
+                    <div
+                      key={payment.id}
+                      className="border rounded-lg p-3 md:p-4"
+                    >
+                      <div className="flex justify-between items-start mb-2">
+                        <div className="min-w-0 flex-1">
+                          <h4 className="font-semibold text-gray-900 text-sm md:text-base truncate">
+                            {payment.description}
+                          </h4>
+                          <p className="text-xs text-gray-600">
+                            Due: {formatDate(payment.dueDate)}
+                          </p>
+                        </div>
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs font-semibold ml-2 flex-shrink-0 ${
+                            payment.status === "paid"
+                              ? "bg-[#017840] bg-opacity-10 text-[#fff]"
+                              : payment.status === "overdue"
+                                ? "bg-red-100 text-red-800"
+                                : "bg-[#BD9946] bg-opacity-20 text-[#fff]"
                           }`}
                         >
-                          {grade.grade}
-                        </div>
+                          {payment.status.charAt(0).toUpperCase() +
+                            payment.status.slice(1)}
+                        </span>
                       </div>
-                    ))}
-                  </div>
+                      <div className="flex justify-between items-center mt-2 md:mt-3">
+                        <span className="text-base md:text-lg font-bold text-gray-900">
+                          ₦{payment.amount}
+                        </span>
+                        <button
+                          onClick={() => handlePayment(payment.id)}
+                          disabled={payment.status === "paid"}
+                          className={`px-3 py-1 md:px-4 md:py-2 rounded-lg text-xs md:text-sm font-semibold transition-colors ${
+                            payment.status === "paid"
+                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                              : "bg-[#017840] text-white hover:bg-[#015a30]"
+                          }`}
+                        >
+                          {payment.status === "paid" ? "Paid" : "Pay Now"}
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="mt-4 md:mt-6 p-3 bg-[#017840] bg-opacity-5 rounded-lg border border-[#017840] border-opacity-20">
+                  <h4 className="font-semibold text-[#fff] mb-1 text-sm md:text-base">
+                    Payment Instructions
+                  </h4>
+                  <p className="text-xs md:text-sm text-[#fff]">
+                    All payments are processed securely. You will receive a
+                    confirmation email upon successful payment.
+                  </p>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Right Column - Payments & Contact */}
-          <div className="space-y-4 md:space-y-6 lg:space-y-8">
-            {/* Payment Section */}
-            <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center justify-between">
-                <span className="flex items-center">
-                  <span className="w-2 h-2 bg-[#017840] rounded-full mr-2"></span>
-                  Payment Center
-                </span>
-                <span className="text-xs md:text-sm font-normal text-gray-500">
-                  {payments.filter((p) => p.status === "paid").length}/
-                  {payments.length} Paid
-                </span>
-              </h3>
+              {/* Contact Information */}
+              <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
+                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
+                  <span className="w-2 h-2 bg-[#BD9946] rounded-full mr-2"></span>
+                  Contact Admissions
+                </h3>
 
-              <div className="space-y-3 md:space-y-4">
-                {payments.map((payment) => (
-                  <div
-                    key={payment.id}
-                    className="border rounded-lg p-3 md:p-4"
+                <div className="space-y-2 md:space-y-3">
+                  <MobileContactItem
+                    icon={<Mail className="w-4 h-4" />}
+                    label="Email"
+                    value="admissions@sauni.edu"
+                    link="mailto:admissions@sauni.edu"
+                  />
+                  <MobileContactItem
+                    icon={<Phone className="w-4 h-4" />}
+                    label="Phone"
+                    value="+2348127728084"
+                    link="tel:+2348127728084"
+                  />
+                  <MobileContactItem
+                    icon={<MapPin className="w-4 h-4" />}
+                    label="Address"
+                    value="Southern Atlantic University, Uyo, Akwa Ibom, Nigeria"
+                    link="https://www.google.com/maps/place/Southern+Atlantic+Polytechnic/@4.9378809,8.0114821,17z/data=!3m1!4b1!4m6!3m5!1s0x1067f7a10e4b8939:0xd700e5b3402992c9!8m2!3d4.9378809!4d8.014057!16s%2Fg%2F11rqz9rn59?entry=ttu&g_ep=EgoyMDI1MDkxNy4wIKXMDSoASAFQAw%3D%3D"
+                  />
+                  <MobileContactItem
+                    icon={<Clock className="w-4 h-4" />}
+                    label="Office Hours"
+                    value="Mon-Fri, 9:00 AM - 5:00 PM"
+                  />
+                </div>
+
+                <button className="w-full mt-3 md:mt-4 bg-gray-100 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors text-sm md:text-base">
+                  Schedule a Campus Tour
+                </button>
+              </div>
+
+              {/* Quick Actions */}
+              <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
+                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4">
+                  Quick Actions
+                </h3>
+                <div className="space-y-2">
+                  <button
+                    onClick={generatePDF}
+                    disabled={isGeneratingPDF}
+                    className="w-full text-left p-2 md:p-3 rounded-lg border border-gray-200 hover:bg-[#f0f9f4] transition-colors flex items-center text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="min-w-0 flex-1">
-                        <h4 className="font-semibold text-gray-900 text-sm md:text-base truncate">
-                          {payment.description}
-                        </h4>
-                        <p className="text-xs text-gray-600">
-                          Due: {formatDate(payment.dueDate)}
+                    <Download className="w-4 h-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">
+                      {isGeneratingPDF
+                        ? "Generating PDF..."
+                        : "Download Application Summary"}
+                    </span>
+                  </button>
+                  <button className="w-full text-left p-2 md:p-3 rounded-lg border border-gray-200 hover:bg-[#f0f9f4] transition-colors flex items-center text-sm md:text-base">
+                    <Notebook className="w-4 h-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">View Program Requirements</span>
+                  </button>
+                  <button className="w-full text-left p-2 md:p-3 rounded-lg border border-gray-200 hover:bg-[#f0f9f4] transition-colors flex items-center text-sm md:text-base">
+                    <HelpingHand className="w-4 h-4 mr-2 flex-shrink-0" />
+                    <span className="truncate">Request Information</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Temporary Password */}
+              {applicationData.tempPassword &&
+                !applicationData.passwordChanged && (
+                  <div
+                    className="bg-[#fefaf0] border border-[#BD9946] rounded-xl md:rounded-2xl p-4 md:p-6 cursor-pointer hover:bg-[#fdf6e7] transition-colors"
+                    onClick={() => setShowPasswordModal(true)}
+                  >
+                    <div className="flex items-center space-x-2 md:space-x-3 mb-2 md:mb-3">
+                      <div className="w-8 h-8 md:w-10 md:h-10 bg-[#BD9946] bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0">
+                        <Lock className="w-4 h-4 md:w-5 md:h-5 text-[#BD9946]" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-[#BD9946] text-sm md:text-base">
+                          Temporary Password
+                        </h3>
+                        <p className="text-xs text-[#BD9946] opacity-80">
+                          Click to change your password
                         </p>
                       </div>
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs font-semibold ml-2 flex-shrink-0 ${
-                          payment.status === "paid"
-                            ? "bg-[#017840] bg-opacity-10 text-[#fff]"
-                            : payment.status === "overdue"
-                              ? "bg-red-100 text-red-800"
-                              : "bg-[#BD9946] bg-opacity-20 text-[#fff]"
-                        }`}
-                      >
-                        {payment.status.charAt(0).toUpperCase() +
-                          payment.status.slice(1)}
-                      </span>
                     </div>
-                    <div className="flex justify-between items-center mt-2 md:mt-3">
-                      <span className="text-base md:text-lg font-bold text-gray-900">
-                        ₦{payment.amount}
-                      </span>
-                      <button
-                        onClick={() => handlePayment(payment.id)}
-                        disabled={payment.status === "paid"}
-                        className={`px-3 py-1 md:px-4 md:py-2 rounded-lg text-xs md:text-sm font-semibold transition-colors ${
-                          payment.status === "paid"
-                            ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                            : "bg-[#017840] text-white hover:bg-[#015a30]"
-                        }`}
-                      >
-                        {payment.status === "paid" ? "Paid" : "Pay Now"}
-                      </button>
+                    <div className="bg-white border border-[#BD9946] border-opacity-30 rounded-lg p-2 md:p-3">
+                      <code className="font-mono font-bold text-[#BD9946] text-base md:text-lg break-all">
+                        {applicationData.tempPassword}
+                      </code>
                     </div>
+                    <p className="text-[#BD9946] text-xs mt-1 md:mt-2 opacity-70">
+                      Please change this password after your first login. This
+                      can only be done once.
+                    </p>
                   </div>
-                ))}
-              </div>
+                )}
 
-              <div className="mt-4 md:mt-6 p-3 bg-[#017840] bg-opacity-5 rounded-lg border border-[#017840] border-opacity-20">
-                <h4 className="font-semibold text-[#fff] mb-1 text-sm md:text-base">
-                  Payment Instructions
-                </h4>
-                <p className="text-xs md:text-sm text-[#fff]">
-                  All payments are processed securely. You will receive a
-                  confirmation email upon successful payment.
-                </p>
-              </div>
-            </div>
-
-            {/* Contact Information */}
-            <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
-                <span className="w-2 h-2 bg-[#BD9946] rounded-full mr-2"></span>
-                Contact Admissions
-              </h3>
-
-              <div className="space-y-2 md:space-y-3">
-                <MobileContactItem
-                  icon={<Mail className="w-4 h-4" />}
-                  label="Email"
-                  value="admissions@sauni.edu"
-                  link="mailto:admissions@sauni.edu"
-                />
-                <MobileContactItem
-                  icon={<Phone className="w-4 h-4" />}
-                  label="Phone"
-                  value="+2348127728084"
-                  link="tel:+2348127728084"
-                />
-                <MobileContactItem
-                  icon={<MapPin className="w-4 h-4" />}
-                  label="Address"
-                  value="Southern Atlantic University, Uyo, Akwa Ibom, Nigeria"
-                  link="https://www.google.com/maps/place/Southern+Atlantic+Polytechnic/@4.9378809,8.0114821,17z/data=!3m1!4b1!4m6!3m5!1s0x1067f7a10e4b8939:0xd700e5b3402992c9!8m2!3d4.9378809!4d8.014057!16s%2Fg%2F11rqz9rn59?entry=ttu&g_ep=EgoyMDI1MDkxNy4wIKXMDSoASAFQAw%3D%3D"
-                />
-                <MobileContactItem
-                  icon={<Clock className="w-4 h-4" />}
-                  label="Office Hours"
-                  value="Mon-Fri, 9:00 AM - 5:00 PM"
-                />
-              </div>
-
-              <button className="w-full mt-3 md:mt-4 bg-gray-100 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors text-sm md:text-base">
-                Schedule a Campus Tour
-              </button>
-            </div>
-
-            {/* Quick Actions */}
-            <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-              <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4">
-                Quick Actions
-              </h3>
-              <div className="space-y-2">
-                <button
-                  onClick={generatePDF}
-                  disabled={isGeneratingPDF}
-                  className="w-full text-left p-2 md:p-3 rounded-lg border border-gray-200 hover:bg-[#f0f9f4] transition-colors flex items-center text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Download className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">
-                    {isGeneratingPDF
-                      ? "Generating PDF..."
-                      : "Download Application Summary"}
-                  </span>
-                </button>
-                <button className="w-full text-left p-2 md:p-3 rounded-lg border border-gray-200 hover:bg-[#f0f9f4] transition-colors flex items-center text-sm md:text-base">
-                  <Notebook className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">View Program Requirements</span>
-                </button>
-                <button className="w-full text-left p-2 md:p-3 rounded-lg border border-gray-200 hover:bg-[#f0f9f4] transition-colors flex items-center text-sm md:text-base">
-                  <HelpingHand className="w-4 h-4 mr-2 flex-shrink-0" />
-                  <span className="truncate">Request Information</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Temporary Password */}
-            {applicationData.tempPassword &&
-              !applicationData.passwordChanged && (
-                <div
-                  className="bg-[#fefaf0] border border-[#BD9946] rounded-xl md:rounded-2xl p-4 md:p-6 cursor-pointer hover:bg-[#fdf6e7] transition-colors"
-                  onClick={() => setShowPasswordModal(true)}
-                >
-                  <div className="flex items-center space-x-2 md:space-x-3 mb-2 md:mb-3">
-                    <div className="w-8 h-8 md:w-10 md:h-10 bg-[#BD9946] bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Lock className="w-4 h-4 md:w-5 md:h-5 text-[#BD9946]" />
+              {applicationData.passwordChanged && (
+                <div className="bg-[#f0f9f4] border border-[#017840] rounded-xl md:rounded-2xl p-4 md:p-6">
+                  <div className="flex items-center space-x-2 md:space-x-3">
+                    <div className="w-8 h-8 md:w-10 md:h-10 bg-[#017840] bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Lock className="w-4 h-4 md:w-5 md:h-5 text-[#017840]" />
                     </div>
                     <div>
-                      <h3 className="font-semibold text-[#BD9946] text-sm md:text-base">
-                        Temporary Password
+                      <h3 className="font-semibold text-[#017840] text-sm md:text-base">
+                        Password Updated
                       </h3>
-                      <p className="text-xs text-[#BD9946] opacity-80">
-                        Click to change your password
+                      <p className="text-xs text-[#017840] opacity-80">
+                        Your password has been changed successfully
                       </p>
                     </div>
                   </div>
-                  <div className="bg-white border border-[#BD9946] border-opacity-30 rounded-lg p-2 md:p-3">
-                    <code className="font-mono font-bold text-[#BD9946] text-base md:text-lg break-all">
-                      {applicationData.tempPassword}
-                    </code>
-                  </div>
-                  <p className="text-[#BD9946] text-xs mt-1 md:mt-2 opacity-70">
-                    Please change this password after your first login. This can
-                    only be done once.
-                  </p>
                 </div>
               )}
+            </div>
+          </div>
 
-            {applicationData.passwordChanged && (
-              <div className="bg-[#f0f9f4] border border-[#017840] rounded-xl md:rounded-2xl p-4 md:p-6">
-                <div className="flex items-center space-x-2 md:space-x-3">
-                  <div className="w-8 h-8 md:w-10 md:h-10 bg-[#017840] bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0">
-                    <Lock className="w-4 h-4 md:w-5 md:h-5 text-[#017840]" />
-                  </div>
-                  <div>
-                    <h3 className="font-semibold text-[#017840] text-sm md:text-base">
-                      Password Updated
-                    </h3>
-                    <p className="text-xs text-[#017840] opacity-80">
-                      Your password has been changed successfully
-                    </p>
-                  </div>
+          {/* Status-specific Messages */}
+          {applicationData.status === "under_review" && (
+            <div className="mt-6 md:mt-8 bg-[#fefaf0] border border-[#BD9946] rounded-xl md:rounded-2xl p-4 md:p-6">
+              <div className="flex items-start">
+                <span className="text-xl md:text-2xl mr-3 md:mr-4 flex-shrink-0">
+                  🔍
+                </span>
+                <div>
+                  <h4 className="font-semibold text-[#BD9946] text-sm md:text-base">
+                    Application Under Review
+                  </h4>
+                  <p className="text-[#BD9946] opacity-90 text-xs md:text-sm">
+                    Your application is currently being reviewed by our
+                    admissions committee. This process typically takes 2-3
+                    weeks. You will be notified immediately once a decision is
+                    made.
+                  </p>
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
+
+          {applicationData.status === "accepted" && (
+            <div className="mt-6 md:mt-8 bg-[#f0f9f4] border border-[#017840] rounded-xl md:rounded-2xl p-4 md:p-6">
+              <div className="flex items-start">
+                <span className="text-xl md:text-2xl mr-3 md:mr-4 flex-shrink-0">
+                  🎉
+                </span>
+                <div>
+                  <h4 className="font-semibold text-[#017840] text-sm md:text-base">
+                    Congratulations! You&apos;ve Been Accepted!
+                  </h4>
+                  <p className="text-[#017840] opacity-90 text-xs md:text-sm">
+                    Welcome to SAUNI University! Your application has been
+                    accepted. Please complete your payment and review the next
+                    steps in your admission package.
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
-        {/* Status-specific Messages */}
-        {applicationData.status === "under_review" && (
-          <div className="mt-6 md:mt-8 bg-[#fefaf0] border border-[#BD9946] rounded-xl md:rounded-2xl p-4 md:p-6">
-            <div className="flex items-start">
-              <span className="text-xl md:text-2xl mr-3 md:mr-4 flex-shrink-0">
-                🔍
-              </span>
-              <div>
-                <h4 className="font-semibold text-[#BD9946] text-sm md:text-base">
-                  Application Under Review
-                </h4>
-                <p className="text-[#BD9946] opacity-90 text-xs md:text-sm">
-                  Your application is currently being reviewed by our admissions
-                  committee. This process typically takes 2-3 weeks. You will be
-                  notified immediately once a decision is made.
+        {/* Footer */}
+        <footer className="bg-[#017840] text-white mt-8 md:mt-12">
+          <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-6 md:py-12">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 items-center">
+              {/* Left Section - Logo and Info */}
+              <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
+                <div className="relative w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mb-3 md:mb-4">
+                  <Image
+                    src="/sauni-logo.png"
+                    alt="SAUNI Logo"
+                    width={80}
+                    height={80}
+                    className="object-contain"
+                  />
+                </div>
+                <h3 className="text-lg md:text-xl lg:text-2xl font-bold mb-1 md:mb-2">
+                  SOUTHERN ATLANTIC UNIVERSITY
+                </h3>
+                <p className="text-white/80 text-xs md:text-sm lg:text-base">
+                  Empowering students through quality education since 2025.
                 </p>
               </div>
-            </div>
-          </div>
-        )}
 
-        {applicationData.status === "accepted" && (
-          <div className="mt-6 md:mt-8 bg-[#f0f9f4] border border-[#017840] rounded-xl md:rounded-2xl p-4 md:p-6">
-            <div className="flex items-start">
-              <span className="text-xl md:text-2xl mr-3 md:mr-4 flex-shrink-0">
-                🎉
-              </span>
-              <div>
-                <h4 className="font-semibold text-[#017840] text-sm md:text-base">
-                  Congratulations! You&apos;ve Been Accepted!
+              {/* Right Section - Need Help */}
+              <div className="text-center lg:text-right">
+                <h4 className="font-semibold text-base md:text-lg lg:text-xl mb-2 md:mb-4 relative inline-block">
+                  Need Help?
+                  <span className="absolute left-0 -bottom-1 w-full h-0.5 bg-[#BD9946]"></span>
                 </h4>
-                <p className="text-[#017840] opacity-90 text-xs md:text-sm">
-                  Welcome to SAUNI University! Your application has been
-                  accepted. Please complete your payment and review the next
-                  steps in your admission package.
+                <p className="text-white/80 mb-3 md:mb-4 text-xs md:text-sm lg:text-base max-w-md mx-auto lg:mx-0 lg:ml-auto">
+                  Contact our admissions team for assistance with your
+                  application.
                 </p>
+
+                {/* Contact Links - Single consistent layout */}
+                <div className="flex flex-col gap-2 items-center lg:items-end">
+                  <Link
+                    href="mailto:admissions@sauni.edu"
+                    className="text-white/90 hover:text-white text-sm md:text-base font-semibold break-all lg:break-normal"
+                  >
+                    admissions@sauni.edu
+                  </Link>
+
+                  <Link
+                    href="tel:+2348127728084"
+                    className="text-white/90 hover:text-white text-sm md:text-base font-semibold"
+                  >
+                    +234 812 772 8084
+                  </Link>
+                </div>
               </div>
             </div>
+
+            {/* Bottom Copyright */}
+            <div className="border-t border-white/20 mt-6 md:mt-8 pt-4 md:pt-6 text-center text-xs md:text-sm text-white/60">
+              <p>© 2025 SAUNI University. All rights reserved.</p>
+            </div>
           </div>
-        )}
+        </footer>
       </div>
-
-      {/* Footer */}
-      <footer className="bg-[#017840] text-white mt-8 md:mt-12">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8 py-6 md:py-12">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 items-center">
-            {/* Left Section - Logo and Info */}
-            <div className="flex flex-col items-center lg:items-start text-center lg:text-left">
-              <div className="relative w-12 h-12 md:w-16 md:h-16 lg:w-20 lg:h-20 mb-3 md:mb-4">
-                <Image
-                  src="/sauni-logo.png"
-                  alt="SAUNI Logo"
-                  width={80}
-                  height={80}
-                  className="object-contain"
-                />
-              </div>
-              <h3 className="text-lg md:text-xl lg:text-2xl font-bold mb-1 md:mb-2">
-                SOUTHERN ATLANTIC UNIVERSITY
-              </h3>
-              <p className="text-white/80 text-xs md:text-sm lg:text-base">
-                Empowering students through quality education since 2025.
-              </p>
-            </div>
-
-            {/* Right Section - Need Help */}
-            <div className="text-center lg:text-right">
-              <h4 className="font-semibold text-base md:text-lg lg:text-xl mb-2 md:mb-4 relative inline-block">
-                Need Help?
-                <span className="absolute left-0 -bottom-1 w-full h-0.5 bg-[#BD9946]"></span>
-              </h4>
-              <p className="text-white/80 mb-3 md:mb-4 text-xs md:text-sm lg:text-base max-w-md mx-auto lg:mx-0 lg:ml-auto">
-                Contact our admissions team for assistance with your
-                application.
-              </p>
-
-              {/* Contact Links - Single consistent layout */}
-              <div className="flex flex-col gap-2 items-center lg:items-end">
-                <Link
-                  href="mailto:admissions@sauni.edu"
-                  className="text-white/90 hover:text-white text-sm md:text-base font-semibold break-all lg:break-normal"
-                >
-                  admissions@sauni.edu
-                </Link>
-
-                <Link
-                  href="tel:+2348127728084"
-                  className="text-white/90 hover:text-white text-sm md:text-base font-semibold"
-                >
-                  +234 812 772 8084
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Copyright */}
-          <div className="border-t border-white/20 mt-6 md:mt-8 pt-4 md:pt-6 text-center text-xs md:text-sm text-white/60">
-            <p>© 2025 SAUNI University. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
-    </div>
+    </Suspense>
   );
 };
 
