@@ -1,6 +1,7 @@
 import React from "react";
+import ApplicationPayment from "./ApplicationPayment";
 
-const ApplicationPayment = () => {
+const ApplicationPaymentPage = () => {
   return (
     <>
       <ApplicationPayment />
@@ -8,4 +9,4 @@ const ApplicationPayment = () => {
   );
 };
 
-export default ApplicationPayment;
+export default ApplicationPaymentPage;
