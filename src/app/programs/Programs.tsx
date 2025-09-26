@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import {
   ArrowRight,
   GraduationCap,
-  Clock,
   Handshake,
   ShieldCheck,
 } from "lucide-react";
@@ -147,7 +146,7 @@ const Programs = () => {
         >
           Discover our comprehensive range of undergraduate programs designed to
           equip you with the knowledge, skills, and practical experience needed
-          for success in today's competitive global landscape.
+          for success in today&apos;s competitive global landscape.
         </p>
       </motion.div>
 
@@ -158,7 +157,7 @@ const Programs = () => {
         initial="hidden"
         animate="visible"
       >
-        {facultyData.map((faculty, index) => (
+        {facultyData.map((faculty) => (
           <motion.section
             key={faculty.id}
             variants={facultyVariants}
@@ -189,7 +188,7 @@ const Programs = () => {
                     className="grid grid-cols-1 md:grid-cols-2 gap-4"
                     variants={containerVariants}
                   >
-                    {faculty.courses.map((course, courseIndex) => (
+                    {faculty.courses.map((course) => (
                       <Link key={course.id} href={`/programs/${course.id}`}>
                         <motion.div
                           variants={courseItemVariants}
@@ -271,7 +270,7 @@ const Programs = () => {
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.7 }}
                   >
-                    "{faculty.dean.message}"
+                    &ldquo;{faculty.dean.message}&rdquo;
                   </motion.blockquote>
 
                   <motion.div

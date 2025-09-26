@@ -246,7 +246,7 @@ const AdminDashboard: React.FC = () => {
     );
 
     return () => off(applicationsRef, "value", fetchApplications);
-  }, []);
+  }, [calculateStats]);
 
   // Enhanced payments data with realistic amounts
   useEffect(() => {
