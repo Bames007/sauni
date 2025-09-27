@@ -199,15 +199,16 @@ const OurPrograms = () => {
         </p>
 
         <div className="flex flex-col sm:flex-row gap-3 md:gap-4 justify-center">
-          <motion.button
-            whileHover={{ scale: 1.03 }}
-            whileTap={{ scale: 0.97 }}
-            className="bg-[#13660B] hover:bg-[#0f4f08] text-white font-semibold py-2 md:py-3 px-4 md:px-8 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2 shadow-lg text-sm md:text-base"
-          >
-            <Handshake size={18} />
-            Talk With A Counsellor
-          </motion.button>
-
+          <Link href="/ai-counsellor">
+            <motion.button
+              whileHover={{ scale: 1.03 }}
+              whileTap={{ scale: 0.97 }}
+              className="bg-[#13660B] hover:bg-[#0f4f08] text-white font-semibold py-2 md:py-3 px-4 md:px-8 rounded-lg transition-colors duration-300 flex items-center justify-center gap-2 shadow-lg text-sm md:text-base"
+            >
+              <Handshake size={18} />
+              Talk With A Counsellor
+            </motion.button>
+          </Link>
           <Link href="/application">
             <motion.div
               whileHover={{ scale: 1.03 }}

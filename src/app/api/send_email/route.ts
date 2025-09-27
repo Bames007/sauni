@@ -430,6 +430,7 @@ export async function POST(request: NextRequest) {
         </h3>
         <ul>
           <li>Our admissions team will review your application</li>
+          <li>Login to your Application Status to check your Admission Status</li>
           <li>You'll receive an update within 7-14 days</li>
           <li>We may contact you for additional information</li>
           <li>Final admission decision will be communicated via email</li>

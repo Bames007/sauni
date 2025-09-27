@@ -44,7 +44,7 @@ const WhyChoose = () => {
       title: "World-Class Faculty",
       description: "Learn from industry experts and renowned academics",
       icon: <GraduationCap className="w-8 h-8 text-blue-600" />,
-      video: "https://www.youtube.com/embed/9bZkp7q19f0",
+      video: "https://www.youtube.com/watch?v=EZEE1GwBF3U",
       thumbnail:
         "https://images.unsplash.com/photo-1577896851231-70ef18881754?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
       gradient: "from-blue-600 to-purple-600",
@@ -53,7 +53,7 @@ const WhyChoose = () => {
       title: "Modern Facilities",
       description: "State-of-the-art labs, libraries, and learning spaces",
       icon: <BookOpen className="w-8 h-8 text-green-600" />,
-      video: "https://www.youtube.com/embed/9bZkp7q19f0",
+      video: "https://www.youtube.com/watch?v=EZEE1GwBF3U",
       thumbnail:
         "https://images.unsplash.com/photo-1498243691581-b145c3f54a5a?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
       gradient: "from-green-600 to-teal-600",
@@ -62,7 +62,7 @@ const WhyChoose = () => {
       title: "Career Support",
       description: "Dedicated career services to help you succeed",
       icon: <Users className="w-8 h-8 text-orange-600" />,
-      video: "https://www.youtube.com/embed/9bZkp7q19f0",
+      video: "https://www.youtube.com/watch?v=EZEE1GwBF3U",
       thumbnail:
         "https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
       gradient: "from-orange-600 to-red-600",
@@ -71,7 +71,7 @@ const WhyChoose = () => {
       title: "Global Community",
       description: "Join a diverse student body from around the world",
       icon: <Globe className="w-8 h-8 text-indigo-600" />,
-      video: "https://www.youtube.com/embed/9bZkp7q19f0",
+      video: "https://www.youtube.com/watch?v=EZEE1GwBF3U",
       thumbnail:
         "https://images.unsplash.com/photo-1523580494863-6f3031224c94?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
       gradient: "from-indigo-600 to-purple-600",
@@ -238,7 +238,7 @@ const WhyChoose = () => {
           </div>
 
           {/* Right - Features */}
-          <div className="w-full lg:w-1/2 grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
+          <div className="w-full lg:w-1/2 grid grid-cols-1 lg:grid-cols-1 gap-4 md:gap-6">
             {features.map((feature, index) => {
               return (
                 <div
@@ -468,7 +468,7 @@ const WhyChoose = () => {
       {/* Video Modal */}
       {selectedVideo !== null && (
         <div className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4">
-          <div className="relative w-full max-w-6xl aspect-video bg-black rounded-xl md:rounded-3xl overflow-hidden shadow-2xl">
+          <div className="relative w-full max-w-6xl bg-black rounded-xl md:rounded-3xl overflow-hidden shadow-2xl">
             <button
               onClick={handleCloseVideo}
               className="absolute top-4 md:top-6 right-4 md:right-6 z-10 w-10 h-10 md:w-12 md:h-12 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors duration-300 backdrop-blur-sm"
@@ -476,85 +476,18 @@ const WhyChoose = () => {
               <X className="w-5 h-5 md:w-6 md:h-6 text-white" />
             </button>
 
-            <div className="w-full h-full flex flex-col lg:flex-row">
-              <div className="flex-1">
-                <iframe
-                  src={`${
-                    features[selectedVideo % features.length]?.video
-                  }?autoplay=1`}
-                  className="w-full h-full"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                  title="YouTube video player"
-                ></iframe>
-              </div>
-
-              <div className="w-full lg:w-80 bg-gray-900 p-4 md:p-6 overflow-y-auto">
-                <h3 className="text-white text-lg md:text-xl font-bold mb-4 md:mb-6 flex items-center">
-                  <Play className="w-4 h-4 md:w-5 md:h-5 mr-2" />
-                  More Campus Videos
-                </h3>
-                <div className="space-y-3 md:space-y-4">
-                  {features.map((feature, index) => (
-                    <div
-                      key={index}
-                      className={`flex items-center space-x-3 md:space-x-4 p-3 md:p-4 rounded-lg md:rounded-xl cursor-pointer transition-all duration-300 ${
-                        selectedVideo === index
-                          ? "bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg"
-                          : "bg-gray-800 hover:bg-gray-700"
-                      }`}
-                      onClick={() => setSelectedVideo(index)}
-                    >
-                      {/* <div className="flex-shrink-0">
-                        <Image
-                          src={feature.thumbnail}
-                          alt={feature.title}
-                          className="w-12 h-10 md:w-16 md:h-12 object-cover rounded-md md:rounded-lg shadow-sm"
-                        />
-                      </div> */}
-                      <div className="flex-shrink-0">
-                        <div className="relative w-12 h-10 md:w-16 md:h-12">
-                          <Image
-                            src={feature.thumbnail}
-                            alt={feature.title}
-                            fill
-                            className="object-cover rounded-md md:rounded-lg shadow-sm"
-                            sizes="(max-width: 768px) 48px, 64px"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <h4
-                          className={`text-xs md:text-sm font-semibold ${
-                            selectedVideo === index
-                              ? "text-white"
-                              : "text-white"
-                          }`}
-                        >
-                          {feature.title}
-                        </h4>
-                        <p
-                          className={`text-xs ${
-                            selectedVideo === index
-                              ? "text-blue-100"
-                              : "text-gray-400"
-                          } truncate`}
-                        >
-                          {feature.description}
-                        </p>
-                      </div>
-                      <ChevronRight
-                        className={`w-3 h-3 md:w-4 md:h-4 ${
-                          selectedVideo === index
-                            ? "text-white"
-                            : "text-gray-400"
-                        }`}
-                      />
-                    </div>
-                  ))}
-                </div>
-              </div>
+            {/* Responsive video container */}
+            <div className="relative" style={{ paddingBottom: "56.25%" }}>
+              {" "}
+              {/* 16:9 aspect ratio */}
+              <iframe
+                src={`https://www.youtube.com/embed/EZEE1GwBF3U?autoplay=1`}
+                className="absolute top-0 left-0 w-full h-full"
+                frameBorder="0"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                allowFullScreen
+                title="YouTube video player"
+              />
             </div>
           </div>
         </div>

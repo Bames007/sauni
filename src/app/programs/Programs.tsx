@@ -128,10 +128,34 @@ const Programs = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#f0f7f0] to-white py-12 px-4 md:px-8">
+    <div className="min-h-screen bg-gradient-to-b from-[#f0f7f0] to-white py-0 px-0 md:px-0">
+      {/* Navigation */}
+      <div className="bg-white shadow-sm sticky top-0 z-50 transition-all duration-300">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+          <Link
+            href="/"
+            className="inline-flex items-center text-[#017840] hover:text-[#015c30] font-poppins transition-all duration-300"
+          >
+            <div className="flex items-center space-x-3">
+              {/* School Logo */}
+              <Image
+                src="/sauni-logo.png"
+                alt="SAUNI Logo"
+                width={48}
+                height={48}
+                className="h-12 w-12"
+              />
+              <span className={`text-xl ${bebasNeue.className}`}>
+                Southern Atlantic University
+              </span>
+            </div>
+          </Link>
+        </div>
+      </div>
+
       {/* Header Section */}
       <motion.div
-        className="text-center mb-16"
+        className="text-center mb-16 mt-8"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7 }}
@@ -294,7 +318,7 @@ const Programs = () => {
 
       {/* Bottom CTA Section */}
       <motion.div
-        className="mt-20 text-center"
+        className="mt-20 text-center mb-10"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, delay: 0.5 }}

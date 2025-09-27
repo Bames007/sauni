@@ -21,7 +21,7 @@ const bebasNeue = Bebas_Neue({
 const navLinks = [
   { name: "Home", href: "/" },
   { name: "Programs", href: "/programs" },
-  { name: "About Us", href: "/about" },
+  { name: "Take Test", href: "/ai-counsellor" },
   { name: "Apply", href: "/application" },
 ];
 

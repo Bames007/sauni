@@ -110,54 +110,6 @@ const DocumentsUpload: React.FC<DocumentsUploadProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Log the data before proceeding
-    console.log("=== DOCUMENTS UPLOAD FORM DATA ===");
-    console.log("Form Data to be passed:", data);
-    console.log("Form Data (formatted):", {
-      passportPhoto: data?.passportPhoto
-        ? {
-            name: data.passportPhoto.name,
-            size: data.passportPhoto.size,
-            type: data.passportPhoto.type,
-            uploadedAt: data.passportPhoto.uploadedAt,
-          }
-        : null,
-      birthCertificate: data?.birthCertificate
-        ? {
-            name: data.birthCertificate.name,
-            size: data.birthCertificate.size,
-            type: data.birthCertificate.type,
-            uploadedAt: data.birthCertificate.uploadedAt,
-          }
-        : null,
-      primaryCertificate: data?.primaryCertificate
-        ? {
-            name: data.primaryCertificate.name,
-            size: data.primaryCertificate.size,
-            type: data.primaryCertificate.type,
-            uploadedAt: data.primaryCertificate.uploadedAt,
-          }
-        : null,
-      secondaryCertificate: data?.secondaryCertificate
-        ? {
-            name: data.secondaryCertificate.name,
-            size: data.secondaryCertificate.size,
-            type: data.secondaryCertificate.type,
-            uploadedAt: data.secondaryCertificate.uploadedAt,
-          }
-        : null,
-      waecNeco: data?.waecNeco
-        ? {
-            name: data.waecNeco.name,
-            size: data.waecNeco.size,
-            type: data.waecNeco.type,
-            uploadedAt: data.waecNeco.uploadedAt,
-          }
-        : null,
-    });
-    console.log("Is form valid:", isFormValid());
-    console.log("=== END DOCUMENTS UPLOAD ===");
-
     nextStep();
   };
 
@@ -295,27 +247,6 @@ const DocumentsUpload: React.FC<DocumentsUploadProps> = ({
 
   return (
     <div className="max-w-4xl mx-auto p-3 sm:p-6 bg-white rounded-xl shadow-lg">
-      {/* Debug info panel - only show in development */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <h3 className="font-semibold text-yellow-800 mb-2">
-            Debug Info (Development Only)
-          </h3>
-          <pre className="text-xs text-yellow-700 overflow-auto max-h-32">
-            {JSON.stringify(
-              {
-                data,
-                fileNames,
-                isFormValid: isFormValid(),
-                personalInfo,
-              },
-              null,
-              2
-            )}
-          </pre>
-        </div>
-      )}
-
       <div className="mb-6 sm:mb-8 text-center">
         <h1 className="text-xl sm:text-3xl font-bold text-[#017840] mb-2">
           Documents Upload
@@ -415,16 +346,14 @@ const DocumentsUpload: React.FC<DocumentsUploadProps> = ({
             className="flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#017840] focus:ring-opacity-50 transition-all order-2 sm:order-1"
             disabled={uploading !== null}
           >
-            <ChevronLeft className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-            Back
+            ← Back
           </button>
           <button
             type="submit"
             className="flex items-center justify-center px-4 sm:px-6 py-2 sm:py-3 bg-[#017840] text-white rounded-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-[#BD9946] focus:ring-opacity-50 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed order-1 sm:order-2"
             disabled={uploading !== null || !isFormValid()}
           >
-            {uploading ? "Processing..." : "Save & Continue"}
-            <ChevronRight className="ml-2 h-4 w-4 sm:h-5 sm:w-5" />
+            {uploading ? "Processing..." : "Save & Continue →"}
           </button>
         </div>
       </form>

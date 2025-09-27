@@ -94,32 +94,10 @@ const ContactInfoForm: React.FC<ContactInfoFormProps> = ({
     (e: React.FormEvent) => {
       e.preventDefault();
       if (validate()) {
-        // Log the data before proceeding
-        console.log("=== CONTACT INFO FORM DATA ===");
-        console.log("Form Data to be passed:", formData);
-        console.log("Form Data (formatted):", {
-          email: formData.email,
-          phone: formData.phone,
-          address: formData.address,
-          city: formData.city,
-          state: formData.state,
-          country: formData.country,
-          zipCode: formData.zipCode,
-          guardianContact: {
-            fullName: formData.guardianContact.fullName,
-            relationship: formData.guardianContact.relationship,
-            phone: formData.guardianContact.phone,
-            email: formData.guardianContact.email,
-          },
-        });
-        console.log("=== END CONTACT INFO ===");
-
         updateData(formData);
         nextStep();
       } else {
-        console.log("=== CONTACT FORM VALIDATION FAILED ===");
         console.log("Errors:", errors);
-        console.log("Current form data:", formData);
       }
     },
     [formData, validate, updateData, nextStep, errors]
@@ -132,18 +110,6 @@ const ContactInfoForm: React.FC<ContactInfoFormProps> = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Debug info panel - only show in development */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <h3 className="font-semibold text-yellow-800 mb-2">
-            Debug Info (Development Only)
-          </h3>
-          <pre className="text-xs text-yellow-700 overflow-auto max-h-32">
-            {JSON.stringify(formData, null, 2)}
-          </pre>
-        </div>
-      )}
-
       <div className="bg-white p-4 md:p-6 rounded-lg shadow-md">
         <h2 className="text-xl md:text-2xl font-bold text-gray-900 border-b-2 border-amber-600 pb-2 md:pb-3 mb-4 md:mb-6">
           Contact Information

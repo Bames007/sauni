@@ -2,6 +2,7 @@ import React, { useState, useCallback } from "react";
 import { ref, set } from "firebase/database";
 import { db } from "@/app/utils/firebaseConfig";
 import { createClient } from "@/app/utils/supabase/clients";
+import SuccessMessage from "./SuccessMessage";
 
 // Import or define the types (assuming they're in a types file)
 interface PersonalInfo {
@@ -85,6 +86,7 @@ interface DeclarationFormProps {
   submitApplication: () => void;
   prevStep: () => void;
   applicationData: ApplicationData;
+  resetApplication?: () => void;
 }
 
 const DeclarationForm: React.FC<DeclarationFormProps> = ({
@@ -93,6 +95,7 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
   submitApplication,
   prevStep,
   applicationData,
+  resetApplication,
 }) => {
   const [formData, setFormData] = useState<Declaration>(
     data || {
@@ -105,6 +108,7 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [prospectiveId, setProspectiveId] = useState<string | null>(null);
 
   const supabase = createClient();
 
@@ -125,45 +129,6 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
   const generatePassword = useCallback(() => {
     return Math.random().toString(36).slice(-8);
   }, []);
-
-  // Function to upload files to Supabase Storage
-  // const uploadToSupabaseStorage = async (
-  //   file: File,
-  //   prospectiveId: string,
-  //   docType: string
-  // ) => {
-  //   try {
-  //     const fileExtension = file.name.split(".").pop();
-  //     const fileName = `${docType}_${Date.now()}.${fileExtension}`;
-  //     const filePath = `applications/${prospectiveId}/${docType}/${fileName}`;
-
-  //     const { error } = await supabase.storage
-  //       .from("Southern Atlantic University")
-  //       .upload(filePath, file);
-
-  //     if (error) {
-  //       throw new Error(`Supabase upload error: ${error.message}`);
-  //     }
-
-  //     const { data: urlData } = supabase.storage
-  //       .from("Southern Atlantic University")
-  //       .getPublicUrl(filePath);
-
-  //     return {
-  //       name: file.name,
-  //       supabaseFileName: fileName,
-  //       filePath: filePath,
-  //       url: urlData.publicUrl,
-  //       size: file.size,
-  //       type: file.type,
-  //       uploadedAt: new Date(),
-  //       status: "uploaded_to_supabase",
-  //     };
-  //   } catch (error) {
-  //     console.error(`Supabase upload failed for ${docType}:`, error);
-  //     throw error;
-  //   }
-  // };
 
   const uploadToSupabaseStorage = useCallback(
     async (file: File, prospectiveId: string, docType: string) => {
@@ -211,8 +176,11 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
       try {
         updateData(formData);
 
-        const prospectiveId = generateProspectiveId();
+        const generatedProspectiveId = generateProspectiveId(); // Call the function to get the ID
         const tempPassword = generatePassword();
+
+        // Store the prospectiveId in state for SuccessMessage
+        setProspectiveId(generatedProspectiveId);
 
         const documents: Record<string, unknown> = {};
 
@@ -226,7 +194,7 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
               try {
                 const supabaseResult = await uploadToSupabaseStorage(
                   file,
-                  prospectiveId,
+                  generatedProspectiveId, // Use the generated ID
                   docType
                 );
                 documents[docType] = supabaseResult;
@@ -255,7 +223,7 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
           ...applicationData,
           documents,
           declaration: formData,
-          prospectiveId,
+          prospectiveId: generatedProspectiveId, // Fix: use the variable, not the function
           tempPassword,
           status: "submitted",
           submittedAt: new Date().toISOString(),
@@ -295,21 +263,20 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
         );
 
         await set(
-          ref(db, `applications/students/${prospectiveId}`),
+          ref(db, `applications/students/${generatedProspectiveId}`),
           sanitizedApplication
         );
 
-        const dynamicLink = `${window.location.origin}/application_status/application_status_home?pid=${prospectiveId}`;
+        const dynamicLink = `https://sauni.vercel.app/application_status/`;
 
         const emailData = {
           email: email,
-          prospectiveId: prospectiveId,
+          prospectiveId: generatedProspectiveId,
           password: tempPassword,
           fullName: `${firstName} ${lastName}`.trim(),
           program: program,
           applicationLink: dynamicLink,
-          storageNotice:
-            "Your documents have been securely uploaded to our system.",
+          storageNotice: "",
         };
 
         const emailResponse = await fetch("/api/send_email", {
@@ -327,10 +294,6 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
         }
 
         setShowSuccess(true);
-
-        setTimeout(() => {
-          submitApplication();
-        }, 2500);
       } catch (err) {
         console.error("Submission error:", err);
         setError(
@@ -346,47 +309,20 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
       formData,
       applicationData,
       updateData,
-      submitApplication,
       generateProspectiveId,
       generatePassword,
-      // supabase,
       uploadToSupabaseStorage,
     ]
   );
 
-  const SuccessMessage = () => (
-    <div className="flex flex-col items-center justify-center py-12">
-      <div className="w-32 h-32 bg-green-100 rounded-full flex items-center justify-center mb-4">
-        <svg
-          className="w-16 h-16 text-green-600"
-          fill="none"
-          stroke="currentColor"
-          viewBox="0 0 24 24"
-        >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M5 13l4 4L19 7"
-          />
-        </svg>
-      </div>
-      <h2 className="text-2xl font-bold text-green-800 mt-4">
-        Application Submitted Successfully!
-      </h2>
-      <p className="text-gray-600 mt-2 text-center">
-        Your prospective student ID and password have been sent to your email.
-      </p>
-      <div className="mt-6 p-4 bg-green-50 rounded-lg">
-        <p className="text-green-700 text-sm">
-          ✅ Your documents have been securely saved to our system.
-        </p>
-      </div>
-    </div>
-  );
-
   if (showSuccess) {
-    return <SuccessMessage />;
+    return (
+      <SuccessMessage
+        prospectiveId={prospectiveId}
+        onReset={resetApplication}
+        countdownSeconds={5}
+      />
+    );
   }
 
   return (
@@ -558,7 +494,7 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
             className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-green-800 transition-colors"
             disabled={isSubmitting}
           >
-            Back
+            ← Back
           </button>
           <button
             type="submit"

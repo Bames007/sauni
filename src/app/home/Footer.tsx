@@ -251,11 +251,15 @@ const Footer = () => {
                 </p>
                 <div className="flex space-x-4">
                   {[
-                    { icon: Facebook, link: "#", color: "hover:text-blue-400" },
+                    {
+                      icon: Facebook,
+                      link: "https://www.facebook.com/share/167WLrbUhc/",
+                      color: "hover:text-blue-400",
+                    },
                     { icon: Twitter, link: "#", color: "hover:text-blue-300" },
                     {
                       icon: Instagram,
-                      link: "#",
+                      link: "https://www.instagram.com/sa_university?igsh=Z2ZnZ3ZicDR3NzV6",
                       color: "hover:text-pink-400",
                     },
                     { icon: Linkedin, link: "#", color: "hover:text-blue-500" },

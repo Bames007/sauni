@@ -59,36 +59,12 @@ const ProgramSelectionForm: React.FC<ProgramSelectionFormProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Log the data before proceeding
-    console.log("=== PROGRAM SELECTION FORM DATA ===");
-    console.log("Form Data to be passed:", formData);
-    console.log("Form Data (formatted):", {
-      firstChoice: formData.firstChoice,
-      secondChoice: formData.secondChoice,
-      entryYear: formData.entryYear,
-      semester: formData.semester,
-      modeOfStudy: formData.modeOfStudy,
-    });
-    console.log("=== END PROGRAM SELECTION ===");
-
     updateData(formData);
     nextStep();
   };
 
   return (
     <div className="max-w-4xl mx-auto p-4 md:p-6 bg-white rounded-xl shadow-lg">
-      {/* Debug info panel - only show in development */}
-      {process.env.NODE_ENV === "development" && (
-        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-          <h3 className="font-semibold text-yellow-800 mb-2">
-            Debug Info (Development Only)
-          </h3>
-          <pre className="text-xs text-yellow-700 overflow-auto max-h-32">
-            {JSON.stringify(formData, null, 2)}
-          </pre>
-        </div>
-      )}
-
       <div className="mb-6 md:mb-8 text-center">
         <h1 className="text-2xl md:text-3xl font-bold text-[#017840] mb-2">
           Program Selection
@@ -223,15 +199,13 @@ const ProgramSelectionForm: React.FC<ProgramSelectionFormProps> = ({
             onClick={prevStep}
             className="flex items-center justify-center px-4 sm:px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-[#017840] focus:ring-opacity-50 transition-all"
           >
-            <ChevronLeft className="mr-2 h-5 w-5" />
-            Back
+            ← Back
           </button>
           <button
             type="submit"
             className="flex items-center justify-center px-4 sm:px-6 py-3 bg-[#017840] text-white rounded-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-[#BD9946] focus:ring-opacity-50 transition-all shadow-md hover:shadow-lg"
           >
-            Save & Continue
-            <ChevronRight className="ml-2 h-5 w-5" />
+            Save & Continue →
           </button>
         </div>
       </form>

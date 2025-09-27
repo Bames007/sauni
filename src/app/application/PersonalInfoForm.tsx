@@ -182,28 +182,10 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
     setTouched(newTouched);
 
     if (validate()) {
-      console.log("=== PERSONAL INFO FORM DATA ===");
-      console.log("Form Data to be passed:", formData);
-      console.log("Form Data (formatted):", {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        middleName: formData.middleName,
-        dateOfBirth: formData.dateOfBirth?.toISOString().split("T")[0],
-        gender: formData.gender,
-        isNigerian: formData.isNigerian,
-        nationality: formData.nationality,
-        countryOfResidence: formData.countryOfResidence,
-        stateOfOrigin: formData.stateOfOrigin,
-        localGovernment: formData.localGovernment,
-      });
-      console.log("=== END PERSONAL INFO ===");
-
       updateData(formData);
       nextStep();
     } else {
-      console.log("=== FORM VALIDATION FAILED ===");
       console.log("Errors:", errors);
-      console.log("Current form data:", formData);
     }
   };
 
@@ -546,8 +528,7 @@ const PersonalInfoForm: React.FC<PersonalInfoFormProps> = ({
             type="submit"
             className="flex items-center justify-center w-full sm:w-auto px-4 py-2.5 bg-[#017840] text-white rounded-lg hover:bg-green-800 focus:outline-none focus:ring-2 focus:ring-[#BD9946] focus:ring-opacity-50 transition-all shadow-md hover:shadow-lg text-sm sm:text-base"
           >
-            Next: Contact Details
-            <ChevronRight className="ml-1.5 h-4 w-4" />
+            Next: Contact Details →
           </button>
         </div>
       </form>
