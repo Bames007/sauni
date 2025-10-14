@@ -164,7 +164,7 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
         throw error;
       }
     },
-    [supabase] // supabase is the only dependency
+    [supabase]
   );
 
   const handleSubmit = useCallback(
@@ -176,7 +176,7 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
       try {
         updateData(formData);
 
-        const generatedProspectiveId = generateProspectiveId(); // Call the function to get the ID
+        const generatedProspectiveId = generateProspectiveId();
         const tempPassword = generatePassword();
 
         // Store the prospectiveId in state for SuccessMessage
@@ -194,7 +194,7 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
               try {
                 const supabaseResult = await uploadToSupabaseStorage(
                   file,
-                  generatedProspectiveId, // Use the generated ID
+                  generatedProspectiveId,
                   docType
                 );
                 documents[docType] = supabaseResult;
@@ -223,7 +223,7 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
           ...applicationData,
           documents,
           declaration: formData,
-          prospectiveId: generatedProspectiveId, // Fix: use the variable, not the function
+          prospectiveId: generatedProspectiveId,
           tempPassword,
           status: "submitted",
           submittedAt: new Date().toISOString(),
@@ -267,7 +267,7 @@ const DeclarationForm: React.FC<DeclarationFormProps> = ({
           sanitizedApplication
         );
 
-        const dynamicLink = `https://sauni.vercel.app/application_status/`;
+        const dynamicLink = `https://sauni.edu.ng/application_status/`;
 
         const emailData = {
           email: email,

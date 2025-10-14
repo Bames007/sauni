@@ -9,7 +9,6 @@ import {
   SubjectGrade,
   TertiaryEducation,
 } from "./new_application";
-import { ChevronLeft } from "lucide-react";
 
 interface AcademicHistoryFormProps {
   data?: Partial<AcademicHistory>;
@@ -29,6 +28,7 @@ const AcademicHistoryForm: React.FC<AcademicHistoryFormProps> = ({
     secondarySchool: data?.secondarySchool || [],
     tertiaryEducation: data?.tertiaryEducation || [],
     qualifications: data?.qualifications || [],
+    jambNumber: data?.jambNumber || "",
   });
 
   const [currentPrimary, setCurrentPrimary] = useState<
@@ -135,6 +135,17 @@ const AcademicHistoryForm: React.FC<AcademicHistoryFormProps> = ({
       primaryEducation: currentPrimary as PrimaryEducation,
     }));
   }, [currentPrimary]);
+
+  const handleJambChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const { value } = e.target;
+      setFormData((prev) => ({
+        ...prev,
+        jambNumber: value.toUpperCase(),
+      }));
+    },
+    []
+  );
 
   const handleSecondaryChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -687,6 +698,32 @@ const AcademicHistoryForm: React.FC<AcademicHistoryFormProps> = ({
             ))}
           </div>
         )}
+
+        {/*Jamb Number Addition */}
+        <div className="mt-6 md:mt-8">
+          <h3 className="text-lg md:text-xl font-semibold text-green-800 mb-3 md:mb-4">
+            JAMB Details
+          </h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                JAMB Registration Number
+              </label>
+              <input
+                type="text"
+                name="jambNumber"
+                value={formData.jambNumber || ""}
+                onChange={handleJambChange}
+                className="w-full p-2 border border-gray-300 rounded-md focus:border-green-800 focus:ring-2 focus:ring-green-600"
+                placeholder="e.g., 202512345678AB"
+                maxLength={14}
+              />
+              <p className="mt-1 text-sm text-gray-500">
+                Enter your 14-digit JAMB registration number
+              </p>
+            </div>
+          </div>
+        </div>
 
         {/* Tertiary Education Section (Optional) */}
         <div className="mt-6 md:mt-8">

@@ -48,6 +48,7 @@ export interface AcademicHistory {
   secondarySchool: SecondaryEducation[];
   tertiaryEducation?: TertiaryEducation[];
   qualifications?: Qualification[];
+  jambNumber?: string;
 }
 
 export interface PrimaryEducation {

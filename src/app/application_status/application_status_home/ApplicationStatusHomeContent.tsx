@@ -6,115 +6,19 @@ import { db } from "@/app/utils/firebaseConfig";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import {
-  Clock,
-  Download,
-  HelpingHand,
-  Mail,
-  MapPin,
-  Notebook,
-  Phone,
-  Eye,
-  Lock,
-  Key,
-  Menu,
-  X,
-  Circle,
-} from "lucide-react";
-
-interface DocumentFile {
-  url: string;
-  name: string;
-  size: number;
-  type: string;
-  uploadedAt: string;
-}
-
-interface ApplicationData {
-  personalInfo: {
-    firstName: string;
-    lastName: string;
-    middleName: string;
-    dateOfBirth: string;
-    gender: string;
-    nationality: string;
-    isNigerian: boolean;
-    stateOfOrigin: string;
-    localGovernment: string;
-    countryOfResidence: string;
-  };
-  contactInfo: {
-    email: string;
-    phone: string;
-    address: string;
-    city: string;
-    state: string;
-    country: string;
-    zipCode: string;
-    guardianContact: {
-      fullName: string;
-      relationship: string;
-      phone: string;
-      email: string;
-    };
-  };
-  programSelection: {
-    firstChoice: string;
-    secondChoice: string;
-    entryYear: number;
-    semester: string;
-    modeOfStudy: string;
-  };
-  academicHistory: {
-    primaryEducation: {
-      certificateType: string;
-      schoolName: string;
-      startYear: number;
-      endYear: number;
-    };
-    secondarySchool: Array<{
-      schoolName: string;
-      schoolType: string;
-      examType: string;
-      examNumber: string;
-      sitting: string;
-      completionYear: number;
-      grades: Array<{
-        subject: string;
-        grade: string;
-      }>;
-    }>;
-  };
-  documents: {
-    birthCertificate: DocumentFile | null;
-    passportPhoto: DocumentFile | null;
-    primaryCertificate: DocumentFile | null;
-    secondaryCertificate: DocumentFile | null;
-    waecNeco: DocumentFile | null;
-  };
-  declaration: {
-    isInformationAccurate: boolean;
-    agreeToTerms: boolean;
-    signature: string;
-    date: string;
-  };
-  prospectiveId: string;
-  status: "submitted" | "under_review" | "accepted" | "rejected" | "waitlisted";
-  submittedAt: string;
-  tempPassword?: string;
-  createdAt: string;
-  updatedAt: string;
-  passwordChanged?: boolean;
-}
-
-interface Payment {
-  id: string;
-  amount: number;
-  description: string;
-  dueDate: string;
-  status: "pending" | "paid" | "overdue";
-  type: "application_fee" | "tuition_deposit" | "full_tuition";
-}
+import { Key, Menu, X, Circle } from "lucide-react";
+import { ApplicationData, Payment } from "./type";
+import PersonalInformation from "./component/PersonalInfoComponent";
+import ContactInformation from "./component/ContactInfoComponent";
+import ProgramInformation from "./component/ProgramInfoComponent";
+import AcademicBackground from "./component/AcademicBackground";
+import PaymentSection from "./component/PaymentComponent";
+import ContactAdmissions from "./component/ContactAdmissionComponent";
+import QuickActions from "./component/QuickActionsComponent";
+import TemporaryPassword from "./component/TemporaryPasswordComponent";
+import StatusSpecificMessages from "./component/StatusSpecificMessage";
+import DocumentsComponent from "./component/DocumentComponent";
+import TransactionStatus from "./component/TransactionStatus";
 
 const ApplicationStatusHomeContent: React.FC = () => {
   const [applicationData, setApplicationData] =
@@ -137,23 +41,14 @@ const ApplicationStatusHomeContent: React.FC = () => {
   const prospectiveId = searchParams.get("pid");
   const pdfRef = useRef<HTMLDivElement>(null);
 
-  // Mock payment data
   const [payments, setPayments] = useState<Payment[]>([
     {
       id: "PAY-001",
-      amount: 100,
+      amount: 25000, // 25,000 Naira
       description: "Application Fee",
       dueDate: "2025-10-30",
       status: "pending",
       type: "application_fee",
-    },
-    {
-      id: "PAY-002",
-      amount: 500,
-      description: "Tuition Deposit",
-      dueDate: "2025-11-15",
-      status: "pending",
-      type: "tuition_deposit",
     },
   ]);
 
@@ -224,14 +119,10 @@ const ApplicationStatusHomeContent: React.FC = () => {
     setIsGeneratingPDF(true);
 
     try {
-      // Dynamically import the libraries
       const { jsPDF } = await import("jspdf");
       const html2canvas = await import("html2canvas");
 
-      // Use the hidden PDF template
       const element = pdfRef.current;
-
-      // Generate canvas from the element
       const canvas = await html2canvas.default(element, {
         scale: 2,
         useCORS: true,
@@ -246,10 +137,7 @@ const ApplicationStatusHomeContent: React.FC = () => {
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = (canvas.height * pdfWidth) / canvas.width;
 
-      // Add image to PDF
       pdf.addImage(imgData, "PNG", 0, 0, pdfWidth, pdfHeight);
-
-      // Save the PDF
       pdf.save(`SAUNI-Application-${applicationData.prospectiveId}.pdf`);
     } catch (error) {
       console.error("Error generating PDF:", error);
@@ -316,14 +204,6 @@ const ApplicationStatusHomeContent: React.FC = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
   const calculateAge = (dateOfBirth: string) => {
     const birthDate = new Date(dateOfBirth);
     const today = new Date();
@@ -338,39 +218,6 @@ const ApplicationStatusHomeContent: React.FC = () => {
     }
 
     return age;
-  };
-
-  const DocumentCard: React.FC<{
-    document: DocumentFile | null;
-    title: string;
-    type: string;
-  }> = ({ document, title, type }) => {
-    if (!document?.url) return null;
-
-    return (
-      <div className="border border-gray-200 rounded-lg p-3 md:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-        <div className="flex items-center space-x-3 min-w-0 flex-1">
-          <div className="w-8 h-8 md:w-10 md:h-10 bg-[#017840] bg-opacity-10 rounded-lg flex items-center justify-center flex-shrink-0">
-            <span className="text-[#017840] text-base md:text-lg">📄</span>
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="font-semibold text-gray-900 truncate text-sm md:text-base">
-              {title}
-            </p>
-            <p className="text-xs text-gray-500 truncate">
-              {document.name || `${type} document`}
-            </p>
-          </div>
-        </div>
-        <button
-          onClick={() => setViewDocument({ url: document.url, name: title })}
-          className="flex items-center justify-center space-x-1 px-3 py-2 bg-[#017840] text-white rounded-lg text-sm hover:bg-[#015a30] transition-colors whitespace-nowrap w-full sm:w-auto"
-        >
-          <Eye className="w-4 h-4" />
-          <span>View Document</span>
-        </button>
-      </div>
-    );
   };
 
   if (loading) {
@@ -419,8 +266,6 @@ const ApplicationStatusHomeContent: React.FC = () => {
   const statusConfig = getStatusConfig(applicationData.status);
   const fullName = `${applicationData.personalInfo.firstName} ${applicationData.personalInfo.middleName} ${applicationData.personalInfo.lastName}`;
   const age = calculateAge(applicationData.personalInfo.dateOfBirth);
-  const primaryEducation = applicationData.academicHistory.primaryEducation;
-  const secondaryEducation = applicationData.academicHistory.secondarySchool[0];
 
   return (
     <Suspense
@@ -543,7 +388,7 @@ const ApplicationStatusHomeContent: React.FC = () => {
           </div>
         )}
 
-        {/* Hidden div for PDF generation - Make sure it's properly positioned */}
+        {/* Hidden div for PDF generation */}
         <div className="fixed top-0 left-[-9999px]">
           <PDFTemplate applicationData={applicationData} ref={pdfRef} />
         </div>
@@ -556,15 +401,15 @@ const ApplicationStatusHomeContent: React.FC = () => {
                 href="/"
                 className="flex items-center space-x-2 md:space-x-3"
               >
-                <div className="w-8 h-8 md:w-12 md:h-12 bg-gradient-to-r from-[#017840] to-[#BD9946] rounded-full flex items-center justify-center flex-shrink-0">
-                  <Image
-                    src="/sauni-logo.png"
-                    alt="SAUNI Logo"
-                    width={32}
-                    height={32}
-                    className="h-6 w-6 md:h-8 md:w-8"
-                  />
-                </div>
+                {/* <div className="w-8 h-8 md:w-12 md:h-12 bg-gradient-to-r from-[#017840] to-[#BD9946] rounded-full flex items-center justify-center flex-shrink-0"> */}
+                <Image
+                  src="/sauni-logo.png"
+                  alt="SAUNI Logo"
+                  width={48}
+                  height={48}
+                  className="h-8 w-8 md:h-8 md:w-8"
+                />
+                {/* </div> */}
                 <div className="min-w-0">
                   <h1 className="text-lg md:text-2xl font-bold text-gray-900 truncate">
                     Student Portal
@@ -641,7 +486,10 @@ const ApplicationStatusHomeContent: React.FC = () => {
                       {applicationData.programSelection.firstChoice}
                     </p>
                     <p className="text-white/80 text-xs md:text-sm">
-                      Applied on {formatDate(applicationData.submittedAt)}
+                      Applied on{" "}
+                      {new Date(
+                        applicationData.submittedAt
+                      ).toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -724,518 +572,59 @@ const ApplicationStatusHomeContent: React.FC = () => {
             {/* Left Column - Application Details */}
             <div className="lg:col-span-2 space-y-4 md:space-y-6 lg:space-y-8">
               {/* Documents Section */}
-              <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
-                  <span className="w-2 h-2 bg-[#BD9946] rounded-full mr-2"></span>
-                  Uploaded Documents
-                </h3>
-                <div className="space-y-3 md:space-y-4">
-                  <DocumentCard
-                    document={applicationData.documents.passportPhoto}
-                    title="Passport Photograph"
-                    type="Passport"
-                  />
-                  <DocumentCard
-                    document={applicationData.documents.birthCertificate}
-                    title="Birth Certificate"
-                    type="Birth"
-                  />
-                  <DocumentCard
-                    document={applicationData.documents.primaryCertificate}
-                    title="Primary School Certificate"
-                    type="Primary"
-                  />
-                  <DocumentCard
-                    document={applicationData.documents.secondaryCertificate}
-                    title="Secondary School Certificate"
-                    type="Secondary"
-                  />
-                  <DocumentCard
-                    document={applicationData.documents.waecNeco}
-                    title="WAEC/NECO Result"
-                    type="Result"
-                  />
-                </div>
-              </div>
+              <DocumentsComponent
+                documents={applicationData.documents}
+                onViewDocument={setViewDocument}
+              />
 
-              {/* Personal Information */}
-              <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
-                  <span className="w-2 h-2 bg-[#017840] rounded-full mr-2"></span>
-                  Personal Information
-                </h3>
-                <div className="grid grid-cols-1 gap-3 md:gap-4">
-                  <MobileInfoField label="Full Name" value={fullName} />
-                  <MobileInfoField
-                    label="Date of Birth"
-                    value={formatDate(applicationData.personalInfo.dateOfBirth)}
-                  />
-                  <MobileInfoField label="Age" value={`${age} years`} />
-                  <MobileInfoField
-                    label="Gender"
-                    value={applicationData.personalInfo.gender}
-                  />
-                  <MobileInfoField
-                    label="Nationality"
-                    value={
-                      applicationData.personalInfo.isNigerian
-                        ? "Nigerian"
-                        : applicationData.personalInfo.nationality
-                    }
-                  />
-                  <MobileInfoField
-                    label="State of Origin"
-                    value={applicationData.personalInfo.stateOfOrigin}
-                  />
-                  <MobileInfoField
-                    label="Local Government"
-                    value={applicationData.personalInfo.localGovernment}
-                  />
-                  <MobileInfoField
-                    label="Country of Residence"
-                    value={
-                      applicationData.personalInfo.countryOfResidence ||
-                      "Nigeria"
-                    }
-                  />
-                </div>
-              </div>
+              {/* Use extracted components */}
+              <PersonalInformation
+                personalInfo={applicationData.personalInfo}
+                fullName={fullName}
+                age={age}
+              />
 
-              {/* Contact Information */}
-              <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
-                  <span className="w-2 h-2 bg-[#BD9946] rounded-full mr-2"></span>
-                  Contact Information
-                </h3>
-                <div className="grid grid-cols-1 gap-3 md:gap-4">
-                  <MobileInfoField
-                    label="Email"
-                    value={applicationData.contactInfo.email}
-                  />
-                  <MobileInfoField
-                    label="Phone"
-                    value={applicationData.contactInfo.phone}
-                  />
-                  <MobileInfoField
-                    label="Address"
-                    value={applicationData.contactInfo.address}
-                  />
-                  <MobileInfoField
-                    label="City"
-                    value={applicationData.contactInfo.city}
-                  />
-                  <MobileInfoField
-                    label="State"
-                    value={applicationData.contactInfo.state}
-                  />
-                  <MobileInfoField
-                    label="Country"
-                    value={applicationData.contactInfo.country}
-                  />
-                  <MobileInfoField
-                    label="Zip Code"
-                    value={applicationData.contactInfo.zipCode}
-                  />
-                </div>
+              <ContactInformation contactInfo={applicationData.contactInfo} />
 
-                <div className="mt-4 md:mt-6 pt-3 md:pt-4 border-t">
-                  <h4 className="font-semibold text-gray-900 mb-2 md:mb-3 text-sm md:text-base">
-                    Guardian Information
-                  </h4>
-                  <div className="grid grid-cols-1 gap-3 md:gap-4">
-                    <MobileInfoField
-                      label="Full Name"
-                      value={
-                        applicationData.contactInfo.guardianContact.fullName
-                      }
-                    />
-                    <MobileInfoField
-                      label="Relationship"
-                      value={
-                        applicationData.contactInfo.guardianContact.relationship
-                      }
-                    />
-                    <MobileInfoField
-                      label="Phone"
-                      value={applicationData.contactInfo.guardianContact.phone}
-                    />
-                    <MobileInfoField
-                      label="Email"
-                      value={applicationData.contactInfo.guardianContact.email}
-                    />
-                  </div>
-                </div>
-              </div>
+              <ProgramInformation
+                programSelection={applicationData.programSelection}
+                submittedAt={applicationData.submittedAt}
+              />
 
-              {/* Program Information */}
-              <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
-                  <span className="w-2 h-2 bg-[#017840] rounded-full mr-2"></span>
-                  Program Details
-                </h3>
-                <div className="grid grid-cols-1 gap-3 md:gap-4">
-                  <MobileInfoField
-                    label="First Choice"
-                    value={applicationData.programSelection.firstChoice}
-                  />
-                  <MobileInfoField
-                    label="Second Choice"
-                    value={applicationData.programSelection.secondChoice}
-                  />
-                  <MobileInfoField
-                    label="Entry Year"
-                    value={applicationData.programSelection.entryYear.toString()}
-                  />
-                  <MobileInfoField
-                    label="Semester"
-                    value={applicationData.programSelection.semester}
-                  />
-                  <MobileInfoField
-                    label="Mode of Study"
-                    value={applicationData.programSelection.modeOfStudy}
-                  />
-                  <MobileInfoField
-                    label="Application Date"
-                    value={formatDate(applicationData.submittedAt)}
-                  />
-                </div>
-              </div>
-
-              {/* Academic Background */}
-              <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
-                  <span className="w-2 h-2 bg-[#BD9946] rounded-full mr-2"></span>
-                  Academic Background
-                </h3>
-
-                {/* Primary Education */}
-                <div className="mb-4 md:mb-6">
-                  <h4 className="font-semibold text-gray-700 mb-2 md:mb-3 text-sm md:text-base">
-                    Primary Education
-                  </h4>
-                  <div className="grid grid-cols-1 gap-3 md:gap-4">
-                    <MobileInfoField
-                      label="School Name"
-                      value={primaryEducation.schoolName}
-                    />
-                    <MobileInfoField
-                      label="Certificate Type"
-                      value={primaryEducation.certificateType}
-                    />
-                    <MobileInfoField
-                      label="Start Year"
-                      value={primaryEducation.startYear.toString()}
-                    />
-                    <MobileInfoField
-                      label="End Year"
-                      value={primaryEducation.endYear.toString()}
-                    />
-                  </div>
-                </div>
-
-                {/* Secondary Education */}
-                <div>
-                  <h4 className="font-semibold text-gray-700 mb-2 md:mb-3 text-sm md:text-base">
-                    Secondary Education
-                  </h4>
-                  <div className="grid grid-cols-1 gap-3 md:gap-4 mb-3 md:mb-4">
-                    <MobileInfoField
-                      label="School Name"
-                      value={secondaryEducation.schoolName}
-                    />
-                    <MobileInfoField
-                      label="School Type"
-                      value={secondaryEducation.schoolType}
-                    />
-                    <MobileInfoField
-                      label="Exam Type"
-                      value={secondaryEducation.examType}
-                    />
-                    <MobileInfoField
-                      label="Exam Number"
-                      value={secondaryEducation.examNumber}
-                    />
-                    <MobileInfoField
-                      label="Sitting"
-                      value={secondaryEducation.sitting}
-                    />
-                    <MobileInfoField
-                      label="Completion Year"
-                      value={secondaryEducation.completionYear.toString()}
-                    />
-                  </div>
-
-                  {/* Grades */}
-                  <div className="mt-3 md:mt-4">
-                    <h5 className="font-semibold text-gray-700 mb-2 text-sm md:text-base">
-                      Subject Grades
-                    </h5>
-                    <div className="grid grid-cols-2 md:grid-cols-3 gap-2 md:gap-3">
-                      {secondaryEducation.grades.map((grade, index) => (
-                        <div
-                          key={index}
-                          className="bg-gray-50 rounded-lg p-2 md:p-3"
-                        >
-                          <div className="text-xs md:text-sm font-medium text-gray-600 truncate">
-                            {grade.subject}
-                          </div>
-                          <div
-                            className={`text-base md:text-lg font-bold ${
-                              grade.grade === "A1" ||
-                              grade.grade === "A2" ||
-                              grade.grade === "A3"
-                                ? "text-[#017840]"
-                                : grade.grade.startsWith("B")
-                                  ? "text-[#BD9946]"
-                                  : grade.grade.startsWith("C")
-                                    ? "text-yellow-600"
-                                    : "text-red-600"
-                            }`}
-                          >
-                            {grade.grade}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <AcademicBackground
+                academicHistory={applicationData.academicHistory}
+              />
             </div>
 
             {/* Right Column - Payments & Contact */}
             <div className="space-y-4 md:space-y-6 lg:space-y-8">
-              {/* Payment Section */}
-              <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center justify-between">
-                  <span className="flex items-center">
-                    <span className="w-2 h-2 bg-[#017840] rounded-full mr-2"></span>
-                    Payment Center
-                  </span>
-                  <span className="text-xs md:text-sm font-normal text-gray-500">
-                    {payments.filter((p) => p.status === "paid").length}/
-                    {payments.length} Paid
-                  </span>
-                </h3>
+              <TransactionStatus
+                prospectiveId={applicationData.prospectiveId}
+              />
+              <PaymentSection
+                payments={payments}
+                onPayment={handlePayment}
+                prospectiveId={applicationData.prospectiveId}
+                userEmail={applicationData.contactInfo.email}
+                applicationData={applicationData}
+              />
+              <ContactAdmissions />
 
-                <div className="space-y-3 md:space-y-4">
-                  {payments.map((payment) => (
-                    <div
-                      key={payment.id}
-                      className="border rounded-lg p-3 md:p-4"
-                    >
-                      <div className="flex justify-between items-start mb-2">
-                        <div className="min-w-0 flex-1">
-                          <h4 className="font-semibold text-gray-900 text-sm md:text-base truncate">
-                            {payment.description}
-                          </h4>
-                          <p className="text-xs text-gray-600">
-                            Due: {formatDate(payment.dueDate)}
-                          </p>
-                        </div>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs font-semibold ml-2 flex-shrink-0 ${
-                            payment.status === "paid"
-                              ? "bg-[#017840] bg-opacity-10 text-[#fff]"
-                              : payment.status === "overdue"
-                                ? "bg-red-100 text-red-800"
-                                : "bg-[#BD9946] bg-opacity-20 text-[#fff]"
-                          }`}
-                        >
-                          {payment.status.charAt(0).toUpperCase() +
-                            payment.status.slice(1)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-center mt-2 md:mt-3">
-                        <span className="text-base md:text-lg font-bold text-gray-900">
-                          ₦{payment.amount}
-                        </span>
-                        <button
-                          onClick={() => handlePayment(payment.id)}
-                          disabled={payment.status === "paid"}
-                          className={`px-3 py-1 md:px-4 md:py-2 rounded-lg text-xs md:text-sm font-semibold transition-colors ${
-                            payment.status === "paid"
-                              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                              : "bg-[#017840] text-white hover:bg-[#015a30]"
-                          }`}
-                        >
-                          {payment.status === "paid" ? "Paid" : "Pay Now"}
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <QuickActions
+                onGeneratePDF={generatePDF}
+                isGeneratingPDF={isGeneratingPDF}
+              />
 
-                <div className="mt-4 md:mt-6 p-3 bg-[#017840] bg-opacity-5 rounded-lg border border-[#017840] border-opacity-20">
-                  <h4 className="font-semibold text-[#fff] mb-1 text-sm md:text-base">
-                    Payment Instructions
-                  </h4>
-                  <p className="text-xs md:text-sm text-[#fff]">
-                    All payments are processed securely. You will receive a
-                    confirmation email upon successful payment.
-                  </p>
-                </div>
-              </div>
-
-              {/* Contact Information */}
-              <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4 flex items-center">
-                  <span className="w-2 h-2 bg-[#BD9946] rounded-full mr-2"></span>
-                  Contact Admissions
-                </h3>
-
-                <div className="space-y-2 md:space-y-3">
-                  <MobileContactItem
-                    icon={<Mail className="w-4 h-4" />}
-                    label="Email"
-                    value="admissions@sauni.edu"
-                    link="mailto:admissions@sauni.edu"
-                  />
-                  <MobileContactItem
-                    icon={<Phone className="w-4 h-4" />}
-                    label="Phone"
-                    value="+2348127728084"
-                    link="tel:+2348127728084"
-                  />
-                  <MobileContactItem
-                    icon={<MapPin className="w-4 h-4" />}
-                    label="Address"
-                    value="Southern Atlantic University, Uyo, Akwa Ibom, Nigeria"
-                    link="https://www.google.com/maps/place/Southern+Atlantic+Polytechnic/@4.9378809,8.0114821,17z/data=!3m1!4b1!4m6!3m5!1s0x1067f7a10e4b8939:0xd700e5b3402992c9!8m2!3d4.9378809!4d8.014057!16s%2Fg%2F11rqz9rn59?entry=ttu&g_ep=EgoyMDI1MDkxNy4wIKXMDSoASAFQAw%3D%3D"
-                  />
-                  <MobileContactItem
-                    icon={<Clock className="w-4 h-4" />}
-                    label="Office Hours"
-                    value="Mon-Fri, 9:00 AM - 5:00 PM"
-                  />
-                </div>
-
-                <button className="w-full mt-3 md:mt-4 bg-gray-100 text-gray-700 py-2 rounded-lg font-semibold hover:bg-gray-200 transition-colors text-sm md:text-base">
-                  Schedule a Campus Tour
-                </button>
-              </div>
-
-              {/* Quick Actions */}
-              <div className="bg-white rounded-xl md:rounded-2xl shadow-lg p-4 md:p-6">
-                <h3 className="text-base md:text-lg font-semibold text-gray-900 mb-3 md:mb-4">
-                  Quick Actions
-                </h3>
-                <div className="space-y-2">
-                  <button
-                    onClick={generatePDF}
-                    disabled={isGeneratingPDF}
-                    className="w-full text-left p-2 md:p-3 rounded-lg border border-gray-200 hover:bg-[#f0f9f4] transition-colors flex items-center text-sm md:text-base disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <Download className="w-4 h-4 mr-2 flex-shrink-0" />
-                    <span className="truncate">
-                      {isGeneratingPDF
-                        ? "Generating PDF..."
-                        : "Download Application Summary"}
-                    </span>
-                  </button>
-                  <button className="w-full text-left p-2 md:p-3 rounded-lg border border-gray-200 hover:bg-[#f0f9f4] transition-colors flex items-center text-sm md:text-base">
-                    <Notebook className="w-4 h-4 mr-2 flex-shrink-0" />
-                    <span className="truncate">View Program Requirements</span>
-                  </button>
-                  <button className="w-full text-left p-2 md:p-3 rounded-lg border border-gray-200 hover:bg-[#f0f9f4] transition-colors flex items-center text-sm md:text-base">
-                    <HelpingHand className="w-4 h-4 mr-2 flex-shrink-0" />
-                    <span className="truncate">Request Information</span>
-                  </button>
-                </div>
-              </div>
-
-              {/* Temporary Password */}
-              {applicationData.tempPassword &&
-                !applicationData.passwordChanged && (
-                  <div
-                    className="bg-[#fefaf0] border border-[#BD9946] rounded-xl md:rounded-2xl p-4 md:p-6 cursor-pointer hover:bg-[#fdf6e7] transition-colors"
-                    onClick={() => setShowPasswordModal(true)}
-                  >
-                    <div className="flex items-center space-x-2 md:space-x-3 mb-2 md:mb-3">
-                      <div className="w-8 h-8 md:w-10 md:h-10 bg-[#BD9946] bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0">
-                        <Lock className="w-4 h-4 md:w-5 md:h-5 text-[#BD9946]" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold text-[#BD9946] text-sm md:text-base">
-                          Temporary Password
-                        </h3>
-                        <p className="text-xs text-[#BD9946] opacity-80">
-                          Click to change your password
-                        </p>
-                      </div>
-                    </div>
-                    <div className="bg-white border border-[#BD9946] border-opacity-30 rounded-lg p-2 md:p-3">
-                      <code className="font-mono font-bold text-[#BD9946] text-base md:text-lg break-all">
-                        {applicationData.tempPassword}
-                      </code>
-                    </div>
-                    <p className="text-[#BD9946] text-xs mt-1 md:mt-2 opacity-70">
-                      Please change this password after your first login. This
-                      can only be done once.
-                    </p>
-                  </div>
-                )}
-
-              {applicationData.passwordChanged && (
-                <div className="bg-[#f0f9f4] border border-[#017840] rounded-xl md:rounded-2xl p-4 md:p-6">
-                  <div className="flex items-center space-x-2 md:space-x-3">
-                    <div className="w-8 h-8 md:w-10 md:h-10 bg-[#017840] bg-opacity-20 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Lock className="w-4 h-4 md:w-5 md:h-5 text-[#017840]" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-[#017840] text-sm md:text-base">
-                        Password Updated
-                      </h3>
-                      <p className="text-xs text-[#017840] opacity-80">
-                        Your password has been changed successfully
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              )}
+              <TemporaryPassword
+                tempPassword={applicationData.tempPassword}
+                passwordChanged={applicationData.passwordChanged}
+                onShowPasswordModal={() => setShowPasswordModal(true)}
+              />
             </div>
           </div>
 
           {/* Status-specific Messages */}
-          {applicationData.status === "under_review" && (
-            <div className="mt-6 md:mt-8 bg-[#fefaf0] border border-[#BD9946] rounded-xl md:rounded-2xl p-4 md:p-6">
-              <div className="flex items-start">
-                <span className="text-xl md:text-2xl mr-3 md:mr-4 flex-shrink-0">
-                  🔍
-                </span>
-                <div>
-                  <h4 className="font-semibold text-[#BD9946] text-sm md:text-base">
-                    Application Under Review
-                  </h4>
-                  <p className="text-[#BD9946] opacity-90 text-xs md:text-sm">
-                    Your application is currently being reviewed by our
-                    admissions committee. This process typically takes 2-3
-                    weeks. You will be notified immediately once a decision is
-                    made.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {applicationData.status === "accepted" && (
-            <div className="mt-6 md:mt-8 bg-[#f0f9f4] border border-[#017840] rounded-xl md:rounded-2xl p-4 md:p-6">
-              <div className="flex items-start">
-                <span className="text-xl md:text-2xl mr-3 md:mr-4 flex-shrink-0">
-                  🎉
-                </span>
-                <div>
-                  <h4 className="font-semibold text-[#017840] text-sm md:text-base">
-                    Congratulations! You&apos;ve Been Accepted!
-                  </h4>
-                  <p className="text-[#017840] opacity-90 text-xs md:text-sm">
-                    Welcome to SAUNI University! Your application has been
-                    accepted. Please complete your payment and review the next
-                    steps in your admission package.
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
+          <StatusSpecificMessages status={applicationData.status} />
         </div>
 
         {/* Footer */}
@@ -1272,7 +661,6 @@ const ApplicationStatusHomeContent: React.FC = () => {
                   application.
                 </p>
 
-                {/* Contact Links - Single consistent layout */}
                 <div className="flex flex-col gap-2 items-center lg:items-end">
                   <Link
                     href="mailto:admissions@sauni.edu"
@@ -1423,7 +811,7 @@ const PDFTemplate = React.forwardRef<
 PDFTemplate.displayName = "PDFTemplate";
 
 // Mobile-optimized contact item
-const MobileContactItem: React.FC<{
+export const MobileContactItem: React.FC<{
   icon: React.ReactNode;
   label: string;
   value: string;
@@ -1450,7 +838,7 @@ const MobileContactItem: React.FC<{
 );
 
 // Mobile-optimized info field
-const MobileInfoField: React.FC<{ label: string; value: string }> = ({
+export const MobileInfoField: React.FC<{ label: string; value: string }> = ({
   label,
   value,
 }) => (

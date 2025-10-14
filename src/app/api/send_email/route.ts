@@ -39,6 +39,8 @@ export async function POST(request: NextRequest) {
 
     const { data, error } = await resend.emails.send({
       from: "SAU Admissions <onboarding@resend.dev>",
+
+      // from: "SAU Admissions <southernatlanticuniversity@gmail.com>",
       to: recipientEmails,
       subject: `SAU Application Submitted - ${prospectiveId}`,
       html: `<!DOCTYPE html>
@@ -416,7 +418,7 @@ export async function POST(request: NextRequest) {
           </svg>
           Check Your Application Status
         </a>
-        <p>Use the button above to track your application progress anytime.</p>
+        <p>Use the button above to login and track your application progress anytime.</p>
       </div>
       
       <!-- Next Steps -->
@@ -475,29 +477,14 @@ export async function POST(request: NextRequest) {
 
     if (error) {
       console.error("Resend error:", error);
-
-      // If it's a domain verification error, provide helpful message
-      if (error.message?.includes("domain is not verified")) {
-        return NextResponse.json(
-          {
-            error:
-              "Domain verification required. Currently in testing mode - emails are being logged but not sent to applicants until domain verification is complete.",
-            details: error.message,
-          },
-          { status: 500 }
-        );
-      }
-
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    console.log(
-      "✅ Email processed successfully. In test mode - email logged to Resend dashboard."
-    );
+    console.log("✅ Email sent successfully to:", recipientEmails);
     return NextResponse.json({
       data,
       message:
-        "Application submitted successfully! Email has been logged for testing. In production, this will be sent directly to the applicant.",
+        "Application submitted successfully! Confirmation email has been sent.",
     });
   } catch (error) {
     console.error("Email sending error:", error);

@@ -10,6 +10,7 @@ import Footer from "./Footer";
 import Contact from "./Contact";
 import Header from "./Header";
 import ApplicationStatus from "./ApplicationStatus";
+import RecruitmentAD from "./recruitment/RecruitmentAD";
 
 const HomePage = () => {
   return (
@@ -22,6 +23,7 @@ const HomePage = () => {
       <Testimonials />
       <OurPrograms />
       <Articles />
+      <RecruitmentAD />
       <Contact />
       <Newsletter />
       <Footer />

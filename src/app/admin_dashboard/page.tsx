@@ -1,12 +1,13 @@
+//page.tsx
 import React from "react";
-import AdminDasboard from "./AdminDasboard";
+import AdminLogin from "./login/AdminLogin";
 
-const AdminDasboardHome = () => {
+const AdminLoginPage = () => {
   return (
     <>
-      <AdminDasboard />
+      <AdminLogin />
     </>
   );
 };
 
-export default AdminDasboardHome;
+export default AdminLoginPage;
