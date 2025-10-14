@@ -606,7 +606,7 @@ const ApplicationStatusHomeContent: React.FC = () => {
                 onPayment={handlePayment}
                 prospectiveId={applicationData.prospectiveId}
                 userEmail={applicationData.contactInfo.email}
-                applicationData={applicationData}
+                // applicationData={applicationData}
               />
               <ContactAdmissions />
 
