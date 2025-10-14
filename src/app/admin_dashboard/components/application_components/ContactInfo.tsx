@@ -277,7 +277,8 @@ const ContactInfoTab: React.FC<{ application: ApplicationData }> = ({
             <div className="section-text">
               <h3 className="section-title">Communication Preferences</h3>
               <p className="section-description">
-                How we'll communicate important updates about your application
+                How we&apos;ll communicate important updates about your
+                application
               </p>
             </div>
           </div>

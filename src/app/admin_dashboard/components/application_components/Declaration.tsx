@@ -16,8 +16,9 @@ const DeclarationTab: React.FC<{
   application: ApplicationData;
   formatDate: (dateString: string) => string;
 }> = ({ application, formatDate }) => {
-  // Safe date formatting function
-  const getFormattedDate = (dateValue: any): string => {
+  const getFormattedDate = (
+    dateValue: string | Date | null | undefined
+  ): string => {
     if (!dateValue) return "Not provided";
 
     try {
@@ -273,7 +274,7 @@ const DeclarationTab: React.FC<{
               </div>
               <div className="card-content">
                 <h4 className="card-value">
-                  {getFormattedDate(declaration.date)}
+                  {getFormattedDate(declaration?.date)}
                 </h4>
                 <p className="card-description">
                   Date and time when the declaration was submitted

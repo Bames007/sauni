@@ -3,6 +3,19 @@ import { ref, onValue, off } from "firebase/database";
 import { db } from "@/app/utils/firebaseConfig";
 import { Copy, Check, Calendar, Receipt } from "lucide-react";
 
+interface Payment {
+  reference: string;
+  status: "success" | "pending" | "failed" | "initialized";
+  amount?: number;
+  paidAmount?: number;
+  paidAt?: string;
+  initializedAt?: string;
+  createdAt?: string;
+  paymentType?: string;
+  channel?: string;
+  currency?: string;
+}
+
 interface Transaction {
   reference: string;
   amount: number;
@@ -39,8 +52,16 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({
         if (snapshot.exists()) {
           const paymentsData = snapshot.val();
           const transactionsList: Transaction[] = Object.values(paymentsData)
-            .filter((payment: any) => payment.reference && payment.status)
-            .map((payment: any) => ({
+            .filter(
+              (payment): payment is Payment =>
+                typeof payment === "object" &&
+                payment !== null &&
+                "reference" in payment &&
+                "status" in payment &&
+                typeof (payment as Payment).reference === "string" &&
+                typeof (payment as Payment).status === "string"
+            )
+            .map((payment) => ({
               reference: payment.reference,
               amount: payment.amount || payment.paidAmount || 0,
               status: payment.status,

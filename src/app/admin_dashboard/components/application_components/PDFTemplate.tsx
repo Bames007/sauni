@@ -158,3 +158,5 @@ export const PDFTemplate = React.forwardRef<
     </div>
   );
 });
+
+PDFTemplate.displayName = "PDFTemplate";
