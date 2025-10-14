@@ -1,14 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import {
-  ref,
-  onValue,
-  off,
-  update,
-  query,
-  orderByChild,
-} from "firebase/database";
+import { ref, onValue, off, query, orderByChild } from "firebase/database";
 import { db } from "@/app/utils/firebaseConfig";
 import {
   Search,
@@ -20,14 +13,9 @@ import {
   Clock,
   AlertCircle,
   X,
-  Filter,
-  Calendar,
-  CreditCard,
   Users,
   Receipt,
-  BarChart3,
   Shield,
-  UserCheck,
 } from "lucide-react";
 
 // Types
@@ -162,11 +150,11 @@ const ROLES: { [key: string]: UserRole } = {
 };
 
 const StudentPayment = ({ userRole = "accounts" }: { userRole?: string }) => {
-  const [applications, setApplications] = useState<ApplicationData[]>([]);
+  const [, setApplications] = useState<ApplicationData[]>([]);
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
+  // const [statusFilter, setStatusFilter] = useState<string>("all");
   const [programFilter, setProgramFilter] = useState<string>("all");
   const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>("all");
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);

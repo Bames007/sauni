@@ -21,8 +21,8 @@ const RecruitmentAD = () => {
               Join Our Team of Dedicated Professionals
             </p>
             <p className="text-white opacity-80 mb-6 max-w-2xl">
-              We're looking for talented individuals who are passionate about
-              education and innovation. Grow your career in a supportive
+              We&apos;re looking for talented individuals who are passionate
+              about education and innovation. Grow your career in a supportive
               environment that values excellence and professional development.
             </p>
 

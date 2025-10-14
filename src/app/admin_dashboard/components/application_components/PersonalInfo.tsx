@@ -1,5 +1,4 @@
 import React from "react";
-import { ApplicationData, InfoField } from "../StudentApplication";
 import {
   User,
   Calendar,
@@ -16,6 +15,7 @@ import {
   Shield,
   Badge,
 } from "lucide-react";
+import { ApplicationData } from "../type";
 
 const PersonalInfoTab: React.FC<{
   application: ApplicationData;

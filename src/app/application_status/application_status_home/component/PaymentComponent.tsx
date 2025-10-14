@@ -9,12 +9,30 @@ interface Payment {
   type: "application_fee" | "tuition_deposit" | "full_tuition";
 }
 
+interface PaymentData {
+  status?: string;
+  paymentType?: string;
+}
+
+interface ApplicationPayments {
+  application_fee?: {
+    status: string;
+  };
+  [key: string]: PaymentData | undefined;
+}
+
+interface ApplicationData {
+  paymentStatus?: string;
+  paystackReference?: string;
+  payments?: ApplicationPayments;
+}
+
 interface PaymentSectionProps {
   payments: Payment[];
   onPayment: (paymentId: string) => void;
   prospectiveId: string;
   userEmail: string;
-  applicationData?: any; // Add application data to access payment info
+  applicationData?: ApplicationData;
 }
 
 const PaymentSection: React.FC<PaymentSectionProps> = ({
@@ -56,7 +74,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
       for (const key in applicationData.payments) {
         const payment = applicationData.payments[key];
         if (
-          payment.status === "success" &&
+          payment?.status === "success" &&
           payment.paymentType === "application_fee"
         ) {
           return "paid";
@@ -69,6 +87,8 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
   const isApplicationFeePaid = getConsolidatedPaymentStatus() === "paid";
 
+  // Rest of the component remains the same...
+  // [The rest of your component code]
   // Updated payment initialization with proper callback URL
   const initializePayment = async () => {
     if (isApplicationFeePaid) {

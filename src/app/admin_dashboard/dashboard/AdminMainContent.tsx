@@ -4,9 +4,16 @@ import React from "react";
 import StudentApplication from "../components/StudentApplication";
 import StudentApplicationPayment from "../components/StudentApplicationPayment";
 
+// Define proper interface for menu items
+interface MenuItem {
+  path: string;
+  icon: React.ReactNode;
+  label: string;
+}
+
 interface MainContentProps {
   activeComponent: string;
-  menuItems: any[];
+  menuItems: MenuItem[];
   onNavigation: (path: string) => void;
 }
 
@@ -63,7 +70,7 @@ const AdminMainContent: React.FC<MainContentProps> = ({
 
 // Dashboard Content Component
 const DashboardContent: React.FC<{
-  menuItems: any[];
+  menuItems: MenuItem[];
   onNavigation: (path: string) => void;
 }> = ({ menuItems, onNavigation }) => {
   return (
@@ -265,26 +272,6 @@ const UserManagementContent = () => (
     <p>Manage system users and permissions</p>
     <div className="content-placeholder">
       User management content will appear here...
-    </div>
-  </div>
-);
-
-const ApplicationsContent = () => (
-  <div className="page-content">
-    <h1>Student Applications</h1>
-    <p>Review and process student applications</p>
-    <div className="content-placeholder">
-      Applications content will appear here...
-    </div>
-  </div>
-);
-
-const FinanceContent = () => (
-  <div className="page-content">
-    <h1>Financial Records</h1>
-    <p>View and manage financial transactions</p>
-    <div className="content-placeholder">
-      Finance content will appear here...
     </div>
   </div>
 );

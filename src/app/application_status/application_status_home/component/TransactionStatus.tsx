@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { ref, onValue, off } from "firebase/database";
 import { db } from "@/app/utils/firebaseConfig";
-import { Copy, Check, ExternalLink, Calendar, Receipt } from "lucide-react";
+import { Copy, Check, Calendar, Receipt } from "lucide-react";
 
 interface Transaction {
   reference: string;
@@ -240,7 +240,7 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({
       ) : (
         // Transactions List
         <div className="space-y-4">
-          {transactions.map((transaction, index) => {
+          {transactions.map((transaction) => {
             const statusStyle = getStatusStyle(transaction.status);
             return (
               <div

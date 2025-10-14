@@ -9,7 +9,7 @@ import {
   Award,
   ChevronRight,
 } from "lucide-react";
-import { ApplicationData, InfoField } from "../StudentApplication";
+import { ApplicationData } from "../type";
 
 const AcademicInfoTab: React.FC<{ application: ApplicationData }> = ({
   application,

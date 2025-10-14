@@ -29,12 +29,20 @@ const bebasNeue = Bebas_Neue({
   weight: ["400"],
 });
 
+export interface AdminData {
+  displayName?: string;
+  email?: string;
+  id: string;
+  firstName?: string;
+  lastName?: string;
+  avatar?: string;
+}
+
 interface AdminHeaderProps {
   collapsed: boolean;
   onMenuToggle: () => void;
-  adminData: any;
+  adminData: AdminData;
   role: string;
-  currentPage: string;
 }
 
 const AdminHeader: React.FC<AdminHeaderProps> = ({
@@ -42,7 +50,6 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({
   onMenuToggle,
   adminData,
   role,
-  currentPage,
 }) => {
   const [isSearchExpanded, setIsSearchExpanded] = useState(false);
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);

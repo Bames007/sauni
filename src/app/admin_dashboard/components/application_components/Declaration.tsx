@@ -10,7 +10,7 @@ import {
   UserCheck,
   FileCheck,
 } from "lucide-react";
-import { ApplicationData, InfoField } from "../StudentApplication";
+import { ApplicationData } from "../type";
 
 const DeclarationTab: React.FC<{
   application: ApplicationData;

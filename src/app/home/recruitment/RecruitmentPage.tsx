@@ -19,6 +19,13 @@ interface StaffPersonalInfo {
   countryOfResidence?: string;
 }
 
+interface EmergencyContact {
+  fullName: string;
+  relationship: string;
+  phone: string;
+  email?: string;
+}
+
 interface StaffContactInfo {
   email: string;
   phone: string;
@@ -27,12 +34,7 @@ interface StaffContactInfo {
   state: string;
   country: string;
   zipCode: string;
-  emergencyContact: {
-    fullName: string;
-    relationship: string;
-    phone: string;
-    email?: string;
-  };
+  emergencyContact: EmergencyContact;
 }
 
 interface RoleApplication {
@@ -198,11 +200,10 @@ const RecruitmentApplicationPage: React.FC<RecruitmentApplicationPageProps> = ({
   const supabase = createClient();
 
   // Update application data helper
-  // Type-safe update function
   const updateApplicationData = <T extends keyof StaffApplicationData>(
     section: T,
     field: keyof Required<StaffApplicationData>[T],
-    value: any
+    value: Required<Required<StaffApplicationData>[T]>[typeof field]
   ) => {
     setApplicationData((prev) => {
       const currentSection = prev[section] || {};
@@ -216,23 +217,26 @@ const RecruitmentApplicationPage: React.FC<RecruitmentApplicationPageProps> = ({
     });
   };
 
-  // Special handler for nested objects like emergencyContact
-  const updateNestedApplicationData = (
-    section: keyof StaffApplicationData,
-    nestedObject: string,
-    field: string,
-    value: any
+  // Special handler for nested emergency contact updates
+  const updateEmergencyContact = (
+    field: keyof EmergencyContact,
+    value: string
   ) => {
     setApplicationData((prev) => {
-      const currentSection = prev[section] || {};
-      const currentNested = (currentSection as any)?.[nestedObject] || {};
+      const currentContactInfo = prev.contactInfo || ({} as StaffContactInfo);
+      const currentEmergencyContact = currentContactInfo.emergencyContact || {
+        fullName: "",
+        relationship: "",
+        phone: "",
+        email: "",
+      };
 
       return {
         ...prev,
-        [section]: {
-          ...currentSection,
-          [nestedObject]: {
-            ...currentNested,
+        contactInfo: {
+          ...currentContactInfo,
+          emergencyContact: {
+            ...currentEmergencyContact,
             [field]: value,
           },
         },
@@ -241,7 +245,7 @@ const RecruitmentApplicationPage: React.FC<RecruitmentApplicationPageProps> = ({
   };
 
   // File size validation (2MB limit)
-  const validateFileSize = (file: File, maxSizeMB: number = 2): boolean => {
+  const validateFileSize = (file: File, maxSizeMB = 2): boolean => {
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
     return file.size <= maxSizeBytes;
   };
@@ -259,12 +263,12 @@ const RecruitmentApplicationPage: React.FC<RecruitmentApplicationPageProps> = ({
         const fileName = `${docType}_${Date.now()}.${fileExtension}`;
         const filePath = `staff-applications/${staffId}/${docType}/${fileName}`;
 
-        const { error } = await supabase.storage
+        const { error: uploadError } = await supabase.storage
           .from("Southern Atlantic University")
           .upload(filePath, file);
 
-        if (error) {
-          throw new Error(`Supabase upload error: ${error.message}`);
+        if (uploadError) {
+          throw new Error(`Supabase upload error: ${uploadError.message}`);
         }
 
         const { data: urlData } = supabase.storage
@@ -281,9 +285,9 @@ const RecruitmentApplicationPage: React.FC<RecruitmentApplicationPageProps> = ({
           uploadedAt: new Date(),
           status: "uploaded_to_supabase",
         };
-      } catch (error) {
-        console.error(`Supabase upload failed for ${docType}:`, error);
-        throw error;
+      } catch (uploadError) {
+        console.error(`Supabase upload failed for ${docType}:`, uploadError);
+        throw uploadError;
       }
     },
     [supabase]
@@ -364,7 +368,7 @@ const RecruitmentApplicationPage: React.FC<RecruitmentApplicationPageProps> = ({
         };
 
         const missingFields = Object.entries(requiredFields)
-          .filter(([_, value]) => !value)
+          .filter(([, value]) => !value)
           .map(([field]) => field);
 
         if (missingFields.length > 0) {
@@ -716,10 +720,7 @@ const RecruitmentApplicationPage: React.FC<RecruitmentApplicationPageProps> = ({
                 applicationData.contactInfo?.emergencyContact?.fullName || ""
               }
               onChange={(e) =>
-                updateApplicationData("contactInfo", "emergencyContact", {
-                  ...applicationData.contactInfo?.emergencyContact,
-                  fullName: e.target.value,
-                })
+                updateEmergencyContact("fullName", e.target.value)
               }
               className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-600 focus:ring-2 focus:ring-green-600 transition-colors"
               placeholder="John Doe"
@@ -742,10 +743,7 @@ const RecruitmentApplicationPage: React.FC<RecruitmentApplicationPageProps> = ({
                 ""
               }
               onChange={(e) =>
-                updateApplicationData("contactInfo", "emergencyContact", {
-                  ...applicationData.contactInfo?.emergencyContact,
-                  relationship: e.target.value,
-                })
+                updateEmergencyContact("relationship", e.target.value)
               }
               className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-600 focus:ring-2 focus:ring-green-600 transition-colors"
               placeholder="Spouse, Parent, etc."
@@ -764,12 +762,7 @@ const RecruitmentApplicationPage: React.FC<RecruitmentApplicationPageProps> = ({
               id="emergencyPhone"
               required
               value={applicationData.contactInfo?.emergencyContact?.phone || ""}
-              onChange={(e) =>
-                updateApplicationData("contactInfo", "emergencyContact", {
-                  ...applicationData.contactInfo?.emergencyContact,
-                  phone: e.target.value,
-                })
-              }
+              onChange={(e) => updateEmergencyContact("phone", e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-600 focus:ring-2 focus:ring-green-600 transition-colors"
               placeholder="+1 (555) 123-4567"
             />
@@ -786,12 +779,7 @@ const RecruitmentApplicationPage: React.FC<RecruitmentApplicationPageProps> = ({
               type="email"
               id="emergencyEmail"
               value={applicationData.contactInfo?.emergencyContact?.email || ""}
-              onChange={(e) =>
-                updateApplicationData("contactInfo", "emergencyContact", {
-                  ...applicationData.contactInfo?.emergencyContact,
-                  email: e.target.value,
-                })
-              }
+              onChange={(e) => updateEmergencyContact("email", e.target.value)}
               className="mt-1 block w-full rounded-lg border border-gray-300 px-4 py-3 focus:border-green-600 focus:ring-2 focus:ring-green-600 transition-colors"
               placeholder="emergency@example.com"
             />
@@ -807,7 +795,7 @@ const RecruitmentApplicationPage: React.FC<RecruitmentApplicationPageProps> = ({
         <h2 className="text-xl font-semibold text-gray-900">
           Role Application
         </h2>
-        <p className="text-gray-600 mt-1">Position you're applying for</p>
+        <p className="text-gray-600 mt-1">Position you&apos;re applying for</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

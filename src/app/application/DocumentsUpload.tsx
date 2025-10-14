@@ -3,16 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import type { ApplicationDocuments, FileInfo } from "./new_application";
-import {
-  ChevronLeft,
-  ChevronRight,
-  Upload,
-  FileText,
-  // Image as ImageIcon,
-  X,
-  Info,
-  AlertCircle,
-} from "lucide-react";
+import { Upload, FileText, X, Info, AlertCircle } from "lucide-react";
 
 interface DocumentsUploadProps {
   data?: ApplicationDocuments;

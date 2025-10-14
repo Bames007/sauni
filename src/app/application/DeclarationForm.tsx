@@ -92,7 +92,6 @@ interface DeclarationFormProps {
 const DeclarationForm: React.FC<DeclarationFormProps> = ({
   data,
   updateData,
-  submitApplication,
   prevStep,
   applicationData,
   resetApplication,

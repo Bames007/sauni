@@ -14,7 +14,7 @@ import {
   MessageCircle,
   Home,
 } from "lucide-react";
-import { ApplicationData, InfoField } from "../StudentApplication";
+import { ApplicationData } from "../type";
 
 const ContactInfoTab: React.FC<{ application: ApplicationData }> = ({
   application,

@@ -19,7 +19,6 @@ import {
   XCircle,
   Clock,
   AlertCircle,
-  GraduationCap,
   Shield,
   Filter,
   Download,
@@ -347,7 +346,7 @@ const StudentApplication = () => {
           <Shield className="access-denied-icon" />
           <h1 className="access-denied-title">Access Denied</h1>
           <p className="access-denied-message">
-            You don't have permission to view student applications. Please
+            You don&apos;t have permission to view student applications. Please
             contact your administrator.
           </p>
         </div>
@@ -562,7 +561,9 @@ const StudentApplication = () => {
                     {searchTerm && (
                       <div className="active-filter-tag">
                         <span className="filter-type">Search:</span>
-                        <span className="filter-value">"{searchTerm}"</span>
+                        <span className="filter-value">
+                          &rdquo;{searchTerm}&ldquo;
+                        </span>
                         <button
                           onClick={() => setSearchTerm("")}
                           aria-label="Remove search filter"

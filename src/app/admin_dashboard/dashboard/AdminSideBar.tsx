@@ -16,6 +16,7 @@ import {
   User,
 } from "lucide-react";
 import Image from "next/image";
+import { AdminData } from "./AdminHeader";
 
 export const ADMIN_MENUS = {
   vc: [
@@ -37,12 +38,12 @@ export const ADMIN_MENUS = {
       icon: <FileText size={20} />,
       component: "Applications",
     },
-    // {
-    //   label: "Financial Records",
-    //   path: "/admin/finance",
-    //   icon: <CreditCard size={20} />,
-    //   component: "Finance",
-    // },
+    {
+      label: "Financial Records",
+      path: "/admin/finance",
+      icon: <CreditCard size={20} />,
+      component: "Finance",
+    },
     {
       label: "System Settings",
       path: "/admin/system",
@@ -151,7 +152,7 @@ export const ADMIN_MENUS = {
 interface SidebarProps {
   collapsed: boolean;
   role: string;
-  adminData: any;
+  adminData: AdminData;
   onNavigation: (path: string) => void;
   onLogout: () => void;
   onToggle: () => void;
@@ -231,7 +232,7 @@ const AdminSidebar: React.FC<SidebarProps> = ({
                 {adminData.avatar ? (
                   <Image
                     src={adminData.avatar}
-                    alt={adminData.displayName}
+                    alt={adminData.displayName!}
                     width={44}
                     height={44}
                     className="avatar-img"

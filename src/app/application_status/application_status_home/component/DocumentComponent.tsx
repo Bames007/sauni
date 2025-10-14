@@ -1,7 +1,6 @@
 // components/DocumentsComponent.tsx
 import React from "react";
 import { Eye } from "lucide-react";
-import Image from "next/image";
 import { DocumentFile } from "../type";
 
 interface DocumentsComponentProps {

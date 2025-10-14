@@ -10,7 +10,7 @@ import {
   Clock,
   Target,
 } from "lucide-react";
-import { ApplicationData, InfoField } from "../StudentApplication";
+import { ApplicationData } from "../type";
 
 const OverviewTab: React.FC<{
   application: ApplicationData;

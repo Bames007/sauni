@@ -2056,7 +2056,7 @@ const matchCourses = (answers: UserAnswer[]): RecommendedCourse[] => {
         const course = faculty.courses.find((c) => c.id === courseId);
         if (course) {
           // Remove matchKeywords from the returned object
-          const { matchKeywords, ...courseWithoutKeywords } = course;
+          const { ...courseWithoutKeywords } = course;
           return {
             ...courseWithoutKeywords,
             faculty: faculty.name,
@@ -2089,9 +2089,7 @@ export default function AICounselorPage() {
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [userAnswers, setUserAnswers] = useState<UserAnswer[]>([]);
   const [showResults, setShowResults] = useState(false);
-  const [recommendedCourses, setRecommendedCourses] = useState<
-    RecommendedCourse[]
-  >([]);
+  const [, setRecommendedCourses] = useState<RecommendedCourse[]>([]);
   const [userName, setUserName] = useState("");
   const [inputValue, setInputValue] = useState("");
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);

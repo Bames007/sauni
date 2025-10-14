@@ -1,5 +1,4 @@
 import React from "react";
-import { MobileInfoField } from "../ApplicationStatusHomeContent";
 
 interface ProgramInfoProps {
   programSelection: {

@@ -5,7 +5,6 @@ import { useInView } from "react-intersection-observer";
 import {
   Play,
   X,
-  ChevronRight,
   Users,
   BookOpen,
   GraduationCap,
