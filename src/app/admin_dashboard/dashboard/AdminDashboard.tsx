@@ -3,12 +3,15 @@
 import React, { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import AdminSidebar, { ADMIN_MENUS } from "./AdminSideBar";
-import AdminHeader from "./AdminHeader";
+import AdminHeader, { AdminData } from "./AdminHeader";
 import AdminMainContent from "./AdminMainContent";
 
 const AdminDashboard = () => {
   const [collapsed, setCollapsed] = useState(false);
-  const [adminData, setAdminData] = useState({ displayName: "Administrator" }); // Default state
+  const [adminData, setAdminData] = useState<AdminData>({
+    displayName: "Administrator",
+    id: "default-admin-id",
+  });
   const router = useRouter();
   const searchParams = useSearchParams();
   const role =
@@ -20,9 +23,19 @@ const AdminDashboard = () => {
   useEffect(() => {
     const storedData = sessionStorage.getItem("adminUser");
     if (storedData) {
-      setAdminData(JSON.parse(storedData));
+      try {
+        const parsedData: AdminData = JSON.parse(storedData);
+        setAdminData(parsedData);
+      } catch (error) {
+        console.error("Error parsing admin data:", error);
+        setAdminData({
+          displayName: "Administrator",
+          id: "default-admin-id",
+        });
+      }
     }
   }, []);
+
   const menuItems = ADMIN_MENUS[role] || ADMIN_MENUS.admin;
 
   const handleNavigation = (path: string) => {
@@ -57,7 +70,7 @@ const AdminDashboard = () => {
       <AdminSidebar
         collapsed={collapsed}
         role={role}
-        adminData={adminData}
+        adminData={adminData} // ✅ Fixed: Using actual adminData
         onNavigation={handleNavigation}
         onLogout={handleLogout}
         onToggle={handleToggle}
@@ -70,7 +83,7 @@ const AdminDashboard = () => {
           onMenuToggle={handleToggle}
           adminData={adminData}
           role={role}
-          currentPage={getCurrentPageTitle()}
+          // currentPage={getCurrentPageTitle()}
         />
         <AdminMainContent
           activeComponent={activeComponent}
