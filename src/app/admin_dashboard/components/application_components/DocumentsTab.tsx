@@ -9,11 +9,11 @@ import {
   Upload,
   Shield,
 } from "lucide-react";
-import { ApplicationData } from "../StudentApplication";
 import {
   ApplicationDocuments,
   FileInfo,
 } from "@/app/application/new_application";
+import { ApplicationData } from "../type";
 
 const DocumentsTab: React.FC<{ application: ApplicationData }> = ({
   application,
