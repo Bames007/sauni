@@ -134,7 +134,7 @@ const AcademicHistoryForm: React.FC<AcademicHistoryFormProps> = ({
       ...prev,
       primaryEducation: currentPrimary as PrimaryEducation,
     }));
-  }, []);
+  }, [currentPrimary]);
 
   const handleJambChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -345,7 +345,7 @@ const AcademicHistoryForm: React.FC<AcademicHistoryFormProps> = ({
     [
       formData,
       currentSecondary,
-      currentPrimary,
+      // currentPrimary,
       validate,
       updateData,
       nextStep,

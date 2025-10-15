@@ -375,7 +375,7 @@ const StudentPayment = ({ userRole = "accounts" }: { userRole?: string }) => {
             Access Restricted
           </h2>
           <p className="font-gantari text-slate-600 max-w-md">
-            You don't have permission to view payment information. Please
+            You don&apos;t have permission to view payment information. Please
             contact the administration if you believe this is an error.
           </p>
         </div>
