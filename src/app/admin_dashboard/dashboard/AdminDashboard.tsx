@@ -58,12 +58,12 @@ const AdminDashboard = () => {
     setCollapsed(!collapsed);
   };
 
-  const getCurrentPageTitle = () => {
-    const menuItem = menuItems.find(
-      (item) => item.component === activeComponent
-    );
-    return menuItem ? menuItem.label : "Dashboard";
-  };
+  // const getCurrentPageTitle = () => {
+  //   const menuItem = menuItems.find(
+  //     (item) => item.component === activeComponent
+  //   );
+  //   return menuItem ? menuItem.label : "Dashboard";
+  // };
 
   return (
     <div style={{ display: "flex", height: "100vh" }}>
