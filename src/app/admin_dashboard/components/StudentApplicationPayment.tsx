@@ -1,11 +1,17 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import { ref, onValue, off, query, orderByChild } from "firebase/database";
+import {
+  ref,
+  onValue,
+  off,
+  query,
+  orderByChild,
+  update,
+} from "firebase/database";
 import { db } from "@/app/utils/firebaseConfig";
 import {
   Search,
-  Download,
   Eye,
   DollarSign,
   TrendingUp,
@@ -16,147 +22,38 @@ import {
   Users,
   Receipt,
   Shield,
+  Filter,
+  Download,
+  FileText,
+  XCircle,
 } from "lucide-react";
 
-// Types
-interface Program {
-  id: string;
-  name: string;
-  faculty: string;
-  duration: string;
-  requirements: string[];
-}
-
-interface ApplicationData {
-  personalInfo: {
-    firstName: string;
-    lastName: string;
-    middleName: string;
-    dateOfBirth: string;
-    gender: string;
-    nationality: string;
-    isNigerian: boolean;
-    stateOfOrigin: string;
-    localGovernment: string;
-    countryOfResidence: string;
-  };
-  contactInfo: {
-    email: string;
-    phone: string;
-    address: string;
-    city: string;
-    state: string;
-    country: string;
-    zipCode: string;
-    guardianContact: {
-      fullName: string;
-      relationship: string;
-      phone: string;
-      email: string;
-    };
-  };
-  programSelection: {
-    firstChoice: Program;
-    secondChoice: Program;
-    entryYear: number;
-    semester: string;
-    modeOfStudy: string;
-  };
-  prospectiveId: string;
-  status: "submitted" | "under_review" | "accepted" | "rejected" | "waitlisted";
-  submittedAt: string;
-  tempPassword?: string;
-  createdAt: string;
-  updatedAt: string;
-  passwordChanged?: boolean;
-}
-
-interface Payment {
+export interface Payment {
   id: string;
   amount: number;
   description: string;
   dueDate: string;
-  status: "pending" | "paid" | "overdue" | "confirmed" | "rejected";
-  type: "application_fee" | "tuition_deposit" | "full_tuition" | "other";
-  prospectiveId: string;
+  status: "pending" | "paid" | "overdue" | "processing" | "failed";
+  type: "application_fee" | "tuition_deposit" | "full_tuition";
+  paystackReference?: string;
   paidAt?: string;
-  transactionId?: string;
-  confirmedBy?: string;
-  confirmedAt?: string;
-  paymentMethod?: string;
-  reference?: string;
-  studentName?: string;
-  program?: string;
-}
-
-interface UserRole {
-  id: string;
-  name: string;
-  permissions: {
-    canViewPayments: boolean;
-    canManagePayments: boolean;
-    canViewStudents: boolean;
-    canViewFinancialSummary: boolean;
-    canExportReports: boolean;
+  metadata?: {
+    prospectiveId: string;
+    studentName: string;
+    program: string;
+    paymentId: string;
   };
 }
 
-// Role Definitions
-const ROLES: { [key: string]: UserRole } = {
-  founder: {
-    id: "founder",
-    name: "Founder",
-    permissions: {
-      canViewPayments: true,
-      canManagePayments: false,
-      canViewStudents: false,
-      canViewFinancialSummary: true,
-      canExportReports: true,
-    },
-  },
-  accounts: {
-    id: "accounts",
-    name: "Accounts",
-    permissions: {
-      canViewPayments: true,
-      canManagePayments: true,
-      canViewStudents: true,
-      canViewFinancialSummary: true,
-      canExportReports: true,
-    },
-  },
-  admin: {
-    id: "admin",
-    name: "Administrator",
-    permissions: {
-      canViewPayments: true,
-      canManagePayments: false,
-      canViewStudents: true,
-      canViewFinancialSummary: true,
-      canExportReports: false,
-    },
-  },
-  vc: {
-    id: "vc",
-    name: "Vice Chancellor",
-    permissions: {
-      canViewPayments: false,
-      canManagePayments: false,
-      canViewStudents: false,
-      canViewFinancialSummary: false,
-      canExportReports: false,
-    },
-  },
-};
+// Role-based access control
+type UserRole = "admin" | "vc" | "founder" | "accounts";
 
-const StudentPayment = ({ userRole = "accounts" }: { userRole?: string }) => {
-  const [, setApplications] = useState<ApplicationData[]>([]);
+const StudentPayment = ({ userRole = "accounts" }: { userRole?: UserRole }) => {
   const [payments, setPayments] = useState<Payment[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  // const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [programFilter, setProgramFilter] = useState<string>("all");
-  const [paymentStatusFilter, setPaymentStatusFilter] = useState<string>("all");
   const [selectedPayment, setSelectedPayment] = useState<Payment | null>(null);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [stats, setStats] = useState({
@@ -168,26 +65,12 @@ const StudentPayment = ({ userRole = "accounts" }: { userRole?: string }) => {
     averagePayment: 0,
   });
 
-  const currentRole = ROLES[userRole] || ROLES.accounts;
-  const allPrograms = [
-    "BSc Accounting",
-    "BSc Business Administration",
-    "BSc Hospitality & Tourism Management",
-    "BSc Public Administration",
-    "BSc Criminology & Security Studies",
-    "BSc Political Science",
-    "BSc Petroleum Chemistry",
-    "BSc International Relations & Diplomacy",
-    "BSc Economics",
-    "BSc Information & Communication Technology (ICT)",
-    "BSc Microbiology",
-    "BSc Physics with Electronics",
-    "BSc Computer Science",
-    "BSc Software Engineering",
-    "BSc Cyber Security",
-  ];
+  // Role-based access control
+  const canManagePayments = userRole === "accounts";
+  const canViewPayments = ["admin", "founder", "accounts"].includes(userRole);
+  const canViewFinancialSummary = ["founder", "accounts"].includes(userRole);
 
-  // Formatting functions
+  // Enhanced date formatting function
   const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString("en-US", {
       year: "numeric",
@@ -204,11 +87,10 @@ const StudentPayment = ({ userRole = "accounts" }: { userRole?: string }) => {
     }).format(amount);
   };
 
-  // Calculate statistics
   const calculateStats = useCallback((pays: Payment[]) => {
-    const confirmedPayments = pays.filter((p) => p.status === "confirmed");
+    const confirmedPayments = pays.filter((p) => p.status === "paid");
     const pendingPayments = pays.filter(
-      (p) => p.status === "pending" || p.status === "paid"
+      (p) => p.status === "pending" || p.status === "processing"
     );
 
     const totalRevenue = pays.reduce((sum, payment) => sum + payment.amount, 0);
@@ -221,7 +103,8 @@ const StudentPayment = ({ userRole = "accounts" }: { userRole?: string }) => {
       0
     );
 
-    const uniqueStudents = new Set(pays.map((p) => p.prospectiveId)).size;
+    const uniqueStudents = new Set(pays.map((p) => p.metadata?.prospectiveId))
+      .size;
     const averagePayment =
       confirmedPayments.length > 0
         ? confirmedRevenue / confirmedPayments.length
@@ -237,159 +120,242 @@ const StudentPayment = ({ userRole = "accounts" }: { userRole?: string }) => {
     });
   }, []);
 
-  // Fetch data
+  // Fetch payments data
   useEffect(() => {
-    const applicationsRef = query(
-      ref(db, "applications/students"),
-      orderByChild("submittedAt")
-    );
+    const paymentsRef = query(ref(db, "payments"), orderByChild("dueDate"));
 
-    const fetchApplications = onValue(
-      applicationsRef,
+    const fetchPayments = onValue(
+      paymentsRef,
       (snapshot) => {
         if (snapshot.exists()) {
-          const applicationsData: ApplicationData[] = [];
+          const paymentsData: Payment[] = [];
           snapshot.forEach((childSnapshot) => {
-            applicationsData.push(childSnapshot.val());
+            paymentsData.push(childSnapshot.val());
           });
-          setApplications(applicationsData);
-
-          // Generate enhanced mock payments with student info
-          const mockPayments: Payment[] = applicationsData.flatMap((app) => {
-            const studentName = `${app.personalInfo.firstName} ${app.personalInfo.lastName}`;
-            const programName =
-              typeof app.programSelection.firstChoice === "string"
-                ? app.programSelection.firstChoice
-                : app.programSelection.firstChoice.name;
-
-            return [
-              {
-                id: `PAY-${app.prospectiveId}-001`,
-                amount: 25000,
-                description: "Application Fee",
-                dueDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-                  .toISOString()
-                  .split("T")[0],
-                status: Math.random() > 0.7 ? "confirmed" : "pending",
-                type: "application_fee",
-                prospectiveId: app.prospectiveId,
-                paidAt:
-                  Math.random() > 0.7 ? new Date().toISOString() : undefined,
-                transactionId:
-                  Math.random() > 0.7
-                    ? `TXN-${Math.random().toString(36).substr(2, 9).toUpperCase()}`
-                    : undefined,
-                paymentMethod:
-                  Math.random() > 0.5 ? "Bank Transfer" : "Online Payment",
-                studentName,
-                program: programName,
-              },
-              {
-                id: `PAY-${app.prospectiveId}-002`,
-                amount: 100000,
-                description: "Tuition Deposit",
-                dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-                  .toISOString()
-                  .split("T")[0],
-                status: Math.random() > 0.5 ? "confirmed" : "pending",
-                type: "tuition_deposit",
-                prospectiveId: app.prospectiveId,
-                paidAt:
-                  Math.random() > 0.5 ? new Date().toISOString() : undefined,
-                studentName,
-                program: programName,
-              },
-            ];
-          });
-          setPayments(mockPayments);
-          calculateStats(mockPayments);
+          setPayments(paymentsData);
+          calculateStats(paymentsData);
         } else {
-          setApplications([]);
           setPayments([]);
         }
         setLoading(false);
       },
       (error) => {
-        console.error("Error fetching applications:", error);
+        console.error("Error fetching payments:", error);
         setLoading(false);
       }
     );
 
-    return () => off(applicationsRef, "value", fetchApplications);
+    return () => off(paymentsRef, "value", fetchPayments);
   }, [calculateStats]);
 
   const updatePaymentStatus = async (
     paymentId: string,
-    newStatus: Payment["status"],
-    confirmedBy: string = "Accounts Team"
+    newStatus: Payment["status"]
   ) => {
+    if (!canManagePayments) {
+      alert("You don't have permission to update payment status");
+      return;
+    }
+
     try {
-      setPayments((prev) =>
-        prev.map((payment) =>
-          payment.id === paymentId
-            ? {
-                ...payment,
-                status: newStatus,
-                confirmedBy:
-                  newStatus === "confirmed" ? confirmedBy : undefined,
-                confirmedAt:
-                  newStatus === "confirmed"
-                    ? new Date().toISOString()
-                    : undefined,
-                paidAt:
-                  newStatus === "confirmed"
-                    ? new Date().toISOString()
-                    : payment.paidAt,
-              }
-            : payment
-        )
-      );
+      const paymentRef = ref(db, `payments/${paymentId}`);
+      await update(paymentRef, {
+        status: newStatus,
+        updatedAt: new Date().toISOString(),
+        ...(newStatus === "paid" && { paidAt: new Date().toISOString() }),
+      });
     } catch (error) {
       console.error("Error updating payment status:", error);
+      alert("Failed to update payment status");
     }
   };
 
-  // Filter payments based on search and filters
   const filteredPayments = payments.filter((payment) => {
     const matchesSearch =
-      payment.studentName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.prospectiveId.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      payment.transactionId?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      payment.metadata?.studentName
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      payment.metadata?.prospectiveId
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
+      payment.paystackReference
+        ?.toLowerCase()
+        .includes(searchTerm.toLowerCase()) ||
       payment.description.toLowerCase().includes(searchTerm.toLowerCase());
 
-    const matchesPaymentStatus =
-      paymentStatusFilter === "all" || payment.status === paymentStatusFilter;
+    const matchesStatus =
+      statusFilter === "all" || payment.status === statusFilter;
     const matchesProgram =
-      programFilter === "all" || payment.program === programFilter;
+      programFilter === "all" || payment.metadata?.program === programFilter;
 
-    return matchesSearch && matchesPaymentStatus && matchesProgram;
+    return matchesSearch && matchesStatus && matchesProgram;
   });
 
-  // Role-based components
-  if (!currentRole.permissions.canViewPayments) {
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case "paid":
+        return "status-accepted";
+      case "processing":
+        return "status-under-review";
+      case "pending":
+        return "status-submitted";
+      case "overdue":
+        return "status-rejected";
+      case "failed":
+        return "status-rejected";
+      default:
+        return "status-default";
+    }
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case "paid":
+        return <CheckCircle className="status-icon" />;
+      case "processing":
+        return <Clock className="status-icon" />;
+      case "pending":
+        return <FileText className="status-icon" />;
+      case "overdue":
+        return <AlertCircle className="status-icon" />;
+      case "failed":
+        return <XCircle className="status-icon" />;
+      default:
+        return <FileText className="status-icon" />;
+    }
+  };
+
+  if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center px-4">
-        <div className="text-center">
-          <Shield className="w-24 h-24 text-slate-300 mx-auto mb-6" />
-          <h2 className="font-bebas text-3xl text-slate-700 mb-4">
-            Access Restricted
-          </h2>
-          <p className="font-gantari text-slate-600 max-w-md">
-            You don&apos;t have permission to view payment information. Please
-            contact the administration if you believe this is an error.
-          </p>
+      <div className="loading-overlay">
+        <div className="modern-loader">
+          <div className="loader-spinner"></div>
+          <div className="loading-content">
+            <h3 className="loading-title">Loading Payment Records</h3>
+            <p className="loading-subtitle">Preparing financial data...</p>
+          </div>
+          <div className="progress-bar">
+            <div className="progress-fill"></div>
+          </div>
         </div>
+        <style jsx>{`
+          .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: #017840;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+          }
+
+          .modern-loader {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 2.5rem;
+            border-radius: 1.5rem;
+            border: 2px solid #bd9946;
+            box-shadow:
+              0 20px 40px rgba(0, 0, 0, 0.2),
+              0 0 0 1px rgba(189, 153, 70, 0.3);
+            text-align: center;
+            min-width: 320px;
+            animation: fadeInUp 0.6s ease-out;
+            backdrop-filter: blur(12px);
+          }
+
+          .loader-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.2);
+            border-top: 4px solid #bd9946;
+            border-radius: 50%;
+            margin: 0 auto 1.5rem;
+            animation: spin 1.2s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
+          }
+
+          .loading-content {
+            margin-bottom: 1.5rem;
+          }
+
+          .loading-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: white;
+            margin: 0 0 0.5rem 0;
+          }
+
+          .loading-subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.875rem;
+            margin: 0;
+          }
+
+          .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 2px;
+            overflow: hidden;
+          }
+
+          .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #bd9946, #d4af37);
+            border-radius: 2px;
+            animation: progressPulse 2s ease-in-out infinite;
+          }
+
+          @keyframes spin {
+            0% {
+              transform: rotate(0deg);
+            }
+            100% {
+              transform: rotate(360deg);
+            }
+          }
+
+          @keyframes progressPulse {
+            0% {
+              width: 0%;
+              opacity: 1;
+            }
+            50% {
+              width: 70%;
+              opacity: 0.8;
+            }
+            100% {
+              width: 100%;
+              opacity: 0;
+            }
+          }
+
+          @keyframes fadeInUp {
+            from {
+              opacity: 0;
+              transform: translateY(20px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}</style>
       </div>
     );
   }
 
-  if (loading) {
+  if (!canViewPayments) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="w-16 h-16 border-4 border-emerald-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="font-gantari text-slate-600">
-            Loading payment records...
+      <div className="access-denied-container">
+        <div className="access-denied-content">
+          <Shield className="access-denied-icon" />
+          <h1 className="access-denied-title">Access Denied</h1>
+          <p className="access-denied-message">
+            You don't have permission to view payment information. Please
+            contact your administrator.
           </p>
         </div>
       </div>
@@ -397,294 +363,308 @@ const StudentPayment = ({ userRole = "accounts" }: { userRole?: string }) => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
-      {/* Header */}
-      <div className="bg-white border-b border-slate-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="font-bebas text-3xl text-slate-900 tracking-wide">
-                Payment Management
-              </h1>
-              <p className="font-gantari text-slate-600 mt-1">
-                {currentRole.name} •{" "}
-                {currentRole.permissions.canManagePayments
-                  ? "Full Access"
-                  : "View Only"}
-              </p>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="bg-slate-100 px-3 py-2 rounded-lg">
-                <span className="font-gantari text-slate-700 text-sm font-medium">
-                  {currentRole.name}
-                </span>
-              </div>
+    <div className="student-payments-container">
+      {/* Header Section */}
+      <div className="dashboard-header">
+        <div className="header-content">
+          <div className="header-title-section">
+            <h1 className="main-title">Payment Management Dashboard</h1>
+            <div className="user-info">
+              <span className="user-role-badge">{userRole}</span>
+              <span className="access-level-badge">
+                {canManagePayments ? "Full Access" : "View Only"}
+              </span>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Financial Overview - For Founder and Accounts */}
-        {(currentRole.permissions.canViewFinancialSummary ||
-          currentRole.id === "founder") && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <StatCard
-              title="Total Revenue"
-              value={formatCurrency(stats.totalRevenue)}
-              description="All payment records"
-              icon={<DollarSign className="w-6 h-6" />}
-              trend={12.5}
-              color="emerald"
-            />
-            <StatCard
-              title="Confirmed Revenue"
-              value={formatCurrency(stats.confirmedRevenue)}
-              description="Verified payments"
-              icon={<CheckCircle className="w-6 h-6" />}
-              trend={8.2}
-              color="green"
-            />
-            <StatCard
-              title="Pending Revenue"
-              value={formatCurrency(stats.pendingRevenue)}
-              description="Awaiting confirmation"
-              icon={<Clock className="w-6 h-6" />}
-              trend={-3.1}
-              color="amber"
-            />
-            <StatCard
-              title="Students Paid"
-              value={stats.studentsWithPayments.toString()}
-              description="Unique students"
-              icon={<Users className="w-6 h-6" />}
-              trend={15.7}
-              color="blue"
-            />
-          </div>
-        )}
-
-        {/* Founder View - Only Financial Summary */}
-        {currentRole.id === "founder" && (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-8">
-            <div className="flex items-center justify-between mb-8">
-              <div>
-                <h2 className="font-bebas text-2xl text-slate-900">
-                  Financial Overview
-                </h2>
-                <p className="font-gantari text-slate-600 mt-1">
-                  Payment summary and revenue analytics
-                </p>
-              </div>
-              <button className="bg-emerald-600 text-white px-4 py-2 rounded-lg font-gantari font-medium hover:bg-emerald-700 transition-colors flex items-center space-x-2">
-                <Download className="w-4 h-4" />
-                <span>Export Report</span>
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              {/* Revenue Breakdown */}
-              <div className="bg-slate-50 rounded-xl p-6">
-                <h3 className="font-bebas text-xl text-slate-800 mb-4">
-                  Revenue Breakdown
-                </h3>
-                <div className="space-y-4">
-                  <RevenueItem
-                    label="Application Fees"
-                    amount={payments
-                      .filter(
-                        (p) =>
-                          p.type === "application_fee" &&
-                          p.status === "confirmed"
-                      )
-                      .reduce((sum, p) => sum + p.amount, 0)}
-                    total={stats.confirmedRevenue}
-                    color="emerald"
-                  />
-                  <RevenueItem
-                    label="Tuition Deposits"
-                    amount={payments
-                      .filter(
-                        (p) =>
-                          p.type === "tuition_deposit" &&
-                          p.status === "confirmed"
-                      )
-                      .reduce((sum, p) => sum + p.amount, 0)}
-                    total={stats.confirmedRevenue}
-                    color="blue"
-                  />
-                  <RevenueItem
-                    label="Full Tuition"
-                    amount={payments
-                      .filter(
-                        (p) =>
-                          p.type === "full_tuition" && p.status === "confirmed"
-                      )
-                      .reduce((sum, p) => sum + p.amount, 0)}
-                    total={stats.confirmedRevenue}
-                    color="purple"
-                  />
-                </div>
-              </div>
-
-              {/* Quick Stats */}
-              <div className="bg-slate-50 rounded-xl p-6">
-                <h3 className="font-bebas text-xl text-slate-800 mb-4">
-                  Payment Statistics
-                </h3>
-                <div className="space-y-3">
-                  <StatItem
-                    label="Average Payment"
-                    value={formatCurrency(stats.averagePayment)}
-                  />
-                  <StatItem
-                    label="Total Transactions"
-                    value={stats.totalTransactions.toString()}
-                  />
-                  <StatItem label="Success Rate" value="94.2%" />
-                  <StatItem
-                    label="Pending Approval"
-                    value={payments
-                      .filter((p) => p.status === "paid")
-                      .length.toString()}
-                  />
-                </div>
-              </div>
+      {/* Main Dashboard */}
+      <div className="dashboard-main">
+        {/* Stats Overview */}
+        {canViewFinancialSummary && (
+          <div className="stats-section">
+            <div className="stats-grid">
+              <StatCard
+                title="Total Revenue"
+                value={formatCurrency(stats.totalRevenue)}
+                icon={<DollarSign className="stat-icon" />}
+                color="stat-icon-green"
+                description="All payment records"
+                trend={{ value: 12.5, isPositive: true }}
+                total={stats.totalRevenue}
+              />
+              <StatCard
+                title="Confirmed Revenue"
+                value={formatCurrency(stats.confirmedRevenue)}
+                icon={<CheckCircle className="stat-icon" />}
+                color="stat-icon-blue"
+                description="Verified payments"
+                trend={{ value: 8.2, isPositive: true }}
+                total={stats.totalRevenue}
+              />
+              <StatCard
+                title="Pending Revenue"
+                value={formatCurrency(stats.pendingRevenue)}
+                icon={<Clock className="stat-icon" />}
+                color="stat-icon-yellow"
+                description="Awaiting confirmation"
+                trend={{ value: -3.1, isPositive: false }}
+                total={stats.totalRevenue}
+              />
+              <StatCard
+                title="Students Paid"
+                value={stats.studentsWithPayments.toString()}
+                icon={<Users className="stat-icon" />}
+                color="stat-icon-purple"
+                description="Unique students"
+                trend={{ value: 15.7, isPositive: true }}
+                total={stats.studentsWithPayments}
+              />
+              <StatCard
+                title="Total Transactions"
+                value={stats.totalTransactions.toString()}
+                icon={<Receipt className="stat-icon" />}
+                color="stat-icon-gray"
+                description="All transactions"
+                trend={{ value: 5.2, isPositive: true }}
+                total={stats.totalTransactions}
+              />
+              <StatCard
+                title="Average Payment"
+                value={formatCurrency(stats.averagePayment)}
+                icon={<TrendingUp className="stat-icon" />}
+                color="stat-icon-emerald"
+                description="Per transaction"
+                trend={{ value: 2.3, isPositive: true }}
+                total={stats.averagePayment}
+              />
             </div>
           </div>
         )}
 
-        {/* Accounts and Admin View - Detailed Payment Management */}
-        {(currentRole.id === "accounts" || currentRole.id === "admin") && (
-          <>
-            {/* Filters */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 mb-8">
-              <div className="flex flex-col lg:flex-row gap-4 items-start lg:items-center justify-between">
-                <div className="flex-1 w-full">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 w-5 h-5" />
+        {/* Combined Filters & Table Section */}
+        <div className="applications-card">
+          {/* Card Header */}
+          <div className="card-header">
+            <div className="card-title-section">
+              <h2 className="card-title">Payment Records</h2>
+              <p className="card-subtitle">
+                {filteredPayments.length} of {payments.length} payments
+                {searchTerm && ` matching "${searchTerm}"`}
+              </p>
+            </div>
+            <div className="card-actions">
+              {canManagePayments && (
+                <button className="export-button">
+                  <Download className="export-icon" />
+                  Export
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Enhanced Filters and Search */}
+          <div className="filters-section">
+            <div className="filters-header">
+              <div className="header-content">
+                <div className="filters-title">
+                  <Filter className="filters-title-icon" />
+                  <h3>Payment Filters</h3>
+                </div>
+                <div className="results-count">
+                  <span className="count-highlight">
+                    {filteredPayments.length}
+                  </span>
+                  <span>of {payments.length} payments</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="filters-content">
+              {/* Combined Search and Quick Filters */}
+              <div className="search-filters-row">
+                <div className="search-wrapper">
+                  <div className="search-box">
+                    <Search className="search-icon" />
                     <input
                       type="text"
-                      placeholder="Search by student name, ID, or transaction..."
+                      placeholder="Search payments by student, ID, or reference..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="w-full pl-10 pr-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-gantari text-slate-700 placeholder-slate-400 transition-all duration-200"
+                      className="search-input"
                     />
+                    {searchTerm && (
+                      <button
+                        className="clear-search"
+                        onClick={() => setSearchTerm("")}
+                        aria-label="Clear search"
+                      >
+                        ×
+                      </button>
+                    )}
                   </div>
                 </div>
-                <div className="flex flex-wrap gap-3">
-                  <select
-                    value={programFilter}
-                    onChange={(e) => setProgramFilter(e.target.value)}
-                    className="px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-gantari text-slate-700 bg-white min-w-[180px]"
-                  >
-                    <option value="all">All Programs</option>
-                    {allPrograms.map((program) => (
-                      <option key={program} value={program}>
-                        {program}
+
+                <div className="quick-filters">
+                  <div className="filter-group compact">
+                    <select
+                      value={statusFilter}
+                      onChange={(e) => setStatusFilter(e.target.value)}
+                      className="filter-select compact"
+                    >
+                      <option value="all">All Statuses</option>
+                      <option value="pending">⏳ Pending</option>
+                      <option value="processing">🔍 Processing</option>
+                      <option value="paid">✅ Paid</option>
+                      <option value="overdue">⚠️ Overdue</option>
+                      <option value="failed">❌ Failed</option>
+                    </select>
+                  </div>
+
+                  <div className="filter-group compact">
+                    <select
+                      value={programFilter}
+                      onChange={(e) => setProgramFilter(e.target.value)}
+                      className="filter-select compact"
+                    >
+                      <option value="all">All Programs</option>
+                      <option value="Computer Science">Computer Science</option>
+                      <option value="Business Administration">
+                        Business Administration
                       </option>
-                    ))}
-                  </select>
-                  <select
-                    value={paymentStatusFilter}
-                    onChange={(e) => setPaymentStatusFilter(e.target.value)}
-                    className="px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 font-gantari text-slate-700 bg-white min-w-[180px]"
+                      <option value="Electrical Engineering">
+                        Electrical Engineering
+                      </option>
+                      <option value="Mechanical Engineering">
+                        Mechanical Engineering
+                      </option>
+                    </select>
+                  </div>
+
+                  <button
+                    className="clear-filters-btn"
+                    onClick={() => {
+                      setSearchTerm("");
+                      setStatusFilter("all");
+                      setProgramFilter("all");
+                    }}
                   >
-                    <option value="all">All Status</option>
-                    <option value="confirmed">Confirmed</option>
-                    <option value="paid">Paid</option>
-                    <option value="pending">Pending</option>
-                    <option value="overdue">Overdue</option>
-                  </select>
+                    Clear All
+                  </button>
                 </div>
               </div>
-            </div>
 
-            {/* Payment List */}
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-              <div className="px-6 py-4 border-b border-slate-200">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="font-bebas text-2xl text-slate-900">
-                      Payment Records
-                    </h2>
-                    <p className="font-gantari text-slate-600 mt-1">
-                      {filteredPayments.length} of {payments.length} payments
-                      {searchTerm && ` matching "${searchTerm}"`}
-                    </p>
-                  </div>
-                  {currentRole.permissions.canExportReports && (
-                    <button className="bg-slate-100 text-slate-700 px-4 py-2 rounded-lg font-gantari font-medium hover:bg-slate-200 transition-colors flex items-center space-x-2">
-                      <Download className="w-4 h-4" />
-                      <span>Export</span>
+              {/* Active Filters */}
+              {(searchTerm ||
+                statusFilter !== "all" ||
+                programFilter !== "all") && (
+                <div className="active-filters-section">
+                  <div className="active-filters-header">
+                    <span className="active-filters-label">Active Filters</span>
+                    <button
+                      className="clear-all-filters"
+                      onClick={() => {
+                        setSearchTerm("");
+                        setStatusFilter("all");
+                        setProgramFilter("all");
+                      }}
+                    >
+                      Clear All
                     </button>
-                  )}
-                </div>
-              </div>
-
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead className="bg-slate-50">
-                    <tr>
-                      <th className="px-6 py-4 text-left font-gantari font-semibold text-slate-700 text-sm uppercase tracking-wider">
-                        Student & Program
-                      </th>
-                      <th className="px-6 py-4 text-left font-gantari font-semibold text-slate-700 text-sm uppercase tracking-wider">
-                        Payment Details
-                      </th>
-                      <th className="px-6 py-4 text-left font-gantari font-semibold text-slate-700 text-sm uppercase tracking-wider">
-                        Amount
-                      </th>
-                      <th className="px-6 py-4 text-left font-gantari font-semibold text-slate-700 text-sm uppercase tracking-wider">
-                        Status
-                      </th>
-                      <th className="px-6 py-4 text-left font-gantari font-semibold text-slate-700 text-sm uppercase tracking-wider">
-                        Date
-                      </th>
-                      <th className="px-6 py-4 text-left font-gantari font-semibold text-slate-700 text-sm uppercase tracking-wider">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-200">
-                    {filteredPayments.map((payment) => (
-                      <PaymentRow
-                        key={payment.id}
-                        payment={payment}
-                        onView={() => {
-                          setSelectedPayment(payment);
-                          setShowPaymentModal(true);
-                        }}
-                        onStatusUpdate={
-                          currentRole.permissions.canManagePayments
-                            ? updatePaymentStatus
-                            : undefined
-                        }
-                        formatDate={formatDate}
-                        formatCurrency={formatCurrency}
-                      />
-                    ))}
-                  </tbody>
-                </table>
-
-                {filteredPayments.length === 0 && (
-                  <div className="text-center py-12">
-                    <Receipt className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-                    <p className="font-gantari text-slate-500 text-lg font-medium">
-                      No payment records found
-                    </p>
-                    <p className="font-gantari text-slate-400 text-sm mt-1">
-                      {searchTerm
-                        ? "Try adjusting your search terms"
-                        : "No payments match your current filters"}
-                    </p>
                   </div>
-                )}
-              </div>
+                  <div className="active-filters-list">
+                    {searchTerm && (
+                      <div className="active-filter-tag">
+                        <span className="filter-type">Search:</span>
+                        <span className="filter-value">"{searchTerm}"</span>
+                        <button
+                          onClick={() => setSearchTerm("")}
+                          aria-label="Remove search filter"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )}
+                    {statusFilter !== "all" && (
+                      <div className="active-filter-tag">
+                        <span className="filter-type">Status:</span>
+                        <span className="filter-value">
+                          {statusFilter.replace("_", " ")}
+                        </span>
+                        <button
+                          onClick={() => setStatusFilter("all")}
+                          aria-label="Remove status filter"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )}
+                    {programFilter !== "all" && (
+                      <div className="active-filter-tag">
+                        <span className="filter-type">Program:</span>
+                        <span className="filter-value">{programFilter}</span>
+                        <button
+                          onClick={() => setProgramFilter("all")}
+                          aria-label="Remove program filter"
+                        >
+                          ×
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
             </div>
-          </>
-        )}
+          </div>
+
+          {/* Payments Table */}
+          <div className="table-container">
+            <div className="table-wrapper">
+              <table className="applications-table">
+                <thead className="table-header">
+                  <tr>
+                    <th className="table-head">Student & Program</th>
+                    <th className="table-head">Payment Details</th>
+                    <th className="table-head">Amount</th>
+                    <th className="table-head">Status</th>
+                    <th className="table-head">Date</th>
+                    <th className="table-head">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="table-body">
+                  {filteredPayments.map((payment) => (
+                    <PaymentRow
+                      key={payment.id}
+                      payment={payment}
+                      onView={() => {
+                        setSelectedPayment(payment);
+                        setShowPaymentModal(true);
+                      }}
+                      onStatusUpdate={
+                        canManagePayments ? updatePaymentStatus : undefined
+                      }
+                      formatDate={formatDate}
+                      formatCurrency={formatCurrency}
+                    />
+                  ))}
+                </tbody>
+              </table>
+
+              {filteredPayments.length === 0 && (
+                <div className="empty-state">
+                  <Receipt className="empty-icon" />
+                  <p className="empty-title">No payments found</p>
+                  <p className="empty-message">
+                    {searchTerm
+                      ? "Try adjusting your search terms"
+                      : "No payments match your current filters"}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Payment Detail Modal */}
@@ -692,16 +672,758 @@ const StudentPayment = ({ userRole = "accounts" }: { userRole?: string }) => {
         <PaymentDetailModal
           payment={selectedPayment}
           onClose={() => setShowPaymentModal(false)}
-          onStatusUpdate={
-            currentRole.permissions.canManagePayments
-              ? updatePaymentStatus
-              : undefined
-          }
+          onStatusUpdate={canManagePayments ? updatePaymentStatus : undefined}
           formatDate={formatDate}
           formatCurrency={formatCurrency}
-          canManage={currentRole.permissions.canManagePayments}
+          canManage={canManagePayments}
         />
       )}
+
+      <style jsx>{`
+        .student-payments-container {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+          font-family:
+            "Inter",
+            -apple-system,
+            BlinkMacSystemFont,
+            sans-serif;
+        }
+
+        /* Header Styles */
+        .dashboard-header {
+          background: white;
+          padding: 2rem 2rem 1rem;
+          border-bottom: 1px solid #e5e7eb;
+        }
+
+        .header-content {
+          max-width: 1400px;
+          margin: 0 auto;
+        }
+
+        .header-title-section {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .main-title {
+          font-size: 2.25rem;
+          font-weight: 700;
+          color: #1a202c;
+          font-family: "Bebas Neue", sans-serif;
+          margin: 0;
+          background: linear-gradient(135deg, #059669 0%, #047857 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        .user-info {
+          display: flex;
+          gap: 0.75rem;
+        }
+
+        .user-role-badge {
+          background: linear-gradient(135deg, #059669 0%, #047857 100%);
+          color: white;
+          padding: 0.5rem 1.25rem;
+          border-radius: 2rem;
+          font-size: 0.875rem;
+          font-weight: 600;
+          text-transform: capitalize;
+          box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+        }
+
+        .access-level-badge {
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+          color: white;
+          padding: 0.5rem 1.25rem;
+          border-radius: 2rem;
+          font-size: 0.875rem;
+          font-weight: 600;
+          box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        }
+
+        /* Main Dashboard */
+        .dashboard-main {
+          padding: 1rem 2rem 2rem;
+          max-width: 1400px;
+          margin: 0 auto;
+        }
+
+        /* Stats Overview */
+        .stats-section {
+          margin-bottom: 2rem;
+        }
+
+        .stats-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 1.75rem;
+        }
+
+        @media (max-width: 1200px) {
+          .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        @media (max-width: 768px) {
+          .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 1.25rem;
+          }
+        }
+
+        /* Applications Card */
+        .applications-card {
+          background: white;
+          border-radius: 1rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+          border: 1px solid #e5e7eb;
+          overflow: hidden;
+        }
+
+        .card-header {
+          padding: 1.5rem;
+          border-bottom: 1px solid #e5e7eb;
+          background: #f9fafb;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .card-title-section {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        .card-title {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #1f2937;
+          font-family: "Bebas Neue", sans-serif;
+          margin: 0 0 0.5rem 0;
+        }
+
+        .card-subtitle {
+          color: #6b7280;
+          font-size: 1rem;
+          margin: 0;
+        }
+
+        .card-actions {
+          display: flex;
+          gap: 0.75rem;
+          align-items: center;
+        }
+
+        .export-button {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: #059669;
+          color: white;
+          padding: 0.625rem 1rem;
+          border-radius: 0.75rem;
+          font-size: 0.875rem;
+          font-weight: 500;
+          border: none;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .export-button:hover {
+          background: #047857;
+          transform: translateY(-1px);
+        }
+
+        .export-icon {
+          width: 1rem;
+          height: 1rem;
+        }
+
+        /* Enhanced Filters and Search */
+        .filters-section {
+          background: white;
+          border-radius: 0;
+          padding: 1.5rem;
+          border-bottom: 1px solid #e5e7eb;
+        }
+
+        .filters-header {
+          padding: 1.25rem 1.5rem;
+          border-bottom: 1px solid #f1f5f9;
+          background: white;
+        }
+
+        .header-content {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .filters-title {
+          display: flex;
+          align-items: center;
+          gap: 0.75rem;
+        }
+
+        .filters-title h3 {
+          font-size: 1.125rem;
+          font-weight: 600;
+          color: #0f172a;
+          margin: 0;
+          font-family:
+            "Inter",
+            -apple-system,
+            BlinkMacSystemFont,
+            sans-serif;
+        }
+
+        .filters-title-icon {
+          width: 1.25rem;
+          height: 1.25rem;
+          color: #3b82f6;
+        }
+
+        .results-count {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          font-size: 0.875rem;
+          color: #64748b;
+          font-weight: 500;
+        }
+
+        .count-highlight {
+          font-weight: 700;
+          color: #0f172a;
+          font-size: 1rem;
+        }
+
+        .filters-content {
+          padding: 1.5rem;
+        }
+
+        .search-filters-row {
+          display: flex;
+          gap: 1rem;
+          align-items: flex-start;
+        }
+
+        .search-wrapper {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .search-box {
+          position: relative;
+          display: flex;
+          align-items: center;
+          background: white;
+          border: 1px solid #d1d5db;
+          border-radius: 8px;
+          transition: all 0.2s ease;
+          overflow: hidden;
+        }
+
+        .search-box:focus-within {
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-icon {
+          position: absolute;
+          left: 1rem;
+          color: #6b7280;
+          width: 1.25rem;
+          height: 1.25rem;
+          transition: color 0.2s;
+        }
+
+        .search-box:focus-within .search-icon {
+          color: #3b82f6;
+        }
+
+        .search-input {
+          flex: 1;
+          padding: 0.75rem 1rem 0.75rem 3rem;
+          border: none;
+          background: transparent;
+          font-size: 0.95rem;
+          font-family: "Inter", sans-serif;
+          color: #1f2937;
+          outline: none;
+          width: 100%;
+        }
+
+        .search-input::placeholder {
+          color: #9ca3af;
+          font-weight: 400;
+        }
+
+        .clear-search {
+          position: absolute;
+          right: 0.75rem;
+          background: #f3f4f6;
+          border: none;
+          border-radius: 50%;
+          width: 1.5rem;
+          height: 1.5rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-size: 1rem;
+          color: #6b7280;
+          transition: all 0.15s ease;
+        }
+
+        .clear-search:hover {
+          background: #e5e7eb;
+          color: #374151;
+        }
+
+        .quick-filters {
+          display: flex;
+          gap: 0.75rem;
+          align-items: center;
+          flex-shrink: 0;
+        }
+
+        .filter-group.compact {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .filter-select.compact {
+          padding: 0.75rem 2rem 0.75rem 0.75rem;
+          border: 1px solid #d1d5db;
+          border-radius: 8px;
+          font-size: 0.875rem;
+          font-family: "Inter", sans-serif;
+          background: white;
+          color: #1f2937;
+          transition: all 0.2s ease;
+          cursor: pointer;
+          appearance: none;
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+          background-position: right 0.5rem center;
+          background-repeat: no-repeat;
+          background-size: 1rem;
+          min-width: 140px;
+        }
+
+        .filter-select.compact:hover {
+          border-color: #9ca3af;
+        }
+
+        .filter-select.compact:focus {
+          outline: none;
+          border-color: #3b82f6;
+          box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .clear-filters-btn {
+          padding: 0.75rem 1rem;
+          background: transparent;
+          color: #6b7280;
+          border: 1px solid #d1d5db;
+          border-radius: 8px;
+          font-size: 0.875rem;
+          font-weight: 500;
+          font-family: "Inter", sans-serif;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          white-space: nowrap;
+          height: fit-content;
+        }
+
+        .clear-filters-btn:hover {
+          background: #f8fafc;
+          color: #374151;
+          border-color: #9ca3af;
+        }
+
+        .active-filters-section {
+          margin-top: 1.25rem;
+          padding-top: 1.25rem;
+          border-top: 1px solid #f1f5f9;
+        }
+
+        .active-filters-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 0.75rem;
+        }
+
+        .active-filters-label {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: #374151;
+        }
+
+        .clear-all-filters {
+          background: none;
+          border: none;
+          color: #ef4444;
+          font-size: 0.75rem;
+          font-weight: 500;
+          cursor: pointer;
+          padding: 0.25rem 0.5rem;
+          border-radius: 4px;
+          transition: background-color 0.2s;
+        }
+
+        .clear-all-filters:hover {
+          background: #fef2f2;
+        }
+
+        .active-filters-list {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+        }
+
+        .active-filter-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: #eff6ff;
+          color: #1e40af;
+          padding: 0.5rem 0.75rem;
+          border-radius: 6px;
+          font-size: 0.75rem;
+          font-weight: 500;
+          border: 1px solid #dbeafe;
+          transition: all 0.15s ease;
+        }
+
+        .active-filter-tag:hover {
+          background: #dbeafe;
+        }
+
+        .filter-type {
+          font-weight: 600;
+          font-size: 0.7rem;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+        }
+
+        .filter-value {
+          font-weight: 500;
+        }
+
+        .active-filter-tag button {
+          background: #dbeafe;
+          border: none;
+          border-radius: 50%;
+          width: 1rem;
+          height: 1rem;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          font-size: 0.75rem;
+          color: #1e40af;
+          transition: all 0.15s ease;
+          margin-left: 0.25rem;
+        }
+
+        .active-filter-tag button:hover {
+          background: #3b82f6;
+          color: white;
+        }
+
+        /* Table Styles */
+        .table-container {
+          overflow-x: auto;
+        }
+
+        .table-wrapper {
+          min-width: 800px;
+        }
+
+        .applications-table {
+          width: 100%;
+          border-collapse: collapse;
+        }
+
+        .table-header {
+          background: #f8fafc;
+        }
+
+        .table-head {
+          padding: 1.25rem 1.5rem;
+          text-align: left;
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: #374151;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+          border-bottom: 1px solid #e5e7eb;
+        }
+
+        .table-body {
+          background: white;
+        }
+
+        .table-row {
+          transition: background-color 0.2s;
+          border-bottom: 1px solid #f3f4f6;
+        }
+
+        .table-row:hover {
+          background: #f9fafb;
+        }
+
+        .table-cell {
+          padding: 1.25rem 1.5rem;
+          font-size: 0.95rem;
+        }
+
+        /* Status Badges */
+        .status-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          padding: 0.5rem 1rem;
+          border-radius: 2rem;
+          font-size: 0.875rem;
+          font-weight: 500;
+          font-family: "Inter", sans-serif;
+          border: 1px solid;
+        }
+
+        .status-icon {
+          width: 1rem;
+          height: 1rem;
+        }
+
+        .status-submitted {
+          background: #dbeafe;
+          color: #1e40af;
+          border-color: #bfdbfe;
+        }
+
+        .status-under-review {
+          background: #fef3c7;
+          color: #92400e;
+          border-color: #fde68a;
+        }
+
+        .status-accepted {
+          background: #d1fae5;
+          color: #065f46;
+          border-color: #a7f3d0;
+        }
+
+        .status-rejected {
+          background: #fee2e2;
+          color: #991b1b;
+          border-color: #fecaca;
+        }
+
+        .status-waitlisted {
+          background: #f3e8ff;
+          color: #6b21a8;
+          border-color: #e9d5ff;
+        }
+
+        .status-default {
+          background: #f3f4f6;
+          color: #374151;
+          border-color: #e5e7eb;
+        }
+
+        .status-text {
+          text-transform: capitalize;
+        }
+
+        .action-buttons {
+          display: flex;
+          gap: 0.75rem;
+          align-items: center;
+        }
+
+        .view-button {
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: #3b82f6;
+          color: white;
+          padding: 0.625rem 1rem;
+          border-radius: 0.5rem;
+          font-size: 0.875rem;
+          font-weight: 500;
+          font-family: "Inter", sans-serif;
+          border: none;
+          transition: all 0.2s;
+          cursor: pointer;
+          text-decoration: none;
+        }
+
+        .view-button:hover {
+          background: #2563eb;
+          transform: translateY(-1px);
+        }
+
+        .view-button-icon {
+          width: 1rem;
+          height: 1rem;
+        }
+
+        .status-select {
+          padding: 0.625rem 0.75rem;
+          border: 1px solid #d1d5db;
+          border-radius: 0.5rem;
+          font-size: 0.875rem;
+          font-family: "Inter", sans-serif;
+          background: white;
+          min-width: 140px;
+          transition: all 0.2s;
+        }
+
+        .status-select:focus {
+          outline: none;
+          border-color: #059669;
+          box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+        }
+
+        /* Empty State */
+        .empty-state {
+          text-align: center;
+          padding: 4rem 2rem;
+        }
+
+        .empty-icon {
+          width: 5rem;
+          height: 5rem;
+          color: #d1d5db;
+          margin: 0 auto 1.5rem;
+        }
+
+        .empty-title {
+          font-size: 1.5rem;
+          font-weight: 600;
+          color: #6b7280;
+          font-family: "Bebas Neue", sans-serif;
+          margin: 0 0 0.5rem 0;
+        }
+
+        .empty-message {
+          color: #9ca3af;
+          font-size: 1rem;
+          margin: 0;
+        }
+
+        /* Access Denied */
+        .access-denied-container {
+          min-height: 100vh;
+          background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 2rem;
+        }
+
+        .access-denied-content {
+          text-align: center;
+          background: white;
+          padding: 3rem;
+          border-radius: 1rem;
+          box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+          border: 1px solid #e5e7eb;
+          max-width: 500px;
+          width: 100%;
+        }
+
+        .access-denied-icon {
+          width: 5rem;
+          height: 5rem;
+          color: #ef4444;
+          margin: 0 auto 2rem;
+        }
+
+        .access-denied-title {
+          font-size: 2rem;
+          font-weight: 700;
+          color: #1f2937;
+          font-family: "Bebas Neue", sans-serif;
+          margin: 0 0 1rem 0;
+        }
+
+        .access-denied-message {
+          color: #6b7280;
+          font-size: 1.125rem;
+          line-height: 1.6;
+          margin: 0;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+          .search-filters-row {
+            flex-direction: column;
+            gap: 1rem;
+          }
+
+          .quick-filters {
+            width: 100%;
+            justify-content: space-between;
+          }
+
+          .filter-select.compact {
+            min-width: 120px;
+            flex: 1;
+          }
+
+          .header-content {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 0.75rem;
+          }
+
+          .results-count {
+            align-self: flex-start;
+          }
+
+          .dashboard-main {
+            padding: 1rem;
+          }
+
+          .header-title-section {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+          }
+
+          .main-title {
+            font-size: 2rem;
+          }
+
+          .card-header {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+          }
+
+          .action-buttons {
+            flex-direction: column;
+            align-items: stretch;
+          }
+
+          .view-button,
+          .status-select {
+            width: 100%;
+            justify-content: center;
+          }
+        }
+      `}</style>
     </div>
   );
 };
@@ -710,210 +1432,235 @@ const StudentPayment = ({ userRole = "accounts" }: { userRole?: string }) => {
 const StatCard: React.FC<{
   title: string;
   value: string;
-  description: string;
   icon: React.ReactNode;
-  trend: number;
-  color: "emerald" | "green" | "amber" | "blue" | "purple";
-}> = ({ title, value, description, icon, trend, color }) => {
-  const colorClasses = {
-    emerald: "bg-emerald-500",
-    green: "bg-green-500",
-    amber: "bg-amber-500",
-    blue: "bg-blue-500",
-    purple: "bg-purple-500",
-  };
-
-  const bgColorClasses = {
-    emerald: "bg-emerald-50",
-    green: "bg-green-50",
-    amber: "bg-amber-50",
-    blue: "bg-blue-50",
-    purple: "bg-purple-50",
-  };
-
+  color: string;
+  description: string;
+  trend: { value: number; isPositive: boolean };
+  total: number;
+}> = ({ title, value, icon, color, description, trend, total }) => {
   return (
-    <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6 hover:shadow-md transition-all duration-300">
-      <div className="flex items-start justify-between mb-4">
-        <div className={`p-3 rounded-xl ${bgColorClasses[color]}`}>
-          <div className={`text-white p-2 rounded-lg ${colorClasses[color]}`}>
-            {icon}
-          </div>
-        </div>
+    <div className="stat-card">
+      <div className="stat-header">
+        <div className={`stat-icon-container ${color}`}>{icon}</div>
         <div
-          className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-gantari font-medium ${
-            trend >= 0
-              ? "bg-emerald-100 text-emerald-700"
-              : "bg-red-100 text-red-700"
-          }`}
+          className={`stat-trend ${trend.isPositive ? "positive" : "negative"}`}
         >
           <TrendingUp
-            className={`w-3 h-3 ${trend < 0 ? "transform rotate-180" : ""}`}
+            className={`trend-icon ${!trend.isPositive ? "negative" : ""}`}
           />
-          <span>{Math.abs(trend)}%</span>
+          {Math.abs(trend.value)}%
         </div>
       </div>
-      <h3 className="font-bebas text-2xl text-slate-900 mb-1">{value}</h3>
-      <p className="font-gantari font-semibold text-slate-700 text-sm mb-1">
-        {title}
-      </p>
-      <p className="font-gantari text-slate-500 text-xs">{description}</p>
+      <div className="stat-content">
+        <h3 className="stat-value">{value}</h3>
+        <p className="stat-title">{title}</p>
+        <p className="stat-description">{description}</p>
+      </div>
+      <style jsx>{`
+        .stat-card {
+          background: white;
+          border-radius: 1rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+          border: 1px solid #e5e7eb;
+          padding: 1.5rem;
+          transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .stat-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 1rem;
+        }
+
+        .stat-icon-container {
+          padding: 0.75rem;
+          border-radius: 0.75rem;
+          color: white;
+        }
+
+        .stat-icon-blue {
+          background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+        }
+
+        .stat-icon-green {
+          background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        }
+
+        .stat-icon-yellow {
+          background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+        }
+
+        .stat-icon-purple {
+          background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+        }
+
+        .stat-icon-gray {
+          background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+        }
+
+        .stat-icon-emerald {
+          background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        }
+
+        .stat-trend {
+          display: flex;
+          align-items: center;
+          gap: 0.25rem;
+          padding: 0.25rem 0.5rem;
+          border-radius: 1rem;
+          font-size: 0.75rem;
+          font-weight: 600;
+          font-family: "Inter", sans-serif;
+        }
+
+        .stat-trend.positive {
+          background: #d1fae5;
+          color: #065f46;
+        }
+
+        .stat-trend.negative {
+          background: #fee2e2;
+          color: #991b1b;
+        }
+
+        .trend-icon {
+          width: 0.875rem;
+          height: 0.875rem;
+        }
+
+        .trend-icon.negative {
+          transform: rotate(180deg);
+        }
+
+        .stat-content {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        .stat-value {
+          font-size: 1.75rem;
+          font-weight: 700;
+          color: #1f2937;
+          font-family: "Bebas Neue", sans-serif;
+          margin: 0;
+          line-height: 1;
+        }
+
+        .stat-title {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: #374151;
+          margin: 0;
+        }
+
+        .stat-description {
+          font-size: 0.75rem;
+          color: #6b7280;
+          margin: 0;
+        }
+      `}</style>
     </div>
   );
 };
-
-const RevenueItem: React.FC<{
-  label: string;
-  amount: number;
-  total: number;
-  color: "emerald" | "blue" | "purple";
-}> = ({ label, amount, total, color }) => {
-  const percentage = total > 0 ? (amount / total) * 100 : 0;
-  const colorClasses = {
-    emerald: "bg-emerald-500",
-    blue: "bg-blue-500",
-    purple: "bg-purple-500",
-  };
-
-  return (
-    <div className="space-y-2">
-      <div className="flex justify-between items-center">
-        <span className="font-gantari text-slate-700 text-sm">{label}</span>
-        <span className="font-gantari font-semibold text-slate-900">
-          {Math.round(percentage)}%
-        </span>
-      </div>
-      <div className="w-full bg-slate-200 rounded-full h-2">
-        <div
-          className={`h-2 rounded-full ${colorClasses[color]} transition-all duration-500`}
-          style={{ width: `${percentage}%` }}
-        ></div>
-      </div>
-      <div className="flex justify-between items-center">
-        <span className="font-gantari text-slate-500 text-xs">Amount</span>
-        <span className="font-gantari font-semibold text-slate-900 text-sm">
-          {new Intl.NumberFormat("en-NG", {
-            style: "currency",
-            currency: "NGN",
-          }).format(amount)}
-        </span>
-      </div>
-    </div>
-  );
-};
-
-const StatItem: React.FC<{ label: string; value: string }> = ({
-  label,
-  value,
-}) => (
-  <div className="flex justify-between items-center py-2 border-b border-slate-200 last:border-b-0">
-    <span className="font-gantari text-slate-600 text-sm">{label}</span>
-    <span className="font-gantari font-semibold text-slate-900">{value}</span>
-  </div>
-);
 
 const PaymentRow: React.FC<{
   payment: Payment;
   onView: () => void;
-  onStatusUpdate?: (
-    id: string,
-    status: Payment["status"],
-    confirmedBy?: string
-  ) => void;
+  onStatusUpdate?: (id: string, status: Payment["status"]) => void;
   formatDate: (date: string) => string;
   formatCurrency: (amount: number) => string;
 }> = ({ payment, onView, onStatusUpdate, formatDate, formatCurrency }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
-      case "confirmed":
-        return "bg-emerald-100 text-emerald-800 border border-emerald-200";
       case "paid":
-        return "bg-blue-100 text-blue-800 border border-blue-200";
+        return "status-accepted";
+      case "processing":
+        return "status-under-review";
       case "pending":
-        return "bg-amber-100 text-amber-800 border border-amber-200";
+        return "status-submitted";
       case "overdue":
-        return "bg-red-100 text-red-800 border border-red-200";
+        return "status-rejected";
+      case "failed":
+        return "status-rejected";
       default:
-        return "bg-slate-100 text-slate-800 border border-slate-200";
+        return "status-default";
     }
   };
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case "confirmed":
-        return <CheckCircle className="w-4 h-4" />;
       case "paid":
-        return <DollarSign className="w-4 h-4" />;
+        return <CheckCircle className="status-icon" />;
+      case "processing":
+        return <Clock className="status-icon" />;
       case "pending":
-        return <Clock className="w-4 h-4" />;
+        return <FileText className="status-icon" />;
       case "overdue":
-        return <AlertCircle className="w-4 h-4" />;
+        return <AlertCircle className="status-icon" />;
+      case "failed":
+        return <XCircle className="status-icon" />;
       default:
-        return <Clock className="w-4 h-4" />;
+        return <FileText className="status-icon" />;
     }
   };
 
   return (
-    <tr className="hover:bg-slate-50 transition-colors duration-150">
-      <td className="px-6 py-4">
-        <div>
-          <div className="font-gantari font-semibold text-slate-900">
-            {payment.studentName || "Unknown Student"}
+    <tr key={payment.id} className="table-row">
+      <td className="table-cell">
+        <div className="student-info">
+          <div className="student-name">
+            {payment.metadata?.studentName || "Unknown Student"}
           </div>
-          <div className="font-gantari text-slate-600 text-sm mt-1">
-            {payment.program || "No Program"}
+          <div className="student-id">
+            {payment.metadata?.prospectiveId || "N/A"}
           </div>
-          <div className="font-gantari text-slate-400 text-xs mt-1">
-            ID: {payment.prospectiveId}
+          <div className="student-program">
+            {payment.metadata?.program || "No Program"}
           </div>
         </div>
       </td>
-      <td className="px-6 py-4">
-        <div>
-          <div className="font-gantari font-semibold text-slate-900">
-            {payment.description}
+      <td className="table-cell">
+        <div className="payment-details">
+          <div className="payment-description">{payment.description}</div>
+          <div className="payment-type">
+            {payment.type.replace("_", " ").toUpperCase()}
           </div>
-          {payment.transactionId && (
-            <div className="font-gantari text-slate-500 text-sm mt-1">
-              TXN: {payment.transactionId}
-            </div>
-          )}
-          {payment.paymentMethod && (
-            <div className="font-gantari text-slate-400 text-xs mt-1">
-              Via {payment.paymentMethod}
+          {payment.paystackReference && (
+            <div className="payment-reference">
+              Ref: {payment.paystackReference}
             </div>
           )}
         </div>
       </td>
-      <td className="px-6 py-4">
-        <div className="font-gantari font-bold text-slate-900 text-lg">
-          {formatCurrency(payment.amount)}
-        </div>
+      <td className="table-cell">
+        <div className="payment-amount">{formatCurrency(payment.amount)}</div>
       </td>
-      <td className="px-6 py-4">
-        <span
-          className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-gantari font-medium ${getStatusColor(payment.status)}`}
-        >
+      <td className="table-cell">
+        <span className={`status-badge ${getStatusColor(payment.status)}`}>
           {getStatusIcon(payment.status)}
-          <span className="ml-1.5 capitalize">{payment.status}</span>
+          <span className="status-text">{payment.status}</span>
         </span>
       </td>
-      <td className="px-6 py-4">
-        <div className="font-gantari text-slate-700">
+      <td className="table-cell">
+        <div className="payment-date">
           {payment.paidAt
             ? formatDate(payment.paidAt)
             : formatDate(payment.dueDate)}
         </div>
-        <div className="font-gantari text-slate-400 text-xs">
-          {payment.paidAt ? "Paid" : "Due"}
-        </div>
+        <div className="date-label">{payment.paidAt ? "Paid" : "Due"}</div>
       </td>
-      <td className="px-6 py-4">
-        <div className="flex items-center space-x-2">
-          <button
-            onClick={onView}
-            className="bg-slate-100 text-slate-700 p-2 rounded-lg hover:bg-slate-200 transition-colors font-gantari text-sm font-medium"
-          >
-            <Eye className="w-4 h-4" />
+      <td className="table-cell">
+        <div className="action-buttons">
+          <button onClick={onView} className="view-button" title="View Details">
+            <Eye className="view-button-icon" />
+            View
           </button>
           {onStatusUpdate && (
             <select
@@ -921,16 +1668,82 @@ const PaymentRow: React.FC<{
               onChange={(e) =>
                 onStatusUpdate(payment.id, e.target.value as Payment["status"])
               }
-              className="bg-white border border-slate-300 rounded-lg px-3 py-2 font-gantari text-sm text-slate-700 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500"
+              className="status-select"
             >
               <option value="pending">Pending</option>
+              <option value="processing">Processing</option>
               <option value="paid">Paid</option>
-              <option value="confirmed">Confirmed</option>
               <option value="overdue">Overdue</option>
+              <option value="failed">Failed</option>
             </select>
           )}
         </div>
       </td>
+      <style jsx>{`
+        .student-info {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        .student-name {
+          font-weight: 600;
+          color: #1f2937;
+          font-family: "Bebas Neue", sans-serif;
+          font-size: 1.1rem;
+        }
+
+        .student-id {
+          font-size: 0.875rem;
+          color: #6b7280;
+          font-family: monospace;
+        }
+
+        .student-program {
+          font-size: 0.875rem;
+          color: #3b82f6;
+        }
+
+        .payment-details {
+          display: flex;
+          flex-direction: column;
+          gap: 0.25rem;
+        }
+
+        .payment-description {
+          font-weight: 600;
+          color: #374151;
+        }
+
+        .payment-type {
+          font-size: 0.875rem;
+          color: #6b7280;
+          text-transform: capitalize;
+        }
+
+        .payment-reference {
+          font-size: 0.75rem;
+          color: #9ca3af;
+          font-family: monospace;
+        }
+
+        .payment-amount {
+          font-weight: 700;
+          color: #059669;
+          font-size: 1.1rem;
+        }
+
+        .payment-date {
+          font-weight: 500;
+          color: #374151;
+        }
+
+        .date-label {
+          font-size: 0.75rem;
+          color: #6b7280;
+          text-transform: uppercase;
+        }
+      `}</style>
     </tr>
   );
 };
@@ -938,11 +1751,7 @@ const PaymentRow: React.FC<{
 const PaymentDetailModal: React.FC<{
   payment: Payment;
   onClose: () => void;
-  onStatusUpdate?: (
-    id: string,
-    status: Payment["status"],
-    confirmedBy?: string
-  ) => void;
+  onStatusUpdate?: (id: string, status: Payment["status"]) => void;
   formatDate: (date: string) => string;
   formatCurrency: (amount: number) => string;
   canManage: boolean;
@@ -955,137 +1764,302 @@ const PaymentDetailModal: React.FC<{
   canManage,
 }) => {
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-      <div className="bg-white rounded-2xl max-w-md w-full animate-in fade-in-90 zoom-in-95">
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
-          <h3 className="font-bebas text-2xl text-slate-900">
-            Payment Details
-          </h3>
-          <button
-            onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100 transition-colors"
-          >
-            <X className="w-5 h-5" />
+    <div className="modal-overlay">
+      <div className="modal-content">
+        <div className="modal-header">
+          <h3 className="modal-title">Payment Details</h3>
+          <button onClick={onClose} className="close-button">
+            <X className="close-icon" />
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
-          {/* Student Info */}
-          <div className="bg-slate-50 rounded-xl p-4">
-            <h4 className="font-bebas text-lg text-slate-800 mb-3">
-              Student Information
-            </h4>
-            <div className="space-y-2">
-              <DetailRow
-                label="Name"
-                value={payment.studentName || "Unknown"}
+        <div className="modal-body">
+          {/* Student Information */}
+          <div className="info-section">
+            <h4 className="section-title">Student Information</h4>
+            <div className="info-grid">
+              <InfoField
+                label="Student Name"
+                value={payment.metadata?.studentName || "Unknown"}
               />
-              <DetailRow label="Student ID" value={payment.prospectiveId} />
-              <DetailRow
+              <InfoField
+                label="Student ID"
+                value={payment.metadata?.prospectiveId || "N/A"}
+              />
+              <InfoField
                 label="Program"
-                value={payment.program || "Not specified"}
+                value={payment.metadata?.program || "Not specified"}
               />
             </div>
           </div>
 
-          {/* Payment Info */}
-          <div className="bg-slate-50 rounded-xl p-4">
-            <h4 className="font-bebas text-lg text-slate-800 mb-3">
-              Payment Information
-            </h4>
-            <div className="space-y-2">
-              <DetailRow label="Description" value={payment.description} />
-              <DetailRow
+          {/* Payment Information */}
+          <div className="info-section">
+            <h4 className="section-title">Payment Information</h4>
+            <div className="info-grid">
+              <InfoField label="Description" value={payment.description} />
+              <InfoField
                 label="Amount"
                 value={formatCurrency(payment.amount)}
+                highlight
               />
-              <DetailRow
+              <InfoField
                 label="Type"
                 value={payment.type.replace("_", " ").toUpperCase()}
               />
-              <DetailRow label="Status" value={payment.status} highlight />
-              <DetailRow label="Due Date" value={formatDate(payment.dueDate)} />
+              <InfoField label="Status" value={payment.status} highlight />
+              <InfoField label="Due Date" value={formatDate(payment.dueDate)} />
               {payment.paidAt && (
-                <DetailRow
+                <InfoField
                   label="Paid Date"
                   value={formatDate(payment.paidAt)}
                 />
               )}
-              {payment.paymentMethod && (
-                <DetailRow
-                  label="Payment Method"
-                  value={payment.paymentMethod}
+              {payment.paystackReference && (
+                <InfoField
+                  label="Paystack Reference"
+                  value={payment.paystackReference}
                 />
-              )}
-              {payment.transactionId && (
-                <DetailRow
-                  label="Transaction ID"
-                  value={payment.transactionId}
-                />
-              )}
-              {payment.reference && (
-                <DetailRow label="Reference" value={payment.reference} />
               )}
             </div>
           </div>
 
-          {/* Confirmation Info */}
-          {payment.confirmedBy && (
-            <div className="bg-emerald-50 rounded-xl p-4">
-              <h4 className="font-bebas text-lg text-emerald-800 mb-3">
-                Confirmation
-              </h4>
-              <div className="space-y-2">
-                <DetailRow label="Confirmed By" value={payment.confirmedBy} />
-                {payment.confirmedAt && (
-                  <DetailRow
-                    label="Confirmed At"
-                    value={formatDate(payment.confirmedAt)}
-                  />
-                )}
-              </div>
-            </div>
-          )}
-
           {/* Action Buttons */}
           {canManage && onStatusUpdate && (
-            <div className="flex space-x-3 pt-4">
-              <button
-                onClick={() =>
-                  onStatusUpdate(payment.id, "confirmed", "Accounts Team")
-                }
-                className="flex-1 bg-emerald-600 text-white py-3 px-4 rounded-xl font-gantari font-semibold hover:bg-emerald-700 transition-colors flex items-center justify-center space-x-2"
-              >
-                <CheckCircle className="w-4 h-4" />
-                <span>Confirm Payment</span>
-              </button>
-              <button
-                onClick={() => onStatusUpdate(payment.id, "overdue")}
-                className="flex-1 bg-red-600 text-white py-3 px-4 rounded-xl font-gantari font-semibold hover:bg-red-700 transition-colors"
-              >
-                Mark Overdue
-              </button>
+            <div className="action-section">
+              <div className="action-buttons-grid">
+                <button
+                  onClick={() => onStatusUpdate(payment.id, "paid")}
+                  className="action-button confirm"
+                >
+                  <CheckCircle className="action-icon" />
+                  Mark as Paid
+                </button>
+                <button
+                  onClick={() => onStatusUpdate(payment.id, "processing")}
+                  className="action-button process"
+                >
+                  <Clock className="action-icon" />
+                  Mark Processing
+                </button>
+                <button
+                  onClick={() => onStatusUpdate(payment.id, "failed")}
+                  className="action-button reject"
+                >
+                  <XCircle className="action-icon" />
+                  Mark Failed
+                </button>
+              </div>
             </div>
           )}
         </div>
       </div>
+      <style jsx>{`
+        .modal-overlay {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background: rgba(0, 0, 0, 0.5);
+          backdrop-filter: blur(4px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: 1rem;
+        }
+
+        .modal-content {
+          background: white;
+          border-radius: 1rem;
+          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+          max-width: 600px;
+          width: 100%;
+          max-height: 90vh;
+          overflow-y: auto;
+          animation: modalSlideIn 0.3s ease-out;
+        }
+
+        @keyframes modalSlideIn {
+          from {
+            opacity: 0;
+            transform: scale(0.95) translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+          }
+        }
+
+        .modal-header {
+          padding: 1.5rem;
+          border-bottom: 1px solid #e5e7eb;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background: #f9fafb;
+          border-radius: 1rem 1rem 0 0;
+        }
+
+        .modal-title {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #1f2937;
+          font-family: "Bebas Neue", sans-serif;
+          margin: 0;
+        }
+
+        .close-button {
+          background: none;
+          border: none;
+          padding: 0.5rem;
+          border-radius: 0.5rem;
+          color: #6b7280;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .close-button:hover {
+          background: #f3f4f6;
+          color: #374151;
+        }
+
+        .close-icon {
+          width: 1.25rem;
+          height: 1.25rem;
+        }
+
+        .modal-body {
+          padding: 1.5rem;
+        }
+
+        .info-section {
+          margin-bottom: 2rem;
+        }
+
+        .section-title {
+          font-size: 1.125rem;
+          font-weight: 600;
+          color: #374151;
+          margin: 0 0 1rem 0;
+          font-family: "Bebas Neue", sans-serif;
+        }
+
+        .info-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 1rem;
+        }
+
+        .action-section {
+          margin-top: 2rem;
+          padding-top: 1.5rem;
+          border-top: 1px solid #e5e7eb;
+        }
+
+        .action-buttons-grid {
+          display: grid;
+          grid-template-columns: 1fr;
+          gap: 0.75rem;
+        }
+
+        .action-button {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 0.5rem;
+          padding: 0.875rem 1rem;
+          border: none;
+          border-radius: 0.75rem;
+          font-size: 0.875rem;
+          font-weight: 600;
+          font-family: "Inter", sans-serif;
+          cursor: pointer;
+          transition: all 0.2s;
+        }
+
+        .action-button.confirm {
+          background: #059669;
+          color: white;
+        }
+
+        .action-button.confirm:hover {
+          background: #047857;
+        }
+
+        .action-button.process {
+          background: #f59e0b;
+          color: white;
+        }
+
+        .action-button.process:hover {
+          background: #d97706;
+        }
+
+        .action-button.reject {
+          background: #dc2626;
+          color: white;
+        }
+
+        .action-button.reject:hover {
+          background: #b91c1c;
+        }
+
+        .action-icon {
+          width: 1rem;
+          height: 1rem;
+        }
+      `}</style>
     </div>
   );
 };
 
-const DetailRow: React.FC<{
+const InfoField: React.FC<{
   label: string;
   value: string;
   highlight?: boolean;
-}> = ({ label, value, highlight = false }) => (
-  <div className="flex justify-between items-center">
-    <span className="font-gantari text-slate-600 text-sm">{label}</span>
-    <span
-      className={`font-gantari font-medium ${highlight ? "text-emerald-600" : "text-slate-900"}`}
-    >
-      {value}
-    </span>
-  </div>
-);
+}> = ({ label, value, highlight = false }) => {
+  return (
+    <div className="info-field">
+      <label className="info-label">{label}</label>
+      <span className={`info-value ${highlight ? "highlight" : ""}`}>
+        {value}
+      </span>
+      <style jsx>{`
+        .info-field {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 0.75rem 0;
+          border-bottom: 1px solid #f3f4f6;
+        }
+
+        .info-field:last-child {
+          border-bottom: none;
+        }
+
+        .info-label {
+          font-size: 0.875rem;
+          font-weight: 500;
+          color: #6b7280;
+          font-family: "Inter", sans-serif;
+        }
+
+        .info-value {
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: #374151;
+          font-family: "Inter", sans-serif;
+        }
+
+        .info-value.highlight {
+          color: #059669;
+          font-size: 0.95rem;
+        }
+      `}</style>
+    </div>
+  );
+};
 
 export default StudentPayment;

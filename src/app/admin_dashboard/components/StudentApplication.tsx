@@ -206,8 +206,7 @@ const StudentApplication = () => {
               left: 0;
               right: 0;
               bottom: 0;
-              background: rgba(255, 255, 255, 0.95);
-              backdrop-filter: blur(8px);
+              background: #017840;
               display: flex;
               align-items: center;
               justify-content: center;
@@ -215,22 +214,24 @@ const StudentApplication = () => {
             }
 
             .modern-loader {
-              background: white;
+              background: rgba(255, 255, 255, 0.1);
               padding: 2.5rem;
               border-radius: 1.5rem;
+              border: 2px solid #bd9946;
               box-shadow:
-                0 20px 40px rgba(0, 0, 0, 0.1),
-                0 0 0 1px rgba(0, 0, 0, 0.05);
+                0 20px 40px rgba(0, 0, 0, 0.2),
+                0 0 0 1px rgba(189, 153, 70, 0.3);
               text-align: center;
               min-width: 320px;
               animation: fadeInUp 0.6s ease-out;
+              backdrop-filter: blur(12px);
             }
 
             .loader-spinner {
               width: 60px;
               height: 60px;
-              border: 4px solid #f3f4f6;
-              border-top: 4px solid #3b82f6;
+              border: 4px solid rgba(255, 255, 255, 0.2);
+              border-top: 4px solid #bd9946;
               border-radius: 50%;
               margin: 0 auto 1.5rem;
               animation: spin 1.2s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;
@@ -243,12 +244,12 @@ const StudentApplication = () => {
             .loading-title {
               font-size: 1.25rem;
               font-weight: 600;
-              color: #1f2937;
+              color: white;
               margin: 0 0 0.5rem 0;
             }
 
             .loading-subtitle {
-              color: #6b7280;
+              color: rgba(255, 255, 255, 0.9);
               font-size: 0.875rem;
               margin: 0;
             }
@@ -256,14 +257,14 @@ const StudentApplication = () => {
             .progress-bar {
               width: 100%;
               height: 4px;
-              background: #f3f4f6;
+              background: rgba(255, 255, 255, 0.2);
               border-radius: 2px;
               overflow: hidden;
             }
 
             .progress-fill {
               height: 100%;
-              background: linear-gradient(90deg, #3b82f6, #60a5fa);
+              background: linear-gradient(90deg, #bd9946, #d4af37);
               border-radius: 2px;
               animation: progressPulse 2s ease-in-out infinite;
             }
@@ -303,35 +304,26 @@ const StudentApplication = () => {
               }
             }
 
-            /* Dark mode support */
-            @media (prefers-color-scheme: dark) {
-              .loading-overlay {
-                background: rgba(255, 255, 255, 0.95);
-              }
-
-              .modern-loader {
-                background: #1f2937;
-                box-shadow:
-                  0 20px 40px rgba(0, 0, 0, 0.3),
-                  0 0 0 1px rgba(255, 255, 255, 0.1);
-              }
-
-              .loading-title {
-                color: #f9fafb;
-              }
-
-              .loading-subtitle {
-                color: #d1d5db;
-              }
-
-              .loader-spinner {
-                border-color: #374151;
-                border-top-color: #60a5fa;
-              }
-
-              .progress-bar {
-                background: #374151;
-              }
+            /* Optional: Add a subtle pattern or texture to the green background */
+            .loading-overlay::before {
+              content: "";
+              position: absolute;
+              top: 0;
+              left: 0;
+              right: 0;
+              bottom: 0;
+              background-image:
+                radial-gradient(
+                  circle at 25% 25%,
+                  rgba(189, 153, 70, 0.1) 0%,
+                  transparent 50%
+                ),
+                radial-gradient(
+                  circle at 75% 75%,
+                  rgba(189, 153, 70, 0.1) 0%,
+                  transparent 50%
+                );
+              pointer-events: none;
             }
           `}
         </style>
@@ -1579,8 +1571,8 @@ const StudentApplication = () => {
           padding: 2.5rem;
           border-radius: 1.5rem;
           box-shadow:
-            0 20px 40px rgba(0, 0, 0, 0.1),
-            0 0 0 1px rgba(0, 0, 0, 0.05);
+            0 20px 40px rgba(1, 120, 64, 0.1),
+            0 0 0 1px rgba(1, 120, 64, 0.05);
           text-align: center;
           min-width: 320px;
           animation: fadeInUp 0.6s ease-out;
@@ -1590,7 +1582,7 @@ const StudentApplication = () => {
           width: 60px;
           height: 60px;
           border: 4px solid #f3f4f6;
-          border-top: 4px solid #3b82f6;
+          border-top: 4px solid #bd9946;
           border-radius: 50%;
           margin: 0 auto 1.5rem;
           animation: spin 1.2s cubic-bezier(0.5, 0.1, 0.5, 0.9) infinite;

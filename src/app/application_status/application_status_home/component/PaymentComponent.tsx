@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface Payment {
   id: string;
@@ -12,11 +12,16 @@ interface Payment {
 interface PaymentData {
   status?: string;
   paymentType?: string;
+  reference?: string;
+  amount?: number;
+  paidAt?: string;
 }
 
 interface ApplicationPayments {
   application_fee?: {
     status: string;
+    reference?: string;
+    paidAt?: string;
   };
   [key: string]: PaymentData | undefined;
 }
@@ -46,14 +51,6 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     null
   );
   const APPLICATION_FEE = 2500000; // 25,000 Naira in kobo
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
 
   // Get consolidated payment status from application data
   const getConsolidatedPaymentStatus = () => {
@@ -87,9 +84,71 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
 
   const isApplicationFeePaid = getConsolidatedPaymentStatus() === "paid";
 
-  // Rest of the component remains the same...
-  // [The rest of your component code]
-  // Updated payment initialization with proper callback URL
+  useEffect(() => {
+    const checkPendingPayments = async () => {
+      // Check if we have a payment reference in URL (callback from Paystack)
+      const urlParams = new URLSearchParams(window.location.search);
+      const reference = urlParams.get("reference");
+      const txRef = urlParams.get("trxref");
+
+      const paymentReference = reference || txRef;
+
+      if (paymentReference && !isApplicationFeePaid) {
+        setProcessingPayment("VERIFYING");
+        try {
+          const response = await fetch("/api/payments/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              reference: paymentReference,
+              prospectiveId: prospectiveId,
+              email: userEmail,
+              amount: APPLICATION_FEE,
+            }),
+          });
+
+          const result = await response.json();
+          if (result.success) {
+            onPayment("APPLICATION_FEE");
+            alert("Payment verified successfully! Confirmation email sent.");
+
+            // Clean up URL parameters - remove only the payment references
+            const newUrl = new URL(window.location.href);
+            newUrl.searchParams.delete("reference");
+            newUrl.searchParams.delete("trxref");
+            window.history.replaceState({}, document.title, newUrl.toString());
+          } else {
+            console.error("Auto-verification failed:", result.message);
+            alert(`Verification failed: ${result.message}`);
+          }
+        } catch (error) {
+          console.error("Error during auto-verification:", error);
+          alert(
+            "Error during payment verification. Please try manual verification."
+          );
+        } finally {
+          setProcessingPayment(null);
+        }
+      }
+    };
+
+    checkPendingPayments();
+  }, [
+    prospectiveId,
+    userEmail,
+    onPayment,
+    isApplicationFeePaid,
+    APPLICATION_FEE,
+  ]);
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+    });
+  };
+
   const initializePayment = async () => {
     if (isApplicationFeePaid) {
       alert("Application fee has already been paid.");
@@ -99,10 +158,14 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     setProcessingPayment("APPLICATION_FEE");
 
     try {
-      // Store data for verification page
+      // Generate a unique reference for this payment
+      const paymentReference = `SAUNI${prospectiveId}_${Date.now()}`;
+
+      // Store data for verification
       localStorage.setItem("prospectiveId", prospectiveId);
       localStorage.setItem("userEmail", userEmail);
       localStorage.setItem("paymentAmount", APPLICATION_FEE.toString());
+      localStorage.setItem("paymentReference", paymentReference);
 
       const response = await fetch("/api/payments/initialize", {
         method: "POST",
@@ -112,13 +175,28 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
           amount: APPLICATION_FEE,
           prospectiveId: prospectiveId,
           paymentType: "application_fee",
-          callback_url: `${window.location.origin}/verify-payment`,
+          reference: paymentReference,
+          callback_url: `${window.location.origin}/api/verify-payment`,
         }),
       });
 
       const result = await response.json();
 
       if (result.success && result.authorizationUrl) {
+        // Create pending payment record in database
+        await fetch("/api/payments/create-pending", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            reference: paymentReference,
+            prospectiveId: prospectiveId,
+            email: userEmail,
+            amount: APPLICATION_FEE,
+            paymentType: "application_fee",
+            status: "pending",
+          }),
+        });
+
         // Redirect to Paystack checkout
         window.location.href = result.authorizationUrl;
       } else {
@@ -131,8 +209,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
       setProcessingPayment(null);
     }
   };
-
-  // Manual verification function (keep as backup)
+  // Manual verification function - now updates the same payment record
   const handleManualVerification = async () => {
     if (isApplicationFeePaid) {
       alert("Application fee has already been paid.");
@@ -143,7 +220,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
     if (reference) {
       setProcessingPayment("VERIFYING");
       try {
-        const response = await fetch("/api/verify-payment", {
+        const response = await fetch("/api/payments/verify", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -508,7 +585,7 @@ const PaymentSection: React.FC<PaymentSectionProps> = ({
         >
           {isApplicationFeePaid
             ? "Your application fee payment has been successfully processed. Thank you for completing your payment."
-            : "After payment, you will be redirected back to verify your payment status. If you encounter any issues, use the manual verification option above."}
+            : "After payment, you will be redirected back to this page to automatically verify your payment status. If you encounter any issues, use the manual verification option above."}
         </p>
       </div>
     </div>

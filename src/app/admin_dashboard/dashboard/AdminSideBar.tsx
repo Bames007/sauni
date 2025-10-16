@@ -39,7 +39,7 @@ export const ADMIN_MENUS = {
       component: "Applications",
     },
     {
-      label: "Financial Records",
+      label: "Application Payment",
       path: "/admin/finance",
       icon: <CreditCard size={20} />,
       component: "Finance",
@@ -91,7 +91,7 @@ export const ADMIN_MENUS = {
       component: "Dashboard",
     },
     {
-      label: "Financial Records",
+      label: "Application Payment",
       path: "/admin/finance",
       icon: <CreditCard size={20} />,
       component: "Finance",
@@ -123,7 +123,7 @@ export const ADMIN_MENUS = {
       component: "Applications",
     },
     {
-      label: "Financial Records",
+      label: "Application Payment",
       path: "/admin/finance",
       icon: <CreditCard size={20} />,
       component: "Finance",

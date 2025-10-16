@@ -97,11 +97,53 @@ const TransactionStatus: React.FC<TransactionStatusProps> = ({
 
   const copyToClipboard = async (text: string) => {
     try {
+      // Check if clipboard API is available
+      if (!navigator.clipboard) {
+        // Fallback for older browsers
+        fallbackCopyToClipboard(text);
+        return;
+      }
+
       await navigator.clipboard.writeText(text);
       setCopiedReference(text);
       setTimeout(() => setCopiedReference(null), 2000);
     } catch (err) {
       console.error("Failed to copy text: ", err);
+      // Try fallback method if modern API fails
+      fallbackCopyToClipboard(text);
+    }
+  };
+
+  const fallbackCopyToClipboard = (text: string) => {
+    try {
+      // Create a temporary textarea element
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+
+      // Make the textarea out of viewport
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+
+      // Focus and select the text
+      textArea.focus();
+      textArea.select();
+
+      // Execute copy command
+      const successful = document.execCommand("copy");
+      document.body.removeChild(textArea);
+
+      if (successful) {
+        setCopiedReference(text);
+        setTimeout(() => setCopiedReference(null), 2000);
+      } else {
+        throw new Error("Fallback copy method failed");
+      }
+    } catch (err) {
+      console.error("Fallback copy method failed: ", err);
+      // Last resort: show the text to user and ask them to copy manually
+      alert(`Please copy this reference number: ${text}`);
     }
   };
 
