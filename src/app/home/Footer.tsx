@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { MapPin, Phone, Mail, X } from "lucide-react";
+import { MapPin, Phone, Mail } from "lucide-react";
 import { Gantari, Bebas_Neue } from "next/font/google";
 import Image from "next/image";
 

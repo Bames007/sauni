@@ -191,40 +191,6 @@ const StudentPayment = ({ userRole = "accounts" }: { userRole?: UserRole }) => {
     return matchesSearch && matchesStatus && matchesProgram;
   });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "paid":
-        return "status-accepted";
-      case "processing":
-        return "status-under-review";
-      case "pending":
-        return "status-submitted";
-      case "overdue":
-        return "status-rejected";
-      case "failed":
-        return "status-rejected";
-      default:
-        return "status-default";
-    }
-  };
-
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "paid":
-        return <CheckCircle className="status-icon" />;
-      case "processing":
-        return <Clock className="status-icon" />;
-      case "pending":
-        return <FileText className="status-icon" />;
-      case "overdue":
-        return <AlertCircle className="status-icon" />;
-      case "failed":
-        return <XCircle className="status-icon" />;
-      default:
-        return <FileText className="status-icon" />;
-    }
-  };
-
   if (loading) {
     return (
       <div className="loading-overlay">
@@ -354,7 +320,7 @@ const StudentPayment = ({ userRole = "accounts" }: { userRole?: UserRole }) => {
           <Shield className="access-denied-icon" />
           <h1 className="access-denied-title">Access Denied</h1>
           <p className="access-denied-message">
-            You don't have permission to view payment information. Please
+            You don&apos;t have permission to view payment information. Please
             contact your administrator.
           </p>
         </div>
@@ -577,7 +543,9 @@ const StudentPayment = ({ userRole = "accounts" }: { userRole?: UserRole }) => {
                     {searchTerm && (
                       <div className="active-filter-tag">
                         <span className="filter-type">Search:</span>
-                        <span className="filter-value">"{searchTerm}"</span>
+                        <span className="filter-value">
+                          &quot;{searchTerm}&quot;
+                        </span>
                         <button
                           onClick={() => setSearchTerm("")}
                           aria-label="Remove search filter"
@@ -1437,7 +1405,7 @@ const StatCard: React.FC<{
   description: string;
   trend: { value: number; isPositive: boolean };
   total: number;
-}> = ({ title, value, icon, color, description, trend, total }) => {
+}> = ({ title, value, icon, color, description, trend }) => {
   return (
     <div className="stat-card">
       <div className="stat-header">

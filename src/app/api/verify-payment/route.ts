@@ -5,6 +5,47 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Define interfaces for our data structures
+interface PaymentData {
+  prospectiveId?: string;
+  email?: string;
+  amount?: number;
+  paymentType?: string;
+  status?: string;
+  createdAt?: string;
+  verifiedAt?: string;
+  [key: string]: unknown; // Allow for additional properties
+}
+
+interface PaystackVerificationResponse {
+  status: boolean;
+  message: string;
+  data?: {
+    status: string;
+    amount: number;
+    reference: string;
+    paid_at: string;
+    channel: string;
+    gateway_response: string;
+    currency: string;
+    fees: number;
+    customer?: {
+      email: string;
+      customer_code: string;
+    };
+    authorization?: Record<string, unknown>;
+    log?: Record<string, unknown>;
+  };
+}
+
+interface UpdateData {
+  status: string;
+  verifiedAt?: string;
+  lastVerificationAttempt?: string;
+  createdAt?: string;
+  [key: string]: unknown; // Allow for additional properties
+}
+
 export async function POST(request: NextRequest) {
   try {
     const { reference, prospectiveId, email, amount } = await request.json();
@@ -12,15 +53,16 @@ export async function POST(request: NextRequest) {
     const paymentRef = ref(db, `payments/${reference}`);
     const paymentSnapshot = await get(paymentRef);
 
-    let paymentData: any = {};
+    let paymentData: PaymentData = {};
 
     if (paymentSnapshot.exists()) {
-      paymentData = paymentSnapshot.val();
-      await update(paymentRef, {
+      paymentData = paymentSnapshot.val() as PaymentData;
+      const updateData: UpdateData = {
         status: "verifying",
         verifiedAt: new Date().toISOString(),
         lastVerificationAttempt: new Date().toISOString(),
-      });
+      };
+      await update(paymentRef, updateData);
     } else {
       paymentData = {
         prospectiveId,
@@ -56,7 +98,8 @@ export async function POST(request: NextRequest) {
       }
     );
 
-    const verificationData = await verifyResponse.json();
+    const verificationData: PaystackVerificationResponse =
+      await verifyResponse.json();
 
     if (!verificationData.status || !verificationData.data) {
       // Update payment record as failed verification
@@ -207,10 +250,12 @@ export async function POST(request: NextRequest) {
     }
   } catch (error) {
     console.error("Payment verification error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
     return NextResponse.json(
       {
         success: false,
-        message: "Internal server error during payment verification",
+        message: `Internal server error during payment verification: ${errorMessage}`,
       },
       { status: 500 }
     );

@@ -11,16 +11,16 @@ import Contact from "./Contact";
 import Header from "./Header";
 import ApplicationStatus from "./ApplicationStatus";
 import RecruitmentAD from "./recruitment/RecruitmentAD";
-import EmailTest from "./Test";
+// import EmailTest from "./Test";
 
 const HomePage = () => {
   return (
     <>
       <Header />
       <Hero />
-      <div className="min-h-screen bg-gray-100 py-12">
+      {/* <div className="min-h-screen bg-gray-100 py-12">
         <EmailTest />
-      </div>
+      </div> */}
       <About />
       <ApplicationStatus />
       <WhyChoose />

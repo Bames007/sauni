@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft,
@@ -36,6 +36,16 @@ interface MonthYear {
   year: number;
 }
 
+// Define filter type
+type FilterType = "all" | "academic" | "holiday" | "deadline" | "event";
+
+// Define filter item interface
+interface FilterItem {
+  key: FilterType;
+  label: string;
+  icon?: ReactNode;
+}
+
 const AcademicCalendar = () => {
   const [currentMonthYear, setCurrentMonthYear] = useState<MonthYear>({
     month: new Date().getMonth(),
@@ -43,9 +53,7 @@ const AcademicCalendar = () => {
   });
   const [selectedDate, setSelectedDate] = useState<Date | null>(new Date());
   const [view, setView] = useState<"month" | "list">("month");
-  const [filter, setFilter] = useState<
-    "all" | "academic" | "holiday" | "deadline" | "event"
-  >("all");
+  const [filter, setFilter] = useState<FilterType>("all");
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -218,7 +226,7 @@ const AcademicCalendar = () => {
   };
 
   // Get event type icon
-  const getEventTypeIcon = (type: string) => {
+  const getEventTypeIcon = (type: string): ReactNode => {
     switch (type) {
       case "academic":
         return <BookOpen className="w-3 h-3 sm:w-4 sm:h-4" />;
@@ -268,6 +276,31 @@ const AcademicCalendar = () => {
     month: "short",
     year: "numeric",
   });
+
+  // Define filter items with proper typing
+  const filterItems: FilterItem[] = [
+    { key: "all", label: "All Events" },
+    {
+      key: "academic",
+      label: "Academic",
+      icon: <BookOpen className="w-4 h-4" />,
+    },
+    {
+      key: "holiday",
+      label: "Holidays",
+      icon: <Calendar className="w-4 h-4" />,
+    },
+    {
+      key: "deadline",
+      label: "Deadlines",
+      icon: <Clock className="w-4 h-4" />,
+    },
+    {
+      key: "event",
+      label: "Events",
+      icon: <GraduationCap className="w-4 h-4" />,
+    },
+  ];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-emerald-50 py-4 px-3 sm:py-8 sm:px-4">
@@ -336,33 +369,11 @@ const AcademicCalendar = () => {
                 <div>
                   <h4 className="font-semibold text-slate-700 mb-3">Filter</h4>
                   <div className="space-y-2">
-                    {[
-                      { key: "all", label: "All Events" },
-                      {
-                        key: "academic",
-                        label: "Academic",
-                        icon: <BookOpen className="w-4 h-4" />,
-                      },
-                      {
-                        key: "holiday",
-                        label: "Holidays",
-                        icon: <Calendar className="w-4 h-4" />,
-                      },
-                      {
-                        key: "deadline",
-                        label: "Deadlines",
-                        icon: <Clock className="w-4 h-4" />,
-                      },
-                      {
-                        key: "event",
-                        label: "Events",
-                        icon: <GraduationCap className="w-4 h-4" />,
-                      },
-                    ].map((item) => (
+                    {filterItems.map((item) => (
                       <button
                         key={item.key}
                         onClick={() => {
-                          setFilter(item.key as any);
+                          setFilter(item.key);
                           setIsMobileMenuOpen(false);
                         }}
                         className={`w-full text-left px-4 py-3 rounded-xl transition-all duration-200 flex items-center gap-3 ${
@@ -489,33 +500,11 @@ const AcademicCalendar = () => {
                         className="absolute top-full right-0 mt-2 bg-white rounded-xl shadow-2xl border border-slate-200 p-3 min-w-[160px] z-10"
                       >
                         <div className="space-y-1">
-                          {[
-                            { key: "all", label: "All Events" },
-                            {
-                              key: "academic",
-                              label: "Academic",
-                              icon: <BookOpen className="w-3 h-3" />,
-                            },
-                            {
-                              key: "holiday",
-                              label: "Holidays",
-                              icon: <Calendar className="w-3 h-3" />,
-                            },
-                            {
-                              key: "deadline",
-                              label: "Deadlines",
-                              icon: <Clock className="w-3 h-3" />,
-                            },
-                            {
-                              key: "event",
-                              label: "Events",
-                              icon: <GraduationCap className="w-3 h-3" />,
-                            },
-                          ].map((item) => (
+                          {filterItems.map((item) => (
                             <button
                               key={item.key}
                               onClick={() => {
-                                setFilter(item.key as any);
+                                setFilter(item.key);
                                 setIsFilterOpen(false);
                               }}
                               className={`w-full text-left px-3 py-2 rounded-lg transition-all duration-200 flex items-center gap-2 text-sm ${

@@ -534,6 +534,13 @@ import { Resend } from "resend";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
+// Define error type for email sending failures
+interface EmailError {
+  message: string;
+  name?: string;
+  statusCode?: number;
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -828,13 +835,16 @@ export async function POST(request: NextRequest) {
         (result): result is PromiseRejectedResult =>
           result.status === "rejected"
       )
-      .map((result) => result.reason);
+      .map((result) => {
+        const error = result.reason as EmailError;
+        return error.message || "Unknown error occurred";
+      });
 
     if (errors.length > 0) {
       console.error("Email failed to send:", errors);
       return NextResponse.json(
         {
-          error: `Failed to send email: ${errors.map((e: any) => e.message).join(", ")}`,
+          error: `Failed to send email: ${errors.join(", ")}`,
         },
         { status: 500 }
       );
@@ -849,8 +859,10 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Email sending error:", error);
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error occurred";
     return NextResponse.json(
-      { error: "Failed to process email request" },
+      { error: `Failed to process email request: ${errorMessage}` },
       { status: 500 }
     );
   }
