@@ -233,7 +233,7 @@ export const programData: Program[] = [
           "Economics/Commerce/Government",
         ],
         jambScore: {
-          minimum: 140,
+          minimum: 150,
           competitive: 200,
           note: "Private universities may have lower cut-offs, but competitive scores for Accounting are typically higher due to demand.",
         },
@@ -529,7 +529,7 @@ export const programData: Program[] = [
           "Any of Commerce, Government, or Accounting",
         ],
         jambScore: {
-          minimum: 140,
+          minimum: 150,
           competitive: 180,
           note: "Business Administration may have a slightly lower competitive score compared to Accounting.",
         },
@@ -835,7 +835,7 @@ export const programData: Program[] = [
           "Any of History, Government, or Home Economics",
         ],
         jambScore: {
-          minimum: 140,
+          minimum: 150,
           competitive: 160,
           note: "Hospitality & Tourism Management may have a lower competitive score due to niche demand.",
         },
@@ -1135,7 +1135,7 @@ export const programData: Program[] = [
           "Any other Social Science subject",
         ],
         jambScore: {
-          minimum: 140,
+          minimum: 150,
           competitive: 180,
           note: "JAMB cut-off for Public Administration is typically moderate. Competitive scores may vary by institution.",
         },
@@ -1439,7 +1439,7 @@ export const programData: Program[] = [
           "Any other Social Science or Arts subject",
         ],
         jambScore: {
-          minimum: 140,
+          minimum: 150,
           competitive: 190,
           note: "Political Science may have a higher competitive score due to demand.",
         },
@@ -1727,7 +1727,7 @@ export const programData: Program[] = [
           "Any other Social Science or Science subject",
         ],
         jambScore: {
-          minimum: 140,
+          minimum: 150,
           competitive: 180,
           note: "JAMB cut-off for Criminology and Security Studies is typically moderate.",
         },
@@ -2015,7 +2015,7 @@ export const programData: Program[] = [
           "Mathematics or Biology",
         ],
         jambScore: {
-          minimum: 140,
+          minimum: 150,
           competitive: 200,
           note: "Petroleum Chemistry may require a higher competitive score due to its specialized nature.",
         },
@@ -2292,7 +2292,7 @@ export const programData: Program[] = [
           "Any other subject from Arts or Social Sciences",
         ],
         jambScore: {
-          minimum: 140,
+          minimum: 150,
           competitive: 180,
           note: "Top universities often have higher cut-offs. A good score in Government/History and English is crucial.",
         },
@@ -2578,7 +2578,7 @@ export const programData: Program[] = [
           "Any other Social Science or Arts subject",
         ],
         jambScore: {
-          minimum: 140,
+          minimum: 150,
           competitive: 190,
           note: "This is a highly competitive course. Top-tier universities require very high JAMB and Post-UTME scores.",
         },
@@ -2862,7 +2862,7 @@ export const programData: Program[] = [
           "Chemistry or Biology or Economics",
         ],
         jambScore: {
-          minimum: 140,
+          minimum: 150,
           competitive: 180,
           note: "Practical technical skills and programming knowledge are highly valued alongside the score.",
         },
@@ -3150,7 +3150,7 @@ export const programData: Program[] = [
           "Physics or Mathematics",
         ],
         jambScore: {
-          minimum: 140,
+          minimum: 150,
           competitive: 200,
           note: "This is a very competitive course in the sciences. Top universities require high JAMB and Post-UTME scores, especially in Biology and Chemistry.",
         },
@@ -3447,7 +3447,7 @@ export const programData: Program[] = [
           "Chemistry",
         ],
         jambScore: {
-          minimum: 140,
+          minimum: 150,
           competitive: 180,
           note: "Top-tier universities often require scores of 200 and above for this competitive course.",
         },
@@ -3756,7 +3756,7 @@ export const programData: Program[] = [
           "Chemistry, Economics, or Biology",
         ],
         jambScore: {
-          minimum: 140,
+          minimum: 150,
           competitive: 200,
           note: "Computer Science is highly competitive. Top universities (federal and state) often have cut-offs of 220 and above.",
         },
@@ -4057,7 +4057,7 @@ export const programData: Program[] = [
           "Chemistry, Economics, or Biology",
         ],
         jambScore: {
-          minimum: 140,
+          minimum: 150,
           competitive: 200,
           note: "As a specialized and in-demand field, competitive scores are very high, often mirroring or exceeding those of Computer Science.",
         },
@@ -4360,7 +4360,7 @@ export const programData: Program[] = [
           "Chemistry, Economics, Biology, or ICT",
         ],
         jambScore: {
-          minimum: 140,
+          minimum: 150,
           competitive: 190,
           note: "This is an emerging and high-demand field. Competitive scores are rising rapidly at universities that offer it.",
         },

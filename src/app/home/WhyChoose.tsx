@@ -44,8 +44,7 @@ const WhyChoose = () => {
       description: "Learn from industry experts and renowned academics",
       icon: <GraduationCap className="w-8 h-8 text-blue-600" />,
       video: "https://www.youtube.com/watch?v=EZEE1GwBF3U",
-      thumbnail:
-        "https://images.unsplash.com/photo-1577896851231-70ef18881754?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+      thumbnail: "/amenities/library.jpg",
       gradient: "from-blue-600 to-purple-600",
     },
     {
@@ -62,8 +61,7 @@ const WhyChoose = () => {
       description: "Dedicated career services to help you succeed",
       icon: <Users className="w-8 h-8 text-orange-600" />,
       video: "https://www.youtube.com/watch?v=EZEE1GwBF3U",
-      thumbnail:
-        "https://images.unsplash.com/photo-1552664730-d307ca884978?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&q=80",
+      thumbnail: "/amenities/one.jpg",
       gradient: "from-orange-600 to-red-600",
     },
     {
@@ -205,7 +203,7 @@ const WhyChoose = () => {
             <div className="bg-white rounded-2xl md:rounded-3xl shadow-xl md:shadow-2xl overflow-hidden transform transition-all duration-700 hover:shadow-2xl md:hover:shadow-3xl hover:-translate-y-1 md:hover:-translate-y-2 flex-1 flex flex-col">
               <div className="relative flex-1 overflow-hidden min-h-[250px] md:min-h-[300px]">
                 <Image
-                  src="https://images.unsplash.com/photo-1543269865-cbf427effbad?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&q=80"
+                  src="/amenities/aerial_two.jpg"
                   alt="Campus Life"
                   fill
                   sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"

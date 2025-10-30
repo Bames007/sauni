@@ -288,7 +288,7 @@ const Footer = () => {
 
       {/* Copyright Bar */}
       <motion.div
-        className="border-t border-gray-800 py-6 bg-gray-800"
+        className="border-t border-gray-400 py-6"
         initial={{ opacity: 0 }}
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.5 }}
